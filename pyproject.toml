@@ -12,12 +12,8 @@ dependencies = [
     "jq",
 ]
 license = {file = "LICENSE"}
-authors = [
-    {name = "YOUR-NAME", email = "YOUR-EMAIL"},
-]
-maintainers = [
-    {name = "YOUR-NAME", email = "YOUR-EMAIL"},
-]
+authors = [{name = "Thomas G. Close", email = "tom.g.close@gmail.com"}]
+maintainers = [{name = "Thomas G. Close", email = "tom.g.close@gmail.com"}]
 keywords = [
     "file formats",
     "data",
@@ -49,6 +45,7 @@ dev = [
 ]
 test = [
     "pytest >=6.2.5",
+    "medimages4tests >=0.3.3",
 ]
 
 converters = [
