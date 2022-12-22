@@ -9,7 +9,7 @@ readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
     "fileformats-core",
-    "jq",
+    "jq>=1.2.2",
 ]
 license = {file = "LICENSE"}
 authors = [{name = "Thomas G. Close", email = "tom.g.close@gmail.com"}]
