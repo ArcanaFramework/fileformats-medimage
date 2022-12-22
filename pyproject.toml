@@ -3,7 +3,7 @@ requires = ["flit_scm"]
 build-backend = "flit_scm:buildapi"
 
 [project]
-name = "fileformats-TODO"
+name = "fileformats-medimage"
 description = "Classes for representing different file formats in Python classes for use in type hinting in data workflows"
 readme = "README.rst"
 requires-python = ">=3.8"
@@ -55,21 +55,21 @@ converters = [
 ]
 
 [project.urls]
-repository = "https://github.com/ArcanaFramework/fileformats-TODO"
+repository = "https://github.com/ArcanaFramework/fileformats-medimage"
 
 
 [tool.flit.module]
-name = "fileformats.TODO"
+name = "fileformats.medimage"
 
 [tool.flit.sdist]
 exclude = [".gitignore"]
 
 [tool.setuptools_scm]
-write_to = "fileformats/TODO/_version.py"
+write_to = "fileformats/medimage/_version.py"
 
 [tool.black]
 target-version = ['py38']
-exclude = "fileformats/TODO/_version.py"
+exclude = "fileformats/medimage/_version.py"
 
 [tool.codespell]
 ignore-words = ".codespell-ignorewords"
