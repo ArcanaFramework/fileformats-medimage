@@ -1,7 +1,8 @@
 import os
 import logging
+import tempfile
+from pathlib import Path
 import pytest
-import medimages4tests
 from fileformats.medimage.dicom import Dicom
 
 # Set DEBUG logging for unittests
@@ -69,7 +70,6 @@ if os.getenv("_PYTEST_RAISE", "0") != "0":
     @pytest.hookimpl(tryfirst=True)
     def pytest_internalerror(excinfo):
         raise excinfo.value
-
 
 
 @pytest.fixture
