@@ -55,7 +55,7 @@ jobs:
     - name: Update build tools
       run: python -m pip install --upgrade pip flit_scm
 
-    - name: Install Arcana
+    - name: Install Package
       run: python -m pip install .[test]
 
     - name: Pytest

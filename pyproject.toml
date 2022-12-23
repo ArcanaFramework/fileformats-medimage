@@ -51,7 +51,7 @@ dev = [
 ]
 test = [
     "pytest >=6.2.5",
-    "medimages4tests >=0.3.3",
+    "medimages4tests >=0.3",
 ]
 
 converters = [
