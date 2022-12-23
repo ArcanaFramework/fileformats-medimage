@@ -2,7 +2,7 @@ import os
 import os.path as op
 import pydicom
 import numpy as np
-from fileformats.core import File, Directory
+from fileformats.common import File, Directory
 from .base import MedicalImage
 
 # =====================================================================

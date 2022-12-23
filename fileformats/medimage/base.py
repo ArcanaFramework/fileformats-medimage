@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 import numpy as np
-from fileformats.core import File
+from fileformats.common import File
 
 
 # =====================================================================

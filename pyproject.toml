@@ -8,8 +8,14 @@ description = "Classes for representing different file formats in Python classes
 readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
-    "fileformats-core",
     "jq>=1.2.2",
+    "numpy>=1.22.3",
+    "fileformats-core >=0.1",
+    "fileformats-common >=0.1.1",
+    "nibabel >=4.0.2",
+    "pydicom >=2.3.0",
+    "pydra-dcm2niix >=1.2.0",
+    "pydra-mrtrix3 >=0.2",
 ]
 license = {file = "LICENSE"}
 authors = [{name = "Thomas G. Close", email = "tom.g.close@gmail.com"}]

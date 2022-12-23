@@ -7,9 +7,9 @@ import nibabel
 from pydra import Workflow, mark
 from pydra.tasks.dcm2niix import Dcm2Niix
 from pydra.tasks.mrtrix3.utils import MRConvert
-from arcana.core.mark import converter
-from arcana.core.data.type.file import WithSideCars
-from arcana.dirtree.data import File
+from fileformats.core.mark import converter
+from fileformats.core.file import WithSideCars
+from fileformats.common import File
 from .base import MedicalImage
 from .dicom import Dicom
 

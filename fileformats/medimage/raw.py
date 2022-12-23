@@ -1,5 +1,5 @@
-from arcana.core.mark import converter
-from fileformats.core import File
+from fileformats.core.mark import converter
+from fileformats.common import File
 
 
 class ListMode(File):
