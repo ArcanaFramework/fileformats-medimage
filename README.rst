@@ -9,7 +9,7 @@ FileFormats Extension - medimage
 ..   :alt: Documentation Status
 
 This is a template for an extension module to the
-[fileformats](https://github.com/ArcanaFramework/fileformats-core) package.
+`fileformats <https://github.com/ArcanaFramework/fileformats-core>`__ package.
 
 
 Quick Installation
