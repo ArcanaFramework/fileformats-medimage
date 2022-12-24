@@ -55,6 +55,7 @@ test = [
     "pytest-cov>=2.12.1",
     "codecov",
     "medimages4tests >=0.3",
+    "arcana-core >=0.8.2",
 ]
 
 converters = [
