@@ -1,5 +1,5 @@
-FileFormats Extension - medimage
-============================
+FileFormats Extension - Medimage
+================================
 .. image:: https://github.com/ArcanaFramework/fileformats-medimage/actions/workflows/tests.yml/badge.svg
    :target: https://github.com/ArcanaFramework/fileformats-medimage/actions/workflows/tests.yml
 .. image:: https://codecov.io/gh/ArcanaFramework/fileformats-medimage/branch/main/graph/badge.svg?token=UIS0OGPST7
@@ -9,7 +9,9 @@ FileFormats Extension - medimage
 ..   :alt: Documentation Status
 
 This is a template for an extension module to the
-`fileformats <https://github.com/ArcanaFramework/fileformats-core>`__ package.
+`fileformats <https://github.com/ArcanaFramework/fileformats-core>`__ package that adds
+support for commonly used medical imaging formats, such as DICOM, NIfTI, and MRtrix
+Image Format.
 
 
 Quick Installation
