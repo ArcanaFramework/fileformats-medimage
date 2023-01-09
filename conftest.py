@@ -25,7 +25,7 @@ def dummy_t1w_dicom():
 
     dicom_dir = module.get_image()
     dcm = Dicom("t1w")
-    dcm.set_fs_paths([dicom_dir])
+    dcm.set_fspaths([dicom_dir])
     return dcm
 
 
@@ -35,7 +35,7 @@ def dummy_magfmap_dicom():
 
     dicom_dir = module.get_image()
     dcm = Dicom("magfmap")
-    dcm.set_fs_paths([dicom_dir])
+    dcm.set_fspaths([dicom_dir])
     return dcm
 
 
@@ -45,7 +45,7 @@ def dummy_dwi_dicom():
 
     dicom_dir = module.get_image()
     dcm = Dicom("dwi")
-    dcm.set_fs_paths([dicom_dir])
+    dcm.set_fspaths([dicom_dir])
     return dcm
 
 
@@ -55,7 +55,7 @@ def dummy_mixedfmap_dicom():
 
     dicom_dir = module.get_image()
     dcm = Dicom("mixedfmap")
-    dcm.set_fs_paths([dicom_dir])
+    dcm.set_fspaths([dicom_dir])
     return dcm
 
 

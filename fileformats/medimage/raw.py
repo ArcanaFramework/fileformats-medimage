@@ -55,7 +55,7 @@ class CustomKspace(Kspace):
 
     @classmethod
     @converter
-    def from_twix(cls, fs_path):
+    def from_twix(cls, fspath):
         # input = 'in_file'
         # output = 'out_file'
         # output_side_cars = {'ref': 'ref_file', 'json': 'hdr_file'}

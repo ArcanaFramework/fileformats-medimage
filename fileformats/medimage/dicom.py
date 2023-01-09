@@ -80,7 +80,7 @@ class Dicom(Directory, MedicalImage):
             return [dcm[t].value for t in tags]
 
         try:
-            if self.fs_path:
+            if self.fspath:
                 # Get the DICOM object for the first file in the self
                 dct = read_header()
             else:
