@@ -65,7 +65,7 @@ class Dicom(Directory, MedicalImage):
         Parameters
         ----------
         fileset : FileSet
-            The file group to extract the DICOM header for
+            The file set to extract the DICOM header for
         tags : List[Tuple[str, str]]
             List of DICOM tag values as 2-tuple of strings, e.g.
             [('0080', '0020')]
