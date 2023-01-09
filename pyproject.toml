@@ -10,8 +10,8 @@ requires-python = ">=3.8"
 dependencies = [
     "jq>=1.2.2",
     "numpy>=1.22.3",
-    "fileformats-core >=0.1",
-    "fileformats-common >=0.1.1",
+    "fileformats_core @ git+https://github.com/ArcanaFramework/fileformats-core@develop",  # fileformats-core >=0.1",
+    "fileformats_common @ git+https://github.com/ArcanaFramework/fileformats-common@develop",  # "fileformats-common >= 0.1.1",
     "nibabel >=4.0.2",
     "pydicom >=2.3.0",
     "pydra-dcm2niix >=1.2.0",
