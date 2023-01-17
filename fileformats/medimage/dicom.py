@@ -32,26 +32,27 @@ class Dicom(Directory, MedicalImage):
     def dcm_files(self):
         return [f for f in os.listdir(self.path) if f.endswith(".dcm")]
 
-    def get_array(self):
+    @property
+    def data_array(self):
         image_stack = []
         for fname in self.dcm_files(self):
             image_stack.append(pydicom.dcmread(op.join(self.path, fname)).pixel_array)
         return np.asarray(image_stack)
 
-    def get_header(self, index=0):
+    def load_metadata(self, index=0):
         dcm_files = [f for f in os.listdir(self.path) if f.endswith(".dcm")]
         # TODO: Probably should collate fields that vary across the set of
         #       files in the set into lists
         return pydicom.dcmread(op.join(self.path, dcm_files[index]))
 
-    def get_vox_sizes(self):
-        hdr = self.get_header()
-        return np.array(hdr.PixelSpacing + [hdr.SliceThickness])
+    @property
+    def vox_sizes(self):
+        return np.array(self.metadata["PixelSpacing"] + [self.metadata["SliceThickness"]])
 
-    def get_dims(self):
-        hdr = self.get_header()
+    @property
+    def dims(self):
         return np.array(
-            (hdr.Rows, hdr.DataColumns, len(self.dcm_files(self))), datatype=int
+            (self.metadata["Rows"], self.metadata["DataColumns"], len(self.dcm_files(self))), datatype=int
         )
 
     def extract_id(self):

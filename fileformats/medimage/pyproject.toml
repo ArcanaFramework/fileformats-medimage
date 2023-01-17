@@ -1,22 +1,24 @@
 [build-system]
-requires = ["flit_scm"]
-build-backend = "flit_scm:buildapi"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [project]
 name = "fileformats-medimage"
-description = "Classes for representing different file formats in Python classes for use in type hinting in data workflows"
-readme = "README.rst"
+description = "Classes for representing various medical imaging file formats in Python classes for use in type hinting in data workflows"
+readme = "../../README.rst"
 requires-python = ">=3.8"
 dependencies = [
-    "jq>=1.2.2",
-    "numpy>=1.22.3",
-    "nibabel >=4.0.2",
-    "pydicom >=2.3.0",
-    "fileformats_core @ git+https://github.com/ArcanaFramework/fileformats-core@develop",
+    "attrs>=22.1.0",
+    "fileformats-core",
+    "fileformats-archive",
 ]
-license = {file = "LICENSE"}
-authors = [{name = "Thomas G. Close", email = "tom.g.close@gmail.com"}]
-maintainers = [{name = "Thomas G. Close", email = "tom.g.close@gmail.com"}]
+license = {file = "../../LICENSE"}
+authors = [
+    {name = "Thomas G. Close", email = "tom.g.close@gmail.com"},
+]
+maintainers = [
+    {name = "Thomas G. Close", email = "tom.g.close@gmail.com"},
+]
 keywords = [
     "file formats",
     "data",
@@ -50,33 +52,31 @@ test = [
     "pytest-env>=0.6.2",
     "pytest-cov>=2.12.1",
     "codecov",
-    "medimages4tests >=0.3",
-    "arcana-core >=0.8.2",
 ]
 
 converters = [
     "pydra >= 0.20.0",
-    "pydra-dcm2niix >=1.2.0",
-    "pydra-mrtrix3 >=0.2",
-
 ]
 
 [project.urls]
-repository = "https://github.com/ArcanaFramework/fileformats-medimage"
+repository = "https://github.com/ArcanaFramework/fileformats"
 
 
-[tool.flit.module]
-name = "fileformats.medimage"
+[tool.hatch.version]
+source = "vcs"
+raw-options = { root = "../.." }
 
-[tool.flit.sdist]
-exclude = [".gitignore"]
+[tool.hatch.build.hooks.vcs]
+version-file = "_version.py"
 
-[tool.setuptools_scm]
-write_to = "fileformats/medimage/_version.py"
+[tool.hatch.build.targets.wheel]
+packages = ["fileformats"]
+include-only = ["fileformats/medimage"]
+
 
 [tool.black]
 target-version = ['py38']
-exclude = "fileformats/medimage/_version.py"
+exclude = "_version.py"
 
 [tool.codespell]
 ignore-words = ".codespell-ignorewords"
@@ -88,4 +88,4 @@ per-file-ignores = [
 ]
 max-line-length = 88
 select = "C,E,F,W,B,B950"
-extend-ignore = ['E203', 'E501', 'E129']
+extend-ignore = ['E203', 'E501', 'E129', 'W503']

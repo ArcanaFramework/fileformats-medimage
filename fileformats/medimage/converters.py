@@ -9,7 +9,7 @@ from pydra.tasks.dcm2niix import Dcm2Niix
 from fileformats.core import mark
 from fileformats.medimage.base import MedicalImage
 from fileformats.medimage.dicom import Dicom
-from fileformats.medimage.neuro import Analyze, NeuroImage, Nifti, Nifti_Gzip, MrtrixImage
+from fileformats.medimage import Analyze, NeuroImage, Nifti, Nifti_Gzip, MrtrixImage
 
 
 @mark.converter(target_format=Analyze, out_file="out", out_ext=".img")

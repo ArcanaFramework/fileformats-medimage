@@ -1,5 +1,6 @@
 import numpy as np
 from fileformats.core import FileSet, File, mark
+from .misc import BaseNifti, NiftiX_Gzip, Nifti_Gzip, Nifti, NiftiX
 
 
 class DwiEncoding(FileSet):
@@ -71,8 +72,31 @@ class Mrtrixgrad(File, DwiEncoding):
         return self.array[:, 3]
 
 
-# Track files
+# NIfTI file format gzipped with BIDS side car
+class WithFslgrad(BaseNifti, Fslgrad):
+    @mark.required
+    @property
+    def grads(self):
+        return Fslgrad(self.fspaths)
 
+
+class Nifti_Fslgrad(Nifti, WithFslgrad):
+    iana = "application/x-nifti+fslgrad"
+
+
+class Nifti_Gzip_Fslgrad(Nifti_Gzip, WithFslgrad):
+    iana = "application/x-nifti+gzip.fslgrad"
+
+
+class Nifti_Bids_Fslgrad(NiftiX, WithFslgrad):
+    iana = "application/x-nifti+bids.fslgrad"
+
+
+class Nifti_Gzip_Bids_Fslgrad(NiftiX_Gzip, WithFslgrad):
+    iana = "application/x-nifti+gzip.bids.fslgrad"
+
+
+# Track files
 
 class MrtrixTrack(File):
 
