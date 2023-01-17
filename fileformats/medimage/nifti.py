@@ -2,7 +2,7 @@ import nibabel
 from fileformats.core.mixin import WithSideCar
 from fileformats.text import Json
 from fileformats.archive import Gzip
-from .misc import NeuroImage
+from .base import NeuroImage
 
 
 class BaseNifti(NeuroImage):

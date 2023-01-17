@@ -106,7 +106,3 @@ class MedicalImage(File):
 
 class NeuroImage(MedicalImage):
     """Imaging formats developed for neuroimaging scans"""
-
-
-try:
-    from converters

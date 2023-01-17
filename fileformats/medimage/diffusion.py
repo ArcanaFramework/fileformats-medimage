@@ -1,6 +1,6 @@
 import numpy as np
 from fileformats.core import FileSet, File, mark
-from .misc import BaseNifti, NiftiX_Gzip, Nifti_Gzip, Nifti, NiftiX
+from .nifti import BaseNifti, Nifti_Gzip_Bids, Nifti_Gzip, Nifti, Nifti_Bids
 
 
 class DwiEncoding(FileSet):
@@ -88,11 +88,11 @@ class Nifti_Gzip_Fslgrad(Nifti_Gzip, WithFslgrad):
     iana = "application/x-nifti+gzip.fslgrad"
 
 
-class Nifti_Bids_Fslgrad(NiftiX, WithFslgrad):
+class Nifti_Bids_Fslgrad(Nifti_Bids, WithFslgrad):
     iana = "application/x-nifti+bids.fslgrad"
 
 
-class Nifti_Gzip_Bids_Fslgrad(NiftiX_Gzip, WithFslgrad):
+class Nifti_Gzip_Bids_Fslgrad(Nifti_Gzip_Bids, WithFslgrad):
     iana = "application/x-nifti+gzip.bids.fslgrad"
 
 

@@ -8,7 +8,8 @@ description = "Classes for representing various medical imaging file formats in 
 readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
-    "attrs>=22.1.0",
+    "attrs >=22.1.0",
+    "jq >=1.4.0",
     "fileformats-core",
     "fileformats-archive",
 ]

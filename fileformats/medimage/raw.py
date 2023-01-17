@@ -1,15 +1,15 @@
-from fileformats.core.mark import converter
-from fileformats.common import File
+from fileformats.core import File
 
 
 class ListMode(File):
 
     ext = ".bf"
+    binary = True
 
 
 class Kspace(File):
 
-    pass
+    binary = True
 
 
 class TwixVb(Kspace):
@@ -53,18 +53,9 @@ class CustomKspace(Kspace):
     ext = ".ks"
     side_cars = ("ref", "json")
 
-    @classmethod
-    @converter
-    def from_twix(cls, fspath):
-        # input = 'in_file'
-        # output = 'out_file'
-        # output_side_cars = {'ref': 'ref_file', 'json': 'hdr_file'}
-        # requirements = [matlab_req.v('R2018a')]
-        # interface = TwixReader()
-        raise NotImplementedError
-
 
 class Rda(File):
     """MRS format"""
 
     ext = ".rda"
+    binary = True

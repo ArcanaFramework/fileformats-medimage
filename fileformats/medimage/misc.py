@@ -1,10 +1,6 @@
-import numpy as np
-from fileformats.core import File, FileSet, mark
+from fileformats.core import File
 from fileformats.core.mixin import WithSeparateHeader
-from fileformats.text import Json
-from fileformats.archive import Gzip
-from .base import MedicalImage
-from .diffusion import Fslgrad
+from .base import NeuroImage
 
 
 # ==================
