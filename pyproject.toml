@@ -5,14 +5,14 @@ build-backend = "hatchling.build"
 [project]
 name = "fileformats-medimage"
 description = "Classes for representing various medical imaging file formats in Python classes for use in type hinting in data workflows"
-readme = "../../README.rst"
+readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
     "attrs>=22.1.0",
     "fileformats-core",
     "fileformats-archive",
 ]
-license = {file = "../../LICENSE"}
+license = {file = "LICENSE"}
 authors = [
     {name = "Thomas G. Close", email = "tom.g.close@gmail.com"},
 ]
@@ -59,24 +59,23 @@ converters = [
 ]
 
 [project.urls]
-repository = "https://github.com/ArcanaFramework/fileformats"
+repository = "https://github.com/ArcanaFramework/fileformats-medimage"
 
 
 [tool.hatch.version]
 source = "vcs"
-raw-options = { root = "../.." }
 
 [tool.hatch.build.hooks.vcs]
-version-file = "_version.py"
+version-file = "fileformats/medimage/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["fileformats"]
-include-only = ["fileformats/medimage"]
+# only-include = ["fileformats/medimage"]
 
 
 [tool.black]
 target-version = ['py38']
-exclude = "_version.py"
+exclude = "fileformats/medimage/_version.py"
 
 [tool.codespell]
 ignore-words = ".codespell-ignorewords"
