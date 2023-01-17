@@ -1,34 +1,18 @@
-from pathlib import Path
-import jq
-import attrs
-import json
 import numpy as np
 import nibabel
-from pydra import Workflow, mark
-from pydra.tasks.dcm2niix import Dcm2Niix
-from pydra.tasks.mrtrix3.utils import MRConvert
-from fileformats.core.mark import converter
-from fileformats.core.file import WithSideCars
-from fileformats.common import File
+from fileformats.core import File, FileSet, mark
+from fileformats.core.mixin import WithSideCar
+from fileformats.text import Json
+from fileformats.archive import Gzip
 from .base import MedicalImage
-from .dicom import Dicom
+from .diffusion import Fslgrad
 
 
 class NeuroImage(MedicalImage):
     """Imaging formats developed for neuroimaging scans"""
 
-    @classmethod
-    @converter(MedicalImage)
-    def mrconvert(cls, fspath):
-        node = MRConvert(in_file=fspath, out_file="out." + cls.ext)
-        return node, node.lzout.out_file
 
-
-class Nifti(NeuroImage):
-
-    ext = "nii"
-    alternative_names = ("NIFTI",)
-
+class BaseNifti(NeuroImage):
     def get_header(self):
         return dict(nibabel.load(self.fspath).header)
 
@@ -43,174 +27,59 @@ class Nifti(NeuroImage):
         # FIXME: This won't work for 4-D files
         return self.get_header()["dim"][1:4]
 
-    @classmethod
-    @converter(Dicom)
-    def dcm2niix(
-        cls,
-        fspath,
-        extract_volume=None,
-        file_postfix=attrs.NOTHING,
-        side_car_jq=None,
-        to_4d=False,
-    ):
-        as_workflow = extract_volume is not None or side_car_jq is not None or to_4d
 
-        if extract_volume is not None and to_4d:
-            raise ValueError(
-                f"'extract_volume' ({extract_volume}) and 'to_4d' are mutually exclusive"
-            )
+class WithBids(WithSideCar):
 
-        in_dir = fspath
-        compress = "n"
-        if as_workflow:
-            wf = Workflow(
-                name="multistep_conv",
-                input_spec=["in_dir", "compress"],
-                in_dir=in_dir,
-                compress=compress,
-            )
-            in_dir = wf.lzin.in_dir
-            compress = wf.lzin.compress
-        node = Dcm2Niix(
-            in_dir=in_dir,
-            out_dir=".",
-            name="dcm2niix",
-            compress=compress,
-            file_postfix=file_postfix,
-        )
-        if as_workflow:
-            wf.add(node)
-            out_file = wf.dcm2niix.lzout.out_file
-            out_json = wf.dcm2niix.lzout.out_json
-            if extract_volume is not None or to_4d:
-                if extract_volume:
-                    coord = [3, extract_volume]
-                    axes = [0, 1, 2]
-                else:  # to_4d
-                    coord = attrs.NOTHING
-                    axes = [0, 1, 2, -1]
-                wf.add(
-                    MRConvert(
-                        in_file=out_file,
-                        coord=coord,
-                        axes=axes,
-                        name="mrconvert",
-                    )
-                )
-                out_file = wf.mrconvert.lzout.out_file
-
-            if side_car_jq is not None:
-                wf.add(
-                    edit_side_car(
-                        in_file=out_json, jq_expr=side_car_jq, name="json_edit"
-                    )
-                )
-                out_json = wf.json_edit.lzout.out
-            wf.set_output(("out_file", out_file))
-            wf.set_output(("out_json", out_json))
-            wf.set_output(("out_bvec", wf.dcm2niix.lzout.out_bvec))
-            wf.set_output(("out_bval", wf.dcm2niix.lzout.out_bval))
-            out = wf, wf.lzout.out_file
-        else:
-            out = node, node.lzout.out_file
-        return out
+    side_car_type = Json
 
 
-@mark.task
-def edit_side_car(in_file: Path, jq_expr: str, out_file=None) -> Path:
-    """ "Applies ad-hoc edit of JSON side car with JQ query language"""
-    if out_file is None:
-        out_file = in_file
-    with open(in_file) as f:
-        dct = json.load(f)
-    dct = jq.compile(jq_expr).input(dct).first()
-    with open(out_file, "w") as f:
-        json.dump(dct, f)
-    return in_file
+class Nifti(BaseNifti):
+
+    ext = ".nii"
+    iana = "application/x-nifti"
 
 
-class NiftiGz(Nifti):
+class Nifti_Gzip(BaseNifti, Gzip):
 
-    ext = "nii.gz"
-
-    @classmethod
-    @converter(Dicom)
-    def dcm2niix(cls, fspath, **kwargs):
-        node, out_file = Nifti.dcm2niix(fspath, **kwargs)
-        node.inputs.compress = "y"
-        return node, out_file
+    ext = ".nii.gz"
+    iana = "application/x-nifti+gzip"
 
 
-class NiftiX(WithSideCars, Nifti):
-
-    side_car_exts = ("json",)
-
-    def get_header(self):
-        hdr = super().get_header()
-        with open(self.side_car("json")) as f:
-            hdr.update(json.load(f))
-        return hdr
-
-    @classmethod
-    @converter(Dicom)
-    def dcm2niix(cls, fspath, **kwargs):
-        node, out_file = Nifti.dcm2niix(fspath, **kwargs)
-        return node, (out_file, node.lzout.out_json)
-
-    mrconvert = None  # Only dcm2niix produces the required JSON side car
+class NiftiX(WithBids, Nifti):
+    iana = "application/x-nifti+bids"
 
 
-class NiftiGzX(NiftiX, NiftiGz):
-    @classmethod
-    @converter(Dicom)
-    def dcm2niix(cls, fspath, **kwargs):
-        node, out_files = NiftiX.dcm2niix(fspath, **kwargs)
-        node.inputs.compress = "y"
-        return node, out_files
+class NiftiX_Gzip(WithBids, Nifti_Gzip):
+    iana = "application/x-nifti+bids.gzip"
 
 
 # NIfTI file format gzipped with BIDS side car
-class NiftiFslgrad(WithSideCars, Nifti):
-
-    side_car_exts = ("bvec", "bval")
-
-    @classmethod
-    @converter(Dicom)
-    def dcm2niix(cls, fspath, **kwargs):
-        node, out_file = Nifti.dcm2niix(fspath, **kwargs)
-        return node, (out_file, node.lzout.out_bvec, node.lzout.out_bval)
-
-    mrconvert = None  # Technically mrconvert can export fsl grads but dcm2niix will be sufficient 99% of the time
+class WithFslgrad(BaseNifti, Fslgrad):
+    @mark.required
+    @property
+    def grads(self):
+        return Fslgrad(self.fspaths)
 
 
-class NiftiGzFslgrad(NiftiFslgrad, NiftiGz):
-
-    pass
-
-
-class NiftiXFslgrad(NiftiX, NiftiFslgrad):
-
-    side_car_exts = NiftiX.side_car_exts + NiftiFslgrad.side_car_exts
-
-    @classmethod
-    @converter(Dicom)
-    def dcm2niix(cls, fspath, **kwargs):
-        node, out_file = NiftiX.dcm2niix(fspath, **kwargs)
-        return node, out_file + (node.lzout.out_bvec, node.lzout.out_bval)
+class Nifti_Fslgrad(Nifti, WithFslgrad):
+    iana = "application/x-nifti+fslgrad"
 
 
-class NiftiGzXFslgrad(NiftiXFslgrad, NiftiGz):
-    @classmethod
-    @converter(Dicom)
-    def dcm2niix(cls, fspath, **kwargs):
-        node, out_files = NiftiXFslgrad.dcm2niix(fspath, **kwargs)
-        node.inputs.compress = "y"
-        return node, out_files
+class Nifti_Gzip_Fslgrad(Nifti_Gzip, WithFslgrad):
+    iana = "application/x-nifti+gzip.fslgrad"
+
+
+class NiftiXFslgrad(NiftiX, WithFslgrad):
+    iana = "application/x-nifti+bids.fslgrad"
+
+
+class NiftiGzXFslgrad(NiftiX_Gzip, WithFslgrad):
+    iana = "application/x-nifti+bids.gzip.fslgrad"
 
 
 class MrtrixImage(NeuroImage):
 
-    ext = "mif"
+    ext = ".mif"
 
     def _load_header_and_array(self):
         with open(self.path, "rb") as f:
@@ -260,34 +129,18 @@ class MrtrixImage(NeuroImage):
 # =====================================================================
 
 
-class Analyze(WithSideCars, NeuroImage):
+class AnalyzeHeader(File):
 
-    ext = "img"
-    side_car_exts = ("hdr",)
+    ext = ".hdr"
+
+
+class Analyze(WithSideCar, NeuroImage):
+
+    ext = ".img"
+    side_car_type = AnalyzeHeader
 
     def get_array(self):
         raise NotImplementedError
 
     def get_header(self):
         raise NotImplementedError
-
-
-class MrtrixTrack(File):
-
-    ext = "tck"
-
-
-class Dwigrad(File):
-
-    pass
-
-
-class Mrtrixgrad(Dwigrad):
-
-    ext = "b"
-
-
-class Fslgrad(Dwigrad):
-
-    ext = "bvec"
-    side_cars = ("bval",)

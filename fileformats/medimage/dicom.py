@@ -2,7 +2,7 @@ import os
 import os.path as op
 import pydicom
 import numpy as np
-from fileformats.common import File, Directory
+from fileformats.core import File, Directory
 from .base import MedicalImage
 
 # =====================================================================
@@ -14,12 +14,12 @@ class DicomFile(
     File
 ):  # FIXME: Should extend from MedicalImage, but need to implement header and array
 
-    ext = "dcm"
+    ext = ".dcm"
 
 
 class SiemensDicomFile(DicomFile):
 
-    ext = "IMA"
+    ext = ".IMA"
 
 
 class Dicom(Directory, MedicalImage):

@@ -4,7 +4,7 @@ from fileformats.common import File
 
 class ListMode(File):
 
-    ext = "bf"
+    ext = ".bf"
 
 
 class Kspace(File):
@@ -16,7 +16,7 @@ class TwixVb(Kspace):
     """The format that k-space data is saved in from Siemens scanners
     with system version vB to (at least) vE"""
 
-    ext = "dat"
+    ext = ".dat"
 
 
 class CustomKspace(Kspace):
@@ -50,7 +50,7 @@ class CustomKspace(Kspace):
     larmor_freq : float
         The central larmor row_frequency of the scanner"""
 
-    ext = "ks"
+    ext = ".ks"
     side_cars = ("ref", "json")
 
     @classmethod
@@ -67,4 +67,4 @@ class CustomKspace(Kspace):
 class Rda(File):
     """MRS format"""
 
-    ext = "rda"
+    ext = ".rda"
