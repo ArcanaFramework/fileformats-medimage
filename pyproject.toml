@@ -10,8 +10,10 @@ requires-python = ">=3.8"
 dependencies = [
     "attrs >=22.1.0",
     "jq >=1.4.0",
-    "fileformats-core",
-    "fileformats-archive",
+    "numpy >=1.20",
+    "nibabel >=5.0.0",
+    "pydicom >=2.3.1",
+    "fileformats-core >=0.2.2",
 ]
 license = {file = "LICENSE"}
 authors = [
@@ -57,6 +59,8 @@ test = [
 
 converters = [
     "pydra >= 0.20.0",
+    "pydra-dcm2niix",
+    "pydra-mrtrix3",
 ]
 
 [project.urls]
@@ -71,8 +75,6 @@ version-file = "fileformats/medimage/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["fileformats"]
-# only-include = ["fileformats/medimage"]
-
 
 [tool.black]
 target-version = ['py38']

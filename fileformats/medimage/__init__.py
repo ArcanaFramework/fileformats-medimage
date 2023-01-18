@@ -38,4 +38,8 @@ try:
     import fileformats.medimage.converters
 except ImportError:
     from warnings import warn
-    warn(f"Could not import converters for {__module__}")
+    warn(
+        f"could not import converters for {__name__}  module, please install "
+        "fileformats-medimage[converters] package if converters are desired"
+    )
+
