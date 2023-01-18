@@ -13,7 +13,7 @@ dependencies = [
     "numpy >=1.20",
     "nibabel >=5.0.0",
     "pydicom >=2.3.1",
-    "fileformats-core >=0.2.2",
+    "fileformats >=0.3.0",
 ]
 license = {file = "LICENSE"}
 authors = [
