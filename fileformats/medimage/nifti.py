@@ -1,6 +1,6 @@
 import nibabel
 from fileformats.core.mixin import WithSideCar
-from fileformats.text import Json
+from fileformats.serialization import Json
 from fileformats.archive import Gzip
 from .base import NeuroImage
 
