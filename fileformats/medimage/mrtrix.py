@@ -9,24 +9,23 @@ from .misc import NeuroImage
 
 class BaseMrtrixImage(NeuroImage, WithMagic):
 
-    magic = b"mrtix image\n"
+    magic = b"mrtrix image\n"
+    binary = True
 
     def load_metadata(self):
         metadata = {}
         with open(self.fspath, "rb") as f:
             line = f.readline()
-            assert line == self.magic
-            line = f.readline()
-            while line != b"END\n":
+            assert line == self.magic, f"Magic line {line} doesn't match reference {self.magic}"
+            line = f.readline().decode("utf-8")
+            while line and line != "END\n":
                 key, value = line.split(": ", maxsplit=1)
-                key = key.decode("utf-8")
-                value = value.decode("utf-8")  # convert to unicode
                 if "," in value:
                     try:
-                        value = np.array(value.split(","), datatype=int)
+                        value = np.array(value.split(","), dtype=int)
                     except ValueError:
                         try:
-                            value = np.array(value.split(","), datatype=float)
+                            value = np.array(value.split(","), dtype=float)
                         except ValueError:
                             pass
                 else:
@@ -38,6 +37,7 @@ class BaseMrtrixImage(NeuroImage, WithMagic):
                         except ValueError:
                             pass
                 metadata[key] = value
+                line = f.readline().decode("utf-8")
         return metadata
 
     @property
@@ -45,6 +45,8 @@ class BaseMrtrixImage(NeuroImage, WithMagic):
         data_fspath = self.metadata["file"].split()[0]
         if data_fspath == ".":
             data_fspath = self.fspath
+        elif Path(data_fspath).parent == Path("."):
+            data_fspath = self.fspath.parent / data_fspath
         else:
             data_fspath = Path(data_fspath).relative_to(self.fspath.parent)
         return data_fspath

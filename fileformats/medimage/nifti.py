@@ -26,6 +26,7 @@ class BaseNifti(NeuroImage):
 
 class WithBids(WithSideCar):
 
+    primary_type = BaseNifti
     side_car_type = Json
 
 
