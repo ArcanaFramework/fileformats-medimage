@@ -2,7 +2,7 @@ import os
 import os.path as op
 import pydicom
 import numpy as np
-from fileformats.common import File, Directory
+from fileformats.core import File, Directory
 from .base import MedicalImage
 
 # =====================================================================
@@ -14,12 +14,12 @@ class DicomFile(
     File
 ):  # FIXME: Should extend from MedicalImage, but need to implement header and array
 
-    ext = "dcm"
+    ext = ".dcm"
 
 
 class SiemensDicomFile(DicomFile):
 
-    ext = "IMA"
+    ext = ".IMA"
 
 
 class Dicom(Directory, MedicalImage):
@@ -32,26 +32,27 @@ class Dicom(Directory, MedicalImage):
     def dcm_files(self):
         return [f for f in os.listdir(self.path) if f.endswith(".dcm")]
 
-    def get_array(self):
+    @property
+    def data_array(self):
         image_stack = []
         for fname in self.dcm_files(self):
             image_stack.append(pydicom.dcmread(op.join(self.path, fname)).pixel_array)
         return np.asarray(image_stack)
 
-    def get_header(self, index=0):
+    def load_metadata(self, index=0):
         dcm_files = [f for f in os.listdir(self.path) if f.endswith(".dcm")]
         # TODO: Probably should collate fields that vary across the set of
         #       files in the set into lists
         return pydicom.dcmread(op.join(self.path, dcm_files[index]))
 
-    def get_vox_sizes(self):
-        hdr = self.get_header()
-        return np.array(hdr.PixelSpacing + [hdr.SliceThickness])
+    @property
+    def vox_sizes(self):
+        return np.array(self.metadata["PixelSpacing"] + [self.metadata["SliceThickness"]])
 
-    def get_dims(self):
-        hdr = self.get_header()
+    @property
+    def dims(self):
         return np.array(
-            (hdr.Rows, hdr.DataColumns, len(self.dcm_files(self))), datatype=int
+            (self.metadata["Rows"], self.metadata["DataColumns"], len(self.dcm_files(self))), datatype=int
         )
 
     def extract_id(self):
@@ -64,8 +65,8 @@ class Dicom(Directory, MedicalImage):
 
         Parameters
         ----------
-        file_group : FileGroup
-            The file group to extract the DICOM header for
+        fileset : FileSet
+            The file set to extract the DICOM header for
         tags : List[Tuple[str, str]]
             List of DICOM tag values as 2-tuple of strings, e.g.
             [('0080', '0020')]
@@ -80,7 +81,7 @@ class Dicom(Directory, MedicalImage):
             return [dcm[t].value for t in tags]
 
         try:
-            if self.fs_path:
+            if self.fspath:
                 # Get the DICOM object for the first file in the self
                 dct = read_header()
             else:

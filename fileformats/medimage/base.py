@@ -1,6 +1,5 @@
-from abc import ABCMeta, abstractmethod
 import numpy as np
-from fileformats.common import File
+from fileformats.core import File
 
 
 # =====================================================================
@@ -8,24 +7,18 @@ from fileformats.common import File
 # =====================================================================
 
 
-class MedicalImage(File, metaclass=ABCMeta):
+class MedicalImage(File):
 
+    iana = None
     INCLUDE_HDR_KEYS = None
     IGNORE_HDR_KEYS = None
 
-    @abstractmethod
-    def get_header(self):
+    @property
+    def data_array(self):
         """
-        Returns array data associated with the given path for the
-        file format
+        Returns the binary data of the image in a numpy array
         """
-
-    @abstractmethod
-    def get_array(self):
-        """
-        Returns header data associated with the given path for the
-        file format
-        """
+        raise NotImplementedError
 
     def contents_equal(self, other_image, rms_tol=None, **kwargs):
         """
@@ -50,7 +43,7 @@ class MedicalImage(File, metaclass=ABCMeta):
         else:
             return np.array_equiv(self.get_array(), other_image.get_array())
 
-    def headers_diff(self, other_image, include_keys=None, ignore_keys=None, **kwargs):
+    def metadata_diff(self, other_image, include_keys=None, ignore_keys=None, **kwargs):
         """
         Check headers to see if all values
         """
@@ -110,3 +103,8 @@ class MedicalImage(File, metaclass=ABCMeta):
         Return the RMS difference between the image arrays
         """
         return np.sqrt(np.sum((self.get_array() - other_image.get_array()) ** 2))
+
+
+class NeuroImage(MedicalImage):
+    """Imaging formats developed for neuroimaging scans"""
+    iana = None
