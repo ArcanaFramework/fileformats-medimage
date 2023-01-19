@@ -1,9 +1,13 @@
 import numpy as np
-from fileformats.generic import FileSet, File, mark
+from fileformats.core import FileSet, mark
+from fileformats.generic import File
 from .nifti import BaseNifti, Nifti_Gzip_Bids, Nifti_Gzip, Nifti, Nifti_Bids
 
 
 class DwiEncoding(FileSet):
+
+    iana = None
+
     @property
     def dirs(self):
         raise NotImplementedError

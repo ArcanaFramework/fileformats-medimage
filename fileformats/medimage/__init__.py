@@ -30,7 +30,7 @@ from .raw import (  # noqa: F401
     ListMode,
     Kspace,
     TwixVb,
-    CustomKspace,
+    # CustomKspace,
     Rda,
 )
 
