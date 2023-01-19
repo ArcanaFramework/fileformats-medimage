@@ -1,4 +1,4 @@
-from fileformats.core import File
+from fileformats.generic import File
 from fileformats.core.mixin import WithSeparateHeader
 from .base import NeuroImage
 

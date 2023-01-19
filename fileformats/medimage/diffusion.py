@@ -1,5 +1,5 @@
 import numpy as np
-from fileformats.core import FileSet, File, mark
+from fileformats.generic import FileSet, File, mark
 from .nifti import BaseNifti, Nifti_Gzip_Bids, Nifti_Gzip, Nifti, Nifti_Bids
 
 
