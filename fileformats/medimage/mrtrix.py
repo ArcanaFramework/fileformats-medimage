@@ -1,22 +1,22 @@
 from pathlib import Path
 import numpy as np
 from fileformats.core import mark
-from fileformats.core.mixin import WithMagic
+from fileformats.core.mixin import WithMagicNumber
 from fileformats.numeric import DataFile
 from fileformats.core.exceptions import FormatMismatchError
 from .misc import NeuroImage
 
 
-class BaseMrtrixImage(NeuroImage, WithMagic):
+class BaseMrtrixImage(NeuroImage, WithMagicNumber):
 
-    magic = b"mrtrix image\n"
+    magic_number = b"mrtrix image\n"
     binary = True
 
     def load_metadata(self):
         metadata = {}
         with open(self.fspath, "rb") as f:
             line = f.readline()
-            assert line == self.magic, f"Magic line {line} doesn't match reference {self.magic}"
+            assert line == self.magic_number, f"Magic line {line} doesn't match reference {self.magic_number}"
             line = f.readline().decode("utf-8")
             while line and line != "END\n":
                 key, value = line.split(": ", maxsplit=1)
