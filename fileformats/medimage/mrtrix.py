@@ -1,10 +1,14 @@
 from pathlib import Path
-import numpy as np
 from fileformats.core import mark
 from fileformats.core.mixin import WithMagicNumber
 from fileformats.numeric import DataFile
 from fileformats.core.exceptions import FormatMismatchError
+from fileformats.core.utils import MissingDependencyPlacholder
 from .misc import NeuroImage
+try:
+    import numpy
+except ImportError:
+    numpy = MissingDependencyPlacholder("numpy", __name__)
 
 
 class BaseMrtrixImage(NeuroImage, WithMagicNumber):
@@ -22,10 +26,10 @@ class BaseMrtrixImage(NeuroImage, WithMagicNumber):
                 key, value = line.split(": ", maxsplit=1)
                 if "," in value:
                     try:
-                        value = np.array(value.split(","), dtype=int)
+                        value = [int(v) for v in value.split(",")]
                     except ValueError:
                         try:
-                            value = np.array(value.split(","), dtype=float)
+                            value = [float(v) for v in value.split(",")]
                         except ValueError:
                             pass
                 else:
@@ -66,7 +70,7 @@ class BaseMrtrixImage(NeuroImage, WithMagicNumber):
     @property
     def data_array(self):
         data = self.read_contents(offset=self.data_offset)
-        array = np.asarray(data)
+        array = numpy.asarray(data)
         data_array = array.reshape(self.dims)
         raise NotImplementedError(
             "Need to work out how to use the metadata to read the array in the correct order"

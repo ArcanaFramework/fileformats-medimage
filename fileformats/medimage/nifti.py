@@ -33,18 +33,18 @@ class WithBids(WithSideCar):
 class Nifti(BaseNifti):
 
     ext = ".nii"
-    iana = "application/x-nifti"
+    iana_mime = "application/x-nifti"
 
 
 class Nifti_Gzip(BaseNifti, Gzip):
 
     ext = ".nii.gz"
-    iana = "application/x-nifti+gzip"
+    iana_mime = "application/x-nifti+gzip"
 
 
 class Nifti_Bids(WithBids, Nifti):
-    iana = "application/x-nifti+bids"
+    iana_mime = "application/x-nifti+bids"
 
 
 class Nifti_Gzip_Bids(WithBids, Nifti_Gzip):
-    iana = "application/x-nifti+gzip.bids"
+    iana_mime = "application/x-nifti+gzip.bids"

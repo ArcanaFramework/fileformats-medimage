@@ -1,11 +1,8 @@
 from pathlib import Path
-import jq
 import attrs
 import json
-import pydra.mark
-from pydra.tasks.mrtrix3.utils import MRConvert
-from pydra.tasks.dcm2niix import Dcm2Niix
 from fileformats.core import mark
+from fileformats.core.utils import MissingDependencyPlacholder
 from fileformats.medimage.base import MedicalImage
 from fileformats.medimage.dicom import Dicom
 from fileformats.medimage import (
@@ -21,6 +18,22 @@ from fileformats.medimage import (
     Nifti_Gzip_Fslgrad,
     Nifti_Gzip_Bids_Fslgrad,
 )
+try:
+    import jq
+except ImportError:
+    jq = MissingDependencyPlacholder("jq", __name__)
+try:
+    import pydra
+except ImportError:
+    pydra = MissingDependencyPlacholder("pydra", __name__)
+try:
+    import pydra.tasks.mrtrix3.utils as pydra_mrtrix3_utils
+except ImportError:
+    pydra_mrtrix3_utils = MissingDependencyPlacholder("pydra.tasks.mrtrix3", __name__)
+try:
+    import pydra.tasks.dcm2niix as pydra_dcm2niix
+except ImportError:
+    pydra_dcm2niix = MissingDependencyPlacholder("pydra.tasks.dcm2niix", __name__)
 
 
 @mark.converter(source_format=MedicalImage, target_format=Analyze, out_ext=Analyze.ext)
@@ -47,7 +60,7 @@ def mrconvert(name, out_ext: str):
     pydra.ShellCommandTask
         the converter task
     """
-    return MRConvert(name=name, out_file="out" + out_ext)
+    return pydra_mrtrix3_utils.MRConvert(name=name, out_file="out" + out_ext)
 
 
 @mark.converter(source_format=Dicom, target_format=Nifti)
@@ -116,7 +129,7 @@ def extended_dcm2niix(
     if file_postfix is None:
         file_postfix = attrs.NOTHING
     wf.add(
-        Dcm2Niix(
+        pydra_dcm2niix.Dcm2Niix(
             in_dir=wf.lzin.in_file,
             out_dir=".",
             name="dcm2niix",
@@ -136,7 +149,7 @@ def extended_dcm2niix(
             coord = attrs.NOTHING
             axes = [0, 1, 2, -1]
         wf.add(
-            MRConvert(
+            pydra_mrtrix3_utils.MRConvert(
                 in_file=out_file,
                 coord=coord,
                 axes=axes,

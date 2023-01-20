@@ -6,7 +6,7 @@ from .nifti import BaseNifti, Nifti_Gzip_Bids, Nifti_Gzip, Nifti, Nifti_Bids
 
 class DwiEncoding(FileSet):
 
-    iana = None
+    iana_mime = None
 
     @property
     def dirs(self):
@@ -92,19 +92,19 @@ class WithFslgrad(BaseNifti, Fslgrad):
 
 
 class Nifti_Fslgrad(Nifti, WithFslgrad):
-    iana = "application/x-nifti+fslgrad"
+    iana_mime = "application/x-nifti+fslgrad"
 
 
 class Nifti_Gzip_Fslgrad(Nifti_Gzip, WithFslgrad):
-    iana = "application/x-nifti+gzip.fslgrad"
+    iana_mime = "application/x-nifti+gzip.fslgrad"
 
 
 class Nifti_Bids_Fslgrad(Nifti_Bids, WithFslgrad):
-    iana = "application/x-nifti+bids.fslgrad"
+    iana_mime = "application/x-nifti+bids.fslgrad"
 
 
 class Nifti_Gzip_Bids_Fslgrad(Nifti_Gzip_Bids, WithFslgrad):
-    iana = "application/x-nifti+gzip.bids.fslgrad"
+    iana_mime = "application/x-nifti+gzip.bids.fslgrad"
 
 
 # Track files

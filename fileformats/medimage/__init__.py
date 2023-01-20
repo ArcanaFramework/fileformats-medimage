@@ -33,13 +33,4 @@ from .raw import (  # noqa: F401
     # CustomKspace,
     Rda,
 )
-
-try:
-    import fileformats.medimage.converters
-except ImportError:
-    from warnings import warn
-    warn(
-        f"could not import converters for {__name__}  module, please install "
-        "fileformats-medimage[converters] package if converters are desired"
-    )
-
+import fileformats.medimage.converters

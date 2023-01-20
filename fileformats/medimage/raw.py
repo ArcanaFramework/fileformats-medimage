@@ -10,7 +10,7 @@ class ListMode(File):
 class Kspace(File):
 
     binary = True
-    iana = None
+    iana_mime = None
 
 
 class TwixVb(Kspace):

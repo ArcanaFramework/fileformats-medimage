@@ -9,7 +9,7 @@ from fileformats.generic import File
 
 class MedicalImage(File):
 
-    iana = None
+    iana_mime = None
     INCLUDE_HDR_KEYS = None
     IGNORE_HDR_KEYS = None
 
@@ -107,4 +107,4 @@ class MedicalImage(File):
 
 class NeuroImage(MedicalImage):
     """Imaging formats developed for neuroimaging scans"""
-    iana = None
+    iana_mime = None
