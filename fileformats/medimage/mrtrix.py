@@ -20,7 +20,10 @@ class BaseMrtrixImage(NeuroImage, WithMagicNumber):
         metadata = {}
         with open(self.fspath, "rb") as f:
             line = f.readline()
-            assert line == self.magic_number, f"Magic line {line} doesn't match reference {self.magic_number}"
+            if line != self.magic_number:
+                raise FormatMismatchError(
+                    f"Magic line {line} doesn't match reference {self.magic_number}"
+                )
             line = f.readline().decode("utf-8")
             while line and line != "END\n":
                 key, value = line.split(": ", maxsplit=1)
@@ -103,7 +106,8 @@ class MrtrixImageHeader(BaseMrtrixImage):
     def data_file(self):
         return DataFile(self.data_fspath)
 
-    @classmethod
-    def from_primary(cls, fspath):
-        base_image = BaseMrtrixImage(fspath)
-        return cls([base_image.fspath, base_image.data_fspath])
+    def __attrs_post_init__(self):
+        if len(self.fspaths) == 1:
+            # add in data file if only header file is provided
+            self.fspaths.add(BaseMrtrixImage(self.fspath).data_fspath)
+        super().__attrs_post_init__(self)
