@@ -99,9 +99,12 @@ def test_nifti_to_mrtrix(dummy_dwi_dicom):
     mih.validate()
 
 
-def test_dicom_to_mrtrix(dummy_dwi_dicom):
+def test_dicom_to_mrtrix_image(dummy_dwi_dicom):
     mif = MrtrixImage.convert(dummy_dwi_dicom)
     mif.validate()
+
+
+def test_dicom_to_mrtrix_image_header(dummy_dwi_dicom):
     mih = MrtrixImageHeader.convert(dummy_dwi_dicom)
     mih.validate()
 
