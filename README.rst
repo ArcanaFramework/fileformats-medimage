@@ -36,7 +36,10 @@ This extension can be installed for Python 3 using *pip*::
 
     $ pip3 install fileformats-medimage
 
-This will install the core package and any other dependencies
+This will install the core package and any other dependencies to validate the file formats.
+To use converters and lode methods use the ``extended`` install option::
+
+    $ pip3 install fileformats-medimage[extended]
 
 License
 -------
