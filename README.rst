@@ -16,6 +16,18 @@ This is a template for an extension module to the
 support for commonly used medical imaging formats, such as DICOM, NIfTI, and MRtrix
 Image Format.
 
+For converters to work you will also need to install the Dcm2NiiX_ and MRtrix_ packages.
+There are various ways to do this, but on Ubuntu you can install Dcm2NiiX_ with::
+
+   $ sudo apt install libopenjp2-7
+   $ curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_lnx.zip
+   $ unzip dcm2niix_lnx.zip
+   $ mv dcm2niix /usr/local/bin
+
+and MRtrix_ with miniconda::
+
+   $ conda install -c mrtrix3 mrtrix3
+
 
 Quick Installation
 ------------------
@@ -35,3 +47,7 @@ This work is licensed under a
 .. image:: https://i.creativecommons.org/l/by/4.0/88x31.png
   :target: http://creativecommons.org/licenses/by/4.0/
   :alt: Creative Commons Attribution 4.0 International License
+
+
+.. _Dcm2NiiX: https://github.com/rordenlab/dcm2niix
+.. _MRtrix: https://mrtrix.readthedocs.io/en/latest/
