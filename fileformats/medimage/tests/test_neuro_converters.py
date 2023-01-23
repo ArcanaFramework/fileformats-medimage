@@ -90,6 +90,7 @@ def test_dicom_to_nifti_as_4d(dummy_t1w_dicom):
     assert nifti_gz_x_e1.metadata["dim"][0] == 4
 
 
+# @pytest.mark.xfail(reason="not sure what the reason is at this stage, might be bug in Pydra")
 def test_nifti_to_mrtrix(dummy_dwi_dicom):
     nifti_fsgrad = Nifti_Fslgrad.convert(dummy_dwi_dicom)
     nifti_fsgrad.validate()
