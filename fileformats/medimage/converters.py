@@ -2,7 +2,7 @@ from pathlib import Path
 import attrs
 import json
 from fileformats.core import mark
-from fileformats.core.utils import MissingDependencyPlacholder
+from fileformats.core.utils import MissingExtendedDependency
 from fileformats.medimage.base import MedicalImage
 from fileformats.medimage.dicom import Dicom
 from fileformats.medimage import (
@@ -21,19 +21,19 @@ from fileformats.medimage import (
 try:
     import jq
 except ImportError:
-    jq = MissingDependencyPlacholder("jq", __name__)
+    jq = MissingExtendedDependency("jq", __name__)
 try:
     import pydra
 except ImportError:
-    pydra = MissingDependencyPlacholder("pydra", __name__)
+    pydra = MissingExtendedDependency("pydra", __name__)
 try:
     import pydra.tasks.mrtrix3.utils as pydra_mrtrix3_utils
 except ImportError:
-    pydra_mrtrix3_utils = MissingDependencyPlacholder("pydra.tasks.mrtrix3", __name__)
+    pydra_mrtrix3_utils = MissingExtendedDependency("pydra.tasks.mrtrix3", __name__)
 try:
     import pydra.tasks.dcm2niix as pydra_dcm2niix
 except ImportError:
-    pydra_dcm2niix = MissingDependencyPlacholder("pydra.tasks.dcm2niix", __name__)
+    pydra_dcm2niix = MissingExtendedDependency("pydra.tasks.dcm2niix", __name__)
 
 
 @mark.converter(source_format=MedicalImage, target_format=Analyze, out_ext=Analyze.ext)

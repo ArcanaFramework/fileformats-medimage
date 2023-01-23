@@ -3,15 +3,15 @@ from fileformats.core import mark
 from fileformats.core.mixin import WithMagicNumber
 from fileformats.numeric import DataFile
 from fileformats.core.exceptions import FormatMismatchError
-from fileformats.core.utils import MissingDependencyPlacholder
+from fileformats.core.utils import MissingExtendedDependency
 from .misc import NeuroImage
 try:
     import numpy
 except ImportError:
-    numpy = MissingDependencyPlacholder("numpy", __name__)
+    numpy = MissingExtendedDependency("numpy", __name__)
 
 
-class BaseMrtrixImage(NeuroImage, WithMagicNumber):
+class BaseMrtrixImage(WithMagicNumber, NeuroImage):
 
     magic_number = b"mrtrix image\n"
     binary = True
@@ -110,4 +110,4 @@ class MrtrixImageHeader(BaseMrtrixImage):
         if len(self.fspaths) == 1:
             # add in data file if only header file is provided
             self.fspaths.add(BaseMrtrixImage(self.fspath).data_fspath)
-        super().__attrs_post_init__(self)
+        super().__attrs_post_init__()

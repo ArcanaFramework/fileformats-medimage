@@ -1,4 +1,5 @@
 from ._version import __version__
+from fileformats.core import import_converters
 from .base import MedicalImage, NeuroImage
 from .misc import (  # noqa: F401
     Analyze,
@@ -33,4 +34,5 @@ from .raw import (  # noqa: F401
     # CustomKspace,
     Rda,
 )
-import fileformats.medimage.converters
+
+import_converters(__name__)
