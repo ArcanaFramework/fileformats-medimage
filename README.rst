@@ -11,10 +11,9 @@ FileFormats Extension - Medimage
    :target: https://pypi.python.org/pypi/fileformats-medimage/
    :alt: Latest Version
 
-This is a template for an extension module to the
-`fileformats <https://github.com/ArcanaFramework/fileformats-core>`__ package that adds
-support for commonly used medical imaging formats, such as DICOM, NIfTI, and MRtrix
-Image Format.
+This is an extension module to the `fileformats <https://github.com/ArcanaFramework/fileformats>`__ package
+, which that adds support for commonly used medical imaging formats, such as DICOM, NIfTI, and MRtrix
+Image Format, etc...
 
 For converters to work you will also need to install the Dcm2NiiX_ and MRtrix_ packages.
 There are various ways to do this, but on Ubuntu you can install Dcm2NiiX_ with::
