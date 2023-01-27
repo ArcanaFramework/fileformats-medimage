@@ -6,20 +6,24 @@ from .misc import (  # noqa: F401
 )
 from .nifti import (
     Nifti,
-    Nifti_Gzip,
-    Nifti_Bids,
-    Nifti_Gzip_Bids,
+    NiftiGz,
+    NiftiX,
+    NiftiGzX,
 )
 from .mrtrix import MrtrixImage, MrtrixImageHeader
 from .diffusion import (
     DwiEncoding,
     MrtrixTrack,
-    Mrtrixgrad,
-    Fslgrad,
-    Nifti_Fslgrad,
-    Nifti_Gzip_Fslgrad,
-    Nifti_Bids_Fslgrad,
-    Nifti_Gzip_Bids_Fslgrad,
+    Bvec,
+    Bfile,
+    NiftiBvec,
+    NiftiGzBvec,
+    NiftiXBvec,
+    NiftiGzXBvec,
+    NiftiB,
+    NiftiGzB,
+    NiftiXB,
+    NiftiGzXB,
 )
 from .dicom import (  # noqa: F401
     DicomFile,
