@@ -106,7 +106,7 @@ class NiftiBvec(WithBvec, Nifti2):
     iana_mime = "application/x-nifti2+bvec"
 
 
-class NiftiGzBvec(WithBvec, NiftiGz, WithBvec):
+class NiftiGzBvec(WithBvec, NiftiGz):
     iana_mime = "application/x-nifti2+gzip.bvec"
 
 
@@ -122,7 +122,7 @@ class NiftiB(WithBfile, Nifti2):
     iana_mime = "application/x-nifti2+b"
 
 
-class NiftiGzB(WithBfile, NiftiGz, WithBvec):
+class NiftiGzB(WithBfile, NiftiGz):
     iana_mime = "application/x-nifti2+gzip.b"
 
 
