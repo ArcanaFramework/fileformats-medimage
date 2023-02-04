@@ -8,15 +8,15 @@ from fileformats.medimage.dicom import Dicom
 from fileformats.medimage import (
     Analyze,
     Nifti,
-    Nifti_Gzip,
-    Nifti_Bids,
-    Nifti_Gzip_Bids,
+    NiftiGz,
+    NiftiX,
+    NiftiGzX,
     MrtrixImage,
     MrtrixImageHeader,
-    Nifti_Bids_Fslgrad,
-    Nifti_Fslgrad,
-    Nifti_Gzip_Fslgrad,
-    Nifti_Gzip_Bids_Fslgrad,
+    NiftiXBvec,
+    NiftiBvec,
+    NiftiGzBvec,
+    NiftiGzXBvec,
 )
 try:
     import jq
@@ -64,14 +64,14 @@ def mrconvert(name, out_ext: str):
 
 
 @mark.converter(source_format=Dicom, target_format=Nifti)
-@mark.converter(source_format=Dicom, target_format=Nifti_Gzip, compress="y")
-@mark.converter(source_format=Dicom, target_format=Nifti_Bids)
-@mark.converter(source_format=Dicom, target_format=Nifti_Gzip_Bids, compress="y")
-@mark.converter(source_format=Dicom, target_format=Nifti_Bids_Fslgrad)
-@mark.converter(source_format=Dicom, target_format=Nifti_Fslgrad)
-@mark.converter(source_format=Dicom, target_format=Nifti_Gzip_Fslgrad)
+@mark.converter(source_format=Dicom, target_format=NiftiGz, compress="y")
+@mark.converter(source_format=Dicom, target_format=NiftiX)
+@mark.converter(source_format=Dicom, target_format=NiftiGzX, compress="y")
+@mark.converter(source_format=Dicom, target_format=NiftiXBvec)
+@mark.converter(source_format=Dicom, target_format=NiftiBvec)
+@mark.converter(source_format=Dicom, target_format=NiftiGzBvec)
 @mark.converter(
-    source_format=Dicom, target_format=Nifti_Gzip_Bids_Fslgrad, compress="y"
+    source_format=Dicom, target_format=NiftiGzXBvec, compress="y"
 )
 def extended_dcm2niix(
     name,

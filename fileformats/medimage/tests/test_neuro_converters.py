@@ -1,7 +1,7 @@
 from fileformats.medimage import (
-    Nifti_Gzip_Bids,
-    Nifti_Gzip_Bids_Fslgrad,
-    Nifti_Fslgrad,
+    NiftiGzX,
+    NiftiGzXBvec,
+    NiftiBvec,
     MrtrixImage,
     MrtrixImageHeader,
     Analyze,
@@ -14,15 +14,15 @@ logger = getLogger("fileformats")
 
 def test_dicom_to_nifti(dummy_t1w_dicom):
 
-    nifti_gz_x = Nifti_Gzip_Bids.convert(dummy_t1w_dicom)
+    nifti_gz_x = NiftiGzX.convert(dummy_t1w_dicom)
     nifti_gz_x.validate()
     assert nifti_gz_x.metadata["EchoTime"] == 0.00207
 
 
 def test_dicom_to_nifti_select_echo(dummy_magfmap_dicom):
 
-    nifti_gz_x_e1 = Nifti_Gzip_Bids.convert(dummy_magfmap_dicom, file_postfix="_e1")
-    nifti_gz_x_e2 = Nifti_Gzip_Bids.convert(dummy_magfmap_dicom, file_postfix="_e2")
+    nifti_gz_x_e1 = NiftiGzX.convert(dummy_magfmap_dicom, file_postfix="_e1")
+    nifti_gz_x_e2 = NiftiGzX.convert(dummy_magfmap_dicom, file_postfix="_e2")
     nifti_gz_x_e1.validate()
     nifti_gz_x_e2.validate()
     assert nifti_gz_x_e1.metadata["EchoNumber"] == 1
@@ -31,11 +31,11 @@ def test_dicom_to_nifti_select_echo(dummy_magfmap_dicom):
 
 def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
 
-    nifti_gz_x_ph = Nifti_Gzip_Bids.convert(dummy_mixedfmap_dicom, file_postfix="_ph")
-    nifti_gz_x_imaginary = Nifti_Gzip_Bids.convert(
+    nifti_gz_x_ph = NiftiGzX.convert(dummy_mixedfmap_dicom, file_postfix="_ph")
+    nifti_gz_x_imaginary = NiftiGzX.convert(
         dummy_mixedfmap_dicom, file_postfix="_imaginary"
     )
-    nifti_gz_x_real = Nifti_Gzip_Bids.convert(
+    nifti_gz_x_real = NiftiGzX.convert(
         dummy_mixedfmap_dicom, file_postfix="_real"
     )
 
@@ -50,14 +50,14 @@ def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
 
 def test_dicom_to_nifti_with_extract_volume(dummy_dwi_dicom):
 
-    nifti_gz_x_e1 = Nifti_Gzip_Bids.convert(dummy_dwi_dicom, extract_volume=30)
+    nifti_gz_x_e1 = NiftiGzX.convert(dummy_dwi_dicom, extract_volume=30)
     nifti_gz_x_e1.validate()
     assert nifti_gz_x_e1.metadata["dim"][0] == 3
 
 
 def test_dicom_to_nifti_with_jq_edit(dummy_t1w_dicom):
 
-    nifti_gz_x = Nifti_Gzip_Bids.convert(
+    nifti_gz_x = NiftiGzX.convert(
         dummy_t1w_dicom, side_car_jq=".EchoTime *= 1000"
     )
     nifti_gz_x.validate()
@@ -68,7 +68,7 @@ def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
 
     logger.debug("Performing FSL grad conversion")
 
-    nifti_gz_x_fsgrad = Nifti_Gzip_Bids_Fslgrad.convert(dummy_dwi_dicom)
+    nifti_gz_x_fsgrad = NiftiGzXBvec.convert(dummy_dwi_dicom)
     nifti_gz_x_fsgrad.validate()
 
     bvec_mags = [
@@ -85,14 +85,14 @@ def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
 # @pytest.mark.skip("Mrtrix isn't installed in test environment yet")
 def test_dicom_to_nifti_as_4d(dummy_t1w_dicom):
 
-    nifti_gz_x_e1 = Nifti_Gzip_Bids.convert(dummy_t1w_dicom, to_4d=True)
+    nifti_gz_x_e1 = NiftiGzX.convert(dummy_t1w_dicom, to_4d=True)
     nifti_gz_x_e1.validate()
     assert nifti_gz_x_e1.metadata["dim"][0] == 4
 
 
 # @pytest.mark.xfail(reason="not sure what the reason is at this stage, might be bug in Pydra")
 def test_nifti_to_mrtrix(dummy_dwi_dicom):
-    nifti_fsgrad = Nifti_Fslgrad.convert(dummy_dwi_dicom)
+    nifti_fsgrad = NiftiBvec.convert(dummy_dwi_dicom)
     nifti_fsgrad.validate()
     mif = MrtrixImage.convert(nifti_fsgrad)
     mif.validate()
