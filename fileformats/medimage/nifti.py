@@ -51,18 +51,18 @@ class Nifti2(WithMagicNumber, Nifti):
     magic_number_offset = 344
 
 
-class NiftiGz(Nifti, Gzip):  # Should be Gzip[Nifti2]
+class NiftiGz(Nifti, Gzip):  # Should be Gzip[Nifti1]
 
     ext = ".nii.gz"
-    iana_mime = "application/x-nifti2+gzip"
+    iana_mime = "application/x-nifti1+gzip"
 
 
 class NiftiX(WithBids, Nifti):
-    iana_mime = "application/x-nifti2+json"
+    iana_mime = "application/x-nifti1+json"
 
 
 class NiftiGzX(WithBids, NiftiGz):
-    iana_mime = "application/x-nifti2+gzip.bids"
+    iana_mime = "application/x-nifti1+gzip.bids"
 
 
 class NiftiDataFile(NeuroImage):
