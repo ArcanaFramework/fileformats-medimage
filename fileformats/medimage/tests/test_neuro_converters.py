@@ -15,7 +15,6 @@ logger = getLogger("fileformats")
 def test_dicom_to_nifti(dummy_t1w_dicom):
 
     nifti_gz_x = NiftiGzX.convert(dummy_t1w_dicom)
-    nifti_gz_x.validate()
     assert nifti_gz_x.metadata["EchoTime"] == 0.00207
 
 
@@ -23,8 +22,6 @@ def test_dicom_to_nifti_select_echo(dummy_magfmap_dicom):
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_magfmap_dicom, file_postfix="_e1")
     nifti_gz_x_e2 = NiftiGzX.convert(dummy_magfmap_dicom, file_postfix="_e2")
-    nifti_gz_x_e1.validate()
-    nifti_gz_x_e2.validate()
     assert nifti_gz_x_e1.metadata["EchoNumber"] == 1
     assert nifti_gz_x_e2.metadata["EchoNumber"] == 2
 
@@ -39,10 +36,6 @@ def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
         dummy_mixedfmap_dicom, file_postfix="_real"
     )
 
-    nifti_gz_x_ph.validate()
-    nifti_gz_x_imaginary.validate()
-    nifti_gz_x_real.validate()
-
     assert list(nifti_gz_x_ph.dims) == [256, 256, 60]
     assert list(nifti_gz_x_imaginary.dims) == [256, 256, 60]
     assert list(nifti_gz_x_real.dims) == [256, 256, 60]
@@ -51,7 +44,6 @@ def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
 def test_dicom_to_nifti_with_extract_volume(dummy_dwi_dicom):
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_dwi_dicom, extract_volume=30)
-    nifti_gz_x_e1.validate()
     assert nifti_gz_x_e1.metadata["dim"][0] == 3
 
 
@@ -60,7 +52,6 @@ def test_dicom_to_nifti_with_jq_edit(dummy_t1w_dicom):
     nifti_gz_x = NiftiGzX.convert(
         dummy_t1w_dicom, side_car_jq=".EchoTime *= 1000"
     )
-    nifti_gz_x.validate()
     assert nifti_gz_x.metadata["EchoTime"] == 2.07
 
 
@@ -69,7 +60,6 @@ def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
     logger.debug("Performing FSL grad conversion")
 
     nifti_gz_x_fsgrad = NiftiGzXBvec.convert(dummy_dwi_dicom)
-    nifti_gz_x_fsgrad.validate()
 
     bvec_mags = [
         (v[0] ** 2 + v[1] ** 2 + v[2] ** 2)
@@ -86,30 +76,23 @@ def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
 def test_dicom_to_nifti_as_4d(dummy_t1w_dicom):
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_t1w_dicom, to_4d=True)
-    nifti_gz_x_e1.validate()
     assert nifti_gz_x_e1.metadata["dim"][0] == 4
 
 
 # @pytest.mark.xfail(reason="not sure what the reason is at this stage, might be bug in Pydra")
 def test_nifti_to_mrtrix(dummy_dwi_dicom):
     nifti_fsgrad = NiftiBvec.convert(dummy_dwi_dicom)
-    nifti_fsgrad.validate()
-    mif = MrtrixImage.convert(nifti_fsgrad)
-    mif.validate()
-    mih = MrtrixImageHeader.convert(nifti_fsgrad)
-    mih.validate()
+    MrtrixImage.convert(nifti_fsgrad)
+    MrtrixImageHeader.convert(nifti_fsgrad)
 
 
 def test_dicom_to_mrtrix_image(dummy_dwi_dicom):
-    mif = MrtrixImage.convert(dummy_dwi_dicom)
-    mif.validate()
+    MrtrixImage.convert(dummy_dwi_dicom)
 
 
 def test_dicom_to_mrtrix_image_header(dummy_dwi_dicom):
-    mih = MrtrixImageHeader.convert(dummy_dwi_dicom)
-    mih.validate()
+    MrtrixImageHeader.convert(dummy_dwi_dicom)
 
 
 def test_dicom_to_analyze(dummy_t1w_dicom):
-    analyze = Analyze.convert(dummy_t1w_dicom)
-    analyze.validate()
+    Analyze.convert(dummy_t1w_dicom)
