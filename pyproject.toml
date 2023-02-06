@@ -55,7 +55,7 @@ test = [
 ]
 
 extended = [
-    "pydra == 0.20.0",
+    "pydra >= 0.20.0",
     "pydra-dcm2niix",
     "pydra-mrtrix3",
     "numpy >=1.20",    
