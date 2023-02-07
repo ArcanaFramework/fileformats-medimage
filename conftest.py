@@ -3,7 +3,11 @@ import logging
 import tempfile
 from pathlib import Path
 import pytest
+from pydra import set_input_validator
+
+# set_input_validator(True)
 from fileformats.medimage.dicom import Dicom
+
 
 # Set DEBUG logging for unittests
 

@@ -12,6 +12,7 @@ class MedicalImage(File):
     iana_mime = None
     INCLUDE_HDR_KEYS = None
     IGNORE_HDR_KEYS = None
+    binary = True
 
     @property
     def data_array(self):

@@ -109,5 +109,5 @@ class MrtrixImageHeader(BaseMrtrixImage):
     def __attrs_post_init__(self):
         if len(self.fspaths) == 1:
             # add in data file if only header file is provided
-            self.fspaths.add(BaseMrtrixImage(self.fspath).data_fspath)
+            self.fspaths |= set([BaseMrtrixImage(self.fspath).data_fspath])
         super().__attrs_post_init__()
