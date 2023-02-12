@@ -2,7 +2,7 @@ import os
 import os.path as op
 import pydicom
 import numpy as np
-from fileformats.generic import File, Directory
+from fileformats.generic import File, BaseDirectory
 from .base import MedicalImage
 
 # =====================================================================
@@ -22,7 +22,7 @@ class SiemensDicomFile(DicomFile):
     ext = ".IMA"
 
 
-class Dicom(Directory, MedicalImage):
+class Dicom(BaseDirectory, MedicalImage):
 
     content_types = (DicomFile,)
     alternate_names = ("secondary",)
