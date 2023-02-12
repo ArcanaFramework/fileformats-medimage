@@ -1,4 +1,3 @@
-import nibabel
 from fileformats.generic import File
 from fileformats.core import mark
 from fileformats.core.mixin import (
@@ -14,10 +13,12 @@ class Nifti(NeuroImage):
     ext = ".nii"
 
     def load_metadata(self):
+        import nibabel
         return dict(nibabel.load(self.fspath).header)
 
     @property
     def data_array(self):
+        import nibabel
         return nibabel.load(self.fspath).get_data()
 
     @property
