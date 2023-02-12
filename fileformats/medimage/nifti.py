@@ -34,17 +34,17 @@ class Nifti(NeuroImage):
 class WithBids(WithSideCars):
 
     primary_type = Nifti
-    side_car_types = (Json, Tsv)
+    side_car_types = (Json,)
 
     @mark.required
     @property
     def json_file(self):
         return Json(self.select_by_ext(Json))
 
-    @mark.required
-    @property
-    def tsv_file(self):
-        return Json(self.select_by_ext(Json, allow_none=True))
+    # @mark.required
+    # @property
+    # def tsv_file(self):
+    #     return Json(self.select_by_ext(Json, allow_none=True))
 
 
 class Nifti1(WithMagicNumber, Nifti):
