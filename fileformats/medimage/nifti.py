@@ -4,7 +4,7 @@ from fileformats.core import mark
 from fileformats.core.mixin import (
     WithSideCars, WithMagicNumber, WithSeparateHeader, WithAdjacentFiles)
 from fileformats.serialization import Json
-from fileformats.text import Tsv
+# from fileformats.text import Tsv
 from fileformats.archive import Gzip
 from .base import NeuroImage
 
