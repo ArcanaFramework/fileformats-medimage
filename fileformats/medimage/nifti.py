@@ -2,8 +2,9 @@ import nibabel
 from fileformats.generic import File
 from fileformats.core import mark
 from fileformats.core.mixin import (
-    WithSideCar, WithMagicNumber, WithSeparateHeader, WithAdjacentFiles)
+    WithSideCars, WithMagicNumber, WithSeparateHeader, WithAdjacentFiles)
 from fileformats.serialization import Json
+from fileformats.text import Tsv
 from fileformats.archive import Gzip
 from .base import NeuroImage
 
@@ -30,10 +31,20 @@ class Nifti(NeuroImage):
         return self.metadata["dim"][1:4]
 
 
-class WithBids(WithSideCar):
+class WithBids(WithSideCars):
 
     primary_type = Nifti
-    side_car_type = Json
+    side_car_types = (Json, Tsv)
+
+    @mark.required
+    @property
+    def json_file(self):
+        return Json(self.select_by_ext(Json))
+
+    @mark.required
+    @property
+    def tsv_file(self):
+        return Json(self.select_by_ext(Json, allow_none=True))
 
 
 class Nifti1(WithMagicNumber, Nifti):
