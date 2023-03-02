@@ -1,8 +1,6 @@
-import os
-import os.path as op
-import pydicom
 import numpy as np
-from fileformats.generic import File, BaseDirectory
+from fileformats.generic import Directory, TypedSet
+from fileformats.image import Dicom
 from .base import MedicalImage
 
 # =====================================================================
@@ -10,96 +8,95 @@ from .base import MedicalImage
 # =====================================================================
 
 
-class DicomFile(
-    File
-):  # FIXME: Should extend from MedicalImage, but need to implement header and array
+class DicomCollection(MedicalImage):
+    """Base class for collections of DICOM files, which can either be stored within a
+    directory (DicomDir) or presented as a flat list (DicomSet)
+    """
 
-    ext = ".dcm"
-
-
-class SiemensDicomFile(DicomFile):
-
-    ext = ".IMA"
-
-
-class Dicom(BaseDirectory, MedicalImage):
-
-    content_types = (DicomFile,)
-    alternate_names = ("secondary",)
+    content_types = (Dicom,)
+    iana_mime = None
 
     SERIES_NUMBER_TAG = ("0020", "0011")
 
-    def dcm_files(self):
-        return [f for f in os.listdir(self.path) if f.endswith(".dcm")]
-
-    @property
     def data_array(self):
+        import pydicom
+
         image_stack = []
-        for fname in self.dcm_files(self):
-            image_stack.append(pydicom.dcmread(op.join(self.path, fname)).pixel_array)
+        for dcm_file in self.contents:
+            image_stack.append(pydicom.dcmread(dcm_file).pixel_array)
         return np.asarray(image_stack)
 
-    def load_metadata(self, index=0):
-        dcm_files = [f for f in os.listdir(self.path) if f.endswith(".dcm")]
+    def load_metadata(self, index=0, specific_tags=None):
+        import pydicom
+
         # TODO: Probably should collate fields that vary across the set of
         #       files in the set into lists
-        return pydicom.dcmread(op.join(self.path, dcm_files[index]))
+        return pydicom.dcmread(list(self.contents)[index], specific_tags=specific_tags)
 
     @property
     def vox_sizes(self):
-        return np.array(self.metadata["PixelSpacing"] + [self.metadata["SliceThickness"]])
+        return np.array(
+            self.metadata["PixelSpacing"] + [self.metadata["SliceThickness"]]
+        )
 
     @property
     def dims(self):
         return np.array(
-            (self.metadata["Rows"], self.metadata["DataColumns"], len(self.dcm_files(self))), datatype=int
+            (
+                self.metadata["Rows"],
+                self.metadata["DataColumns"],
+                len(list(self.contents)),
+            ),
+            datatype=int,
         )
 
     def extract_id(self):
         return int(self.dicom_values([self.SERIES_NUMBER_TAG])[0])
 
-    def dicom_values(self, tags):
-        """
-        Returns a dictionary with the DICOM header fields corresponding
-        to the given tag names
+    # def dicom_values(self, tags):
+    #     """
+    #     Returns a dictionary with the DICOM header fields corresponding
+    #     to the given tag names
 
-        Parameters
-        ----------
-        fileset : FileSet
-            The file set to extract the DICOM header for
-        tags : List[Tuple[str, str]]
-            List of DICOM tag values as 2-tuple of strings, e.g.
-            [('0080', '0020')]
+    #     Parameters
+    #     ----------
+    #     fileset : FileSet
+    #         The file set to extract the DICOM header for
+    #     tags : List[Tuple[str, str]]
+    #         List of DICOM tag values as 2-tuple of strings, e.g.
+    #         [('0080', '0020')]
 
-        Returns
-        -------
-        dct : Dict[Tuple[str, str], str|int|float]
-        """
+    #     Returns
+    #     -------
+    #     dct : Dict[Tuple[str, str], str|int|float]
+    #     """
 
-        def read_header():
-            dcm = self.get_header(0)
-            return [dcm[t].value for t in tags]
+    #     def read_header():
+    #         dcm = self.load_metadata(0)
+    #         return [dcm[t].value for t in tags]
 
-        try:
-            if self.fspath:
-                # Get the DICOM object for the first file in the self
-                dct = read_header()
-            else:
-                try:
-                    # Try to access dicom header details remotely
-                    hdr = self.row.dataset.store.dicom_header(self)
-                except AttributeError:
-                    self.get()  # Fallback to downloading data to read header
-                    dct = read_header()
-                else:
-                    dct = [hdr[t] for t in tags]
-        except KeyError as e:
-            e.msg = "{} does not have dicom tag {}".format(self, str(e))
-            raise e
-        return dct
+    #     try:
+    #         if self.fspath:
+    #             # Get the DICOM object for the first file in the self
+    #             dct = read_header()
+    #         else:
+    #             try:
+    #                 # Try to access dicom header details remotely
+    #                 hdr = self.row.dataset.store.dicom_header(self)
+    #             except AttributeError:
+    #                 dct = read_header()
+    #             else:
+    #                 dct = [hdr[t] for t in tags]
+    #     except KeyError as e:
+    #         e.msg = "{} does not have dicom tag {}".format(self, str(e))
+    #         raise e
+    #     return dct
 
 
-class SiemensDicom(Dicom):
+class DicomDir(Directory, DicomCollection):
+    pass
 
-    content_types = (SiemensDicomFile,)
-    alternative_names = ("dicom",)
+
+class DicomSet(TypedSet, DicomCollection):
+    pass
+

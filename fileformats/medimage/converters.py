@@ -2,10 +2,11 @@ from __future__ import annotations
 from pathlib import Path
 import attrs
 import json
+import tempfile
 from fileformats.core import mark
 from fileformats.core.utils import MissingExtendedDependency
 from fileformats.medimage.base import MedicalImage
-from fileformats.medimage.dicom import Dicom
+from fileformats.medimage.dicom import DicomDir, DicomCollection, DicomSet
 from fileformats.medimage import (
     Analyze,
     Nifti,
@@ -64,15 +65,29 @@ def mrconvert(name, out_ext: str):
     return pydra_mrtrix3_utils.MRConvert(name=name, out_file="out" + out_ext)
 
 
-@mark.converter(source_format=Dicom, target_format=Nifti)
-@mark.converter(source_format=Dicom, target_format=NiftiGz, compress="y")
-@mark.converter(source_format=Dicom, target_format=NiftiX)
-@mark.converter(source_format=Dicom, target_format=NiftiGzX, compress="y")
-@mark.converter(source_format=Dicom, target_format=NiftiXBvec)
-@mark.converter(source_format=Dicom, target_format=NiftiBvec)
-@mark.converter(source_format=Dicom, target_format=NiftiGzBvec)
+@pydra.mark.task
+def ensure_dicom_dir(dicom: DicomCollection) -> DicomDir:
+    if isinstance(dicom, DicomSet):
+        dicom_dir_fspath = tempfile.mkdtemp()
+        dicom.copy_to(dicom_dir_fspath, symlink=True)
+        dicom = DicomDir(dicom_dir_fspath)
+    elif not isinstance(dicom, DicomDir):
+        raise RuntimeError(
+            "Unrecognised input to ensure_dicom_dir, should be DicomSet or DicomDir "
+            f"not {dicom}"
+        )
+    return dicom
+
+
+@mark.converter(source_format=DicomCollection, target_format=Nifti)
+@mark.converter(source_format=DicomCollection, target_format=NiftiGz, compress="y")
+@mark.converter(source_format=DicomCollection, target_format=NiftiX)
+@mark.converter(source_format=DicomCollection, target_format=NiftiGzX, compress="y")
+@mark.converter(source_format=DicomCollection, target_format=NiftiXBvec)
+@mark.converter(source_format=DicomCollection, target_format=NiftiBvec)
+@mark.converter(source_format=DicomCollection, target_format=NiftiGzBvec)
 @mark.converter(
-    source_format=Dicom, target_format=NiftiGzXBvec, compress="y"
+    source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y"
 )
 def extended_dcm2niix(
     name,
@@ -127,11 +142,18 @@ def extended_dcm2niix(
         name=name,
         input_spec=["in_file"],
     )
+    wf.add(
+        ensure_dicom_dir(
+            dicom=wf.lzin.in_file,
+            name="ensure_dicom_dir",
+        )
+    )
+
     if file_postfix is None:
         file_postfix = attrs.NOTHING
     wf.add(
         pydra_dcm2niix.Dcm2Niix(
-            in_dir=wf.lzin.in_file,
+            in_dir=wf.ensure_dicom_dir.lzout.out,
             out_dir=".",
             name="dcm2niix",
             compress=compress,

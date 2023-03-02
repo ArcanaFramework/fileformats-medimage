@@ -25,10 +25,10 @@ from .diffusion import (
     NiftiGzXB,
 )
 from .dicom import (  # noqa: F401
-    DicomFile,
-    SiemensDicomFile,
-    Dicom,
-    SiemensDicom,
+    DicomCollection,
+    DicomDir,
+    DicomSet,
+    # SiemensDicomDir,
 )
 from .raw import (  # noqa: F401
     ListMode,

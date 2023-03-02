@@ -6,7 +6,7 @@ import pytest
 from pydra import set_input_validator
 
 # set_input_validator(True)
-from fileformats.medimage.dicom import Dicom
+from fileformats.medimage.dicom import DicomDir
 
 
 # Set DEBUG logging for unittests
@@ -27,28 +27,28 @@ logger.addHandler(sch)
 def dummy_t1w_dicom():
     import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c as module
 
-    return Dicom(module.get_image())
+    return DicomDir(module.get_image())
 
 
 @pytest.fixture(scope="session")
 def dummy_magfmap_dicom():
     import medimages4tests.dummy.dicom.mri.fmap.siemens.skyra.syngo_d13c as module
 
-    return Dicom(module.get_image())
+    return DicomDir(module.get_image())
 
 
 @pytest.fixture(scope="session")
 def dummy_dwi_dicom():
     import medimages4tests.dummy.dicom.mri.dwi.siemens.skyra.syngo_d13c as module
 
-    return Dicom(module.get_image())
+    return DicomDir(module.get_image())
 
 
 @pytest.fixture(scope="session")
 def dummy_mixedfmap_dicom():
     import medimages4tests.dummy.dicom.mri.fmap.ge.discovery_mr888.dv26_0_r05_2008a as module
 
-    return Dicom(module.get_image())
+    return DicomDir(module.get_image())
 
 
 # For debugging in IDE's don't catch raised exceptions and let the IDE
