@@ -51,46 +51,7 @@ class DicomCollection(MedicalImage):
         )
 
     def extract_id(self):
-        return int(self.dicom_values([self.SERIES_NUMBER_TAG])[0])
-
-    # def dicom_values(self, tags):
-    #     """
-    #     Returns a dictionary with the DICOM header fields corresponding
-    #     to the given tag names
-
-    #     Parameters
-    #     ----------
-    #     fileset : FileSet
-    #         The file set to extract the DICOM header for
-    #     tags : List[Tuple[str, str]]
-    #         List of DICOM tag values as 2-tuple of strings, e.g.
-    #         [('0080', '0020')]
-
-    #     Returns
-    #     -------
-    #     dct : Dict[Tuple[str, str], str|int|float]
-    #     """
-
-    #     def read_header():
-    #         dcm = self.load_metadata(0)
-    #         return [dcm[t].value for t in tags]
-
-    #     try:
-    #         if self.fspath:
-    #             # Get the DICOM object for the first file in the self
-    #             dct = read_header()
-    #         else:
-    #             try:
-    #                 # Try to access dicom header details remotely
-    #                 hdr = self.row.dataset.store.dicom_header(self)
-    #             except AttributeError:
-    #                 dct = read_header()
-    #             else:
-    #                 dct = [hdr[t] for t in tags]
-    #     except KeyError as e:
-    #         e.msg = "{} does not have dicom tag {}".format(self, str(e))
-    #         raise e
-    #     return dct
+        return int(self.load_metadata(specific_tags=[self.SERIES_NUMBER_TAG])[0])
 
 
 class DicomDir(DicomCollection, Directory):
