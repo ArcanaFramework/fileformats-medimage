@@ -1,5 +1,5 @@
 from ._version import __version__
-from .base import MedicalImage, NeuroImage
+from .base import MedicalImage
 from .misc import (  # noqa: F401
     Analyze,
 )

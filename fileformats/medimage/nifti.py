@@ -5,12 +5,13 @@ from fileformats.core.mixin import (
 from fileformats.serialization import Json
 # from fileformats.text import Tsv
 from fileformats.archive import Gzip
-from .base import NeuroImage
+from .base import MedicalImage
 
 
-class Nifti(NeuroImage):
+class Nifti(MedicalImage, File):
 
     ext = ".nii"
+    iana_mime = None
 
     def load_metadata(self):
         import nibabel
@@ -57,7 +58,6 @@ class Nifti1(WithMagicNumber, Nifti):
 
 class Nifti2(WithMagicNumber, Nifti):
 
-    ext = ".nii"
     iana_mime = "application/x-nifti2"
     magic_number = "6e2b3200"
     magic_number_offset = 344
@@ -77,7 +77,7 @@ class NiftiGzX(WithBids, NiftiGz):
     iana_mime = "application/x-nifti1+gzip.bids"
 
 
-class NiftiDataFile(NeuroImage):
+class NiftiDataFile(MedicalImage):
 
     ext = ".img"
 
@@ -103,7 +103,7 @@ class AnalyzeHeader(File):
         raise NotImplementedError
 
 
-class Analyze(WithSeparateHeader, NeuroImage):
+class Analyze(WithSeparateHeader, MedicalImage):
 
     ext = ".img"
     header_type = AnalyzeHeader

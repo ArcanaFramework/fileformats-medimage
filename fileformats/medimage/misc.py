@@ -1,6 +1,6 @@
 from fileformats.generic import File
 from fileformats.core.mixin import WithSeparateHeader
-from .base import NeuroImage
+from .base import MedicalImage
 
 
 # ==================
@@ -17,7 +17,7 @@ class AnalyzeHeader(File):
         raise NotImplementedError
 
 
-class Analyze(WithSeparateHeader, NeuroImage):
+class Analyze(WithSeparateHeader, MedicalImage, File):
 
     ext = ".img"
     header_type = AnalyzeHeader

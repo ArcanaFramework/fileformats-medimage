@@ -1,6 +1,6 @@
 import numpy as np
 from fileformats.generic import Directory, TypedSet
-from fileformats.image import Dicom
+from fileformats.misc import Dicom
 from .base import MedicalImage
 
 # =====================================================================
@@ -93,10 +93,9 @@ class DicomCollection(MedicalImage):
     #     return dct
 
 
-class DicomDir(Directory, DicomCollection):
+class DicomDir(DicomCollection, Directory):
     pass
 
 
-class DicomSet(TypedSet, DicomCollection):
+class DicomSet(DicomCollection, TypedSet):
     pass
-

@@ -1,17 +1,18 @@
 from pathlib import Path
 from fileformats.core import mark
+from fileformats.generic import File
 from fileformats.core.mixin import WithMagicNumber
 from fileformats.numeric import DataFile
 from fileformats.core.exceptions import FormatMismatchError
 from fileformats.core.utils import MissingExtendedDependency
-from .misc import NeuroImage
+from .misc import MedicalImage
 try:
     import numpy
 except ImportError:
     numpy = MissingExtendedDependency("numpy", __name__)
 
 
-class BaseMrtrixImage(WithMagicNumber, NeuroImage):
+class BaseMrtrixImage(WithMagicNumber, MedicalImage, File):
 
     magic_number = b"mrtrix image\n"
     binary = True

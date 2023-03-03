@@ -1,5 +1,5 @@
 import numpy as np
-from fileformats.generic import File
+from fileformats.generic import FileSet
 
 
 # =====================================================================
@@ -7,7 +7,7 @@ from fileformats.generic import File
 # =====================================================================
 
 
-class MedicalImage(File):
+class MedicalImage(FileSet):
 
     iana_mime = None
     INCLUDE_HDR_KEYS = None
@@ -104,8 +104,3 @@ class MedicalImage(File):
         Return the RMS difference between the image arrays
         """
         return np.sqrt(np.sum((self.get_array() - other_image.get_array()) ** 2))
-
-
-class NeuroImage(MedicalImage):
-    """Imaging formats developed for neuroimaging scans"""
-    iana_mime = None
