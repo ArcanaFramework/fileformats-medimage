@@ -2,6 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 import attrs
 import json
+import typing as ty
 import tempfile
 from fileformats.core import mark
 from fileformats.core.utils import MissingExtendedDependency
@@ -92,9 +93,9 @@ def ensure_dicom_dir(dicom: DicomCollection) -> DicomDir:
 def extended_dcm2niix(
     name,
     compress: str = "n",
-    file_postfix: str = None,
-    side_car_jq: str = None,
-    extract_volume: int = None,
+    file_postfix: ty.Optional[str] = None,
+    side_car_jq: ty.Optional[str] = None,
+    extract_volume: ty.Optional[int] = None,
     to_4d: bool = False,
 ):
     """The Dcm2niix command wrapped in a workflow in order to map the inputs and outputs
