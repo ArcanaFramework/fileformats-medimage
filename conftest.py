@@ -3,9 +3,12 @@ import logging
 import tempfile
 from pathlib import Path
 import pytest
-from pydra import set_input_validator
-
-# set_input_validator(True)
+try:
+    from pydra import set_input_validator
+except ImportError:
+    pass
+else:
+    set_input_validator(True)
 from fileformats.medimage.dicom import DicomDir
 
 
