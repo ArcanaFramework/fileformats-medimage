@@ -70,7 +70,7 @@ def mrconvert(name, out_ext: str):
 def ensure_dicom_dir(dicom: DicomCollection) -> DicomDir:
     if isinstance(dicom, DicomSet):
         dicom_dir_fspath = tempfile.mkdtemp()
-        dicom.copy_to(dicom_dir_fspath, symlink=True)
+        dicom.copy(dicom_dir_fspath, link_type="symbolic")
         dicom = DicomDir(dicom_dir_fspath)
     elif not isinstance(dicom, DicomDir):
         raise RuntimeError(
