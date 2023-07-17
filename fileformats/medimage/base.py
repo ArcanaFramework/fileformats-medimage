@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from fileformats.generic import FileSet
 
 
@@ -103,4 +104,4 @@ class MedicalImage(FileSet):
         """
         Return the RMS difference between the image arrays
         """
-        return np.sqrt(np.sum((self.get_array() - other_image.get_array()) ** 2))
+        return math.sqrt(sum((self.get_array() - other_image.get_array()) ** 2))
