@@ -5,6 +5,8 @@ from .misc import (  # noqa: F401
 )
 from .nifti import (
     Nifti,
+    Nifti1,
+    Nifti2,
     NiftiGz,
     NiftiX,
     NiftiGzX,
