@@ -54,16 +54,6 @@ test = [
     "medimages4tests >=0.3",
 ]
 
-extended = [
-    "pydra >= 0.20.0",
-    "pydra-dcm2niix",
-    "pydra-mrtrix3",
-    "numpy >=1.20",    
-    "attrs >=22.1.0",
-    "jq >=1.4.0",
-    "nibabel >=5.0.0",
-    "pydicom >=2.3.1",
-]
 
 [project.urls]
 repository = "https://github.com/ArcanaFramework/fileformats-medimage"
