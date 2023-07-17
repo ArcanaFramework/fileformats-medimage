@@ -1,5 +1,5 @@
-FileFormats Extension - Medimage
-================================
+FileFormats - Medimage
+======================
 .. image:: https://github.com/ArcanaFramework/fileformats-medimage/actions/workflows/tests.yml/badge.svg
    :target: https://github.com/ArcanaFramework/fileformats-medimage/actions/workflows/tests.yml
 .. image:: https://codecov.io/gh/ArcanaFramework/fileformats-medimage/branch/main/graph/badge.svg?token=UIS0OGPST7
