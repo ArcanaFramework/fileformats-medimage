@@ -65,6 +65,7 @@ class NiftiDataFile(MedicalImage):
 
 
 class NiftiWithDataFile(WithAdjacentFiles, Nifti1):
+    """Nifti file with separate data file"""
 
     magic_number = "6E693100"
     alternate_exts = (".hdr",)
