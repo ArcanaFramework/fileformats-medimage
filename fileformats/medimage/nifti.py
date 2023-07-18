@@ -1,3 +1,4 @@
+import typing as ty
 from fileformats.generic import File
 from fileformats.core import mark
 from fileformats.core.mixin import (
@@ -10,27 +11,8 @@ from .base import MedicalImage
 
 class Nifti(MedicalImage, File):
 
-    ext = ".nii"
-    iana_mime = None
-
-    def load_metadata(self):
-        import nibabel
-        return dict(nibabel.load(self.fspath).header)
-
-    @property
-    def data_array(self):
-        import nibabel
-        return nibabel.load(self.fspath).get_data()
-
-    @property
-    def vox_sizes(self):
-        # FIXME: This won't work for 4-D files
-        return self.metadata["pixdim"][1:4]
-
-    @property
-    def dims(self):
-        # FIXME: This won't work for 4-D files
-        return self.metadata["dim"][1:4]
+    ext: str = ".nii"
+    iana_mime: ty.Optional[str] = None
 
 
 class WithBids(WithSideCars):
@@ -38,15 +20,15 @@ class WithBids(WithSideCars):
     primary_type = Nifti
     side_car_types = (Json,)
 
-    @mark.required
     @property
+    @mark.required
     def json_file(self):
         return Json(self.select_by_ext(Json))
 
     # @mark.required
     # @property
     # def tsv_file(self):
-    #     return Json(self.select_by_ext(Json, allow_none=True))
+    #     return Tsv(self.select_by_ext(Tsv, allow_none=True))
 
 
 class Nifti1(WithMagicNumber, Nifti):
@@ -87,8 +69,8 @@ class NiftiWithDataFile(WithAdjacentFiles, Nifti1):
     magic_number = "6E693100"
     alternate_exts = (".hdr",)
 
-    @mark.required
     @property
+    @mark.required
     def data_file(self):
         return self.select_by_ext(NiftiDataFile)
 

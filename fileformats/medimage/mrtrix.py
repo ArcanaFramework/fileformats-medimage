@@ -4,12 +4,7 @@ from fileformats.generic import File
 from fileformats.core.mixin import WithMagicNumber
 from fileformats.numeric import DataFile
 from fileformats.core.exceptions import FormatMismatchError
-from fileformats.core.utils import MissingExtendedDependency
 from .misc import MedicalImage
-try:
-    import numpy
-except ImportError:
-    numpy = MissingExtendedDependency("numpy", __name__)
 
 
 class BaseMrtrixImage(WithMagicNumber, MedicalImage, File):
@@ -71,16 +66,6 @@ class BaseMrtrixImage(WithMagicNumber, MedicalImage, File):
     def dims(self):
         return self.metadata["dim"]
 
-    @property
-    def data_array(self):
-        data = self.read_contents(offset=self.data_offset)
-        array = numpy.asarray(data)
-        data_array = array.reshape(self.dims)
-        raise NotImplementedError(
-            "Need to work out how to use the metadata to read the array in the correct order"
-        )
-        return data_array
-
 
 class MrtrixImage(BaseMrtrixImage):
 
@@ -102,8 +87,8 @@ class MrtrixImageHeader(BaseMrtrixImage):
 
     ext = ".mih"
 
-    @mark.required
     @property
+    @mark.required
     def data_file(self):
         return DataFile(self.data_fspath)
 
