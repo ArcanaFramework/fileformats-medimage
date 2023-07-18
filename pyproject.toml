@@ -6,9 +6,9 @@ build-backend = "hatchling.build"
 name = "fileformats-medimage"
 description = "Classes for representing various medical imaging file formats in Python classes for use in type hinting in data workflows"
 readme = "README.rst"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dependencies = [
-    "fileformats >=0.4.0",
+    "fileformats >=0.7.1",
 ]
 license = {file = "LICENSE"}
 authors = [
@@ -29,7 +29,6 @@ classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",

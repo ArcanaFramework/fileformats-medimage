@@ -87,8 +87,8 @@ class MrtrixImageHeader(BaseMrtrixImage):
 
     ext = ".mih"
 
-    @property
     @mark.required
+    @property
     def data_file(self):
         return DataFile(self.data_fspath)
 

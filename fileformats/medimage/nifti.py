@@ -20,8 +20,8 @@ class WithBids(WithSideCars):
     primary_type = Nifti
     side_car_types = (Json,)
 
-    @property
     @mark.required
+    @property
     def json_file(self):
         return Json(self.select_by_ext(Json))
 
@@ -69,8 +69,8 @@ class NiftiWithDataFile(WithAdjacentFiles, Nifti1):
     magic_number = "6E693100"
     alternate_exts = (".hdr",)
 
-    @property
     @mark.required
+    @property
     def data_file(self):
         return self.select_by_ext(NiftiDataFile)
 

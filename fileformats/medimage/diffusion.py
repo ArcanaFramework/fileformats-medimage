@@ -43,8 +43,8 @@ class Bvec(WithAdjacentFiles, DwiEncoding):
 
     ext = ".bvec"
 
-    @property
     @mark.required
+    @property
     def b_values_file(self) -> Bval:
         return Bval(self.select_by_ext(Bval))
 
@@ -57,16 +57,16 @@ class Bfile(DwiEncoding):
 
 # NIfTI file format gzipped with BIDS side car
 class WithBvec(WithAdjacentFiles):
-    @property
     @mark.required
+    @property
     def encoding(self) -> Bvec:
         return Bvec(self.select_by_ext(Bvec))
 
 
 # NIfTI file format gzipped with BIDS side car
 class WithBfile(WithAdjacentFiles):
-    @property
     @mark.required
+    @property
     def encoding(self) -> Bfile:
         return Bfile(self.select_by_ext(Bfile))
 
