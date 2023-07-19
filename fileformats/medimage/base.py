@@ -16,7 +16,7 @@ class MedicalImage(FileSet):
     binary = True
 
     @mark.extra
-    def data_array(self):
+    def read_array(self):
         """
         Returns the binary data of the image in a numpy array
         """

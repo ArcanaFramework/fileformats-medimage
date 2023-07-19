@@ -12,16 +12,8 @@ class AnalyzeHeader(File):
 
     ext = ".hdr"
 
-    @property
-    def load(self):
-        raise NotImplementedError
-
 
 class Analyze(WithSeparateHeader, MedicalImage, File):
 
     ext = ".img"
     header_type = AnalyzeHeader
-
-    @property
-    def data_array(self):
-        raise NotImplementedError

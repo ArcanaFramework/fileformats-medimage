@@ -74,23 +74,3 @@ class NiftiWithDataFile(WithAdjacentFiles, Nifti1):
     @property
     def data_file(self):
         return self.select_by_ext(NiftiDataFile)
-
-
-class AnalyzeHeader(File):
-
-    ext = ".hdr"
-    binary = True
-
-    @property
-    def load(self):
-        raise NotImplementedError
-
-
-class Analyze(WithSeparateHeader, MedicalImage):
-
-    ext = ".img"
-    header_type = AnalyzeHeader
-
-    @property
-    def data_array(self):
-        raise NotImplementedError
