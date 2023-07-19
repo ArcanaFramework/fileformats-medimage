@@ -11,7 +11,7 @@ from .nifti import (
     NiftiX,
     NiftiGzX,
 )
-from .mrtrix import MrtrixImage, MrtrixImageHeader
+from .mrtrix3 import MrtrixImage, MrtrixImageHeader
 from .diffusion import (
     DwiEncoding,
     MrtrixTrack,
