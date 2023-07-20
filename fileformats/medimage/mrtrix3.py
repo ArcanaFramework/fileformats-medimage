@@ -12,7 +12,7 @@ class BaseMrtrixImage(WithMagicNumber, MedicalImage, File):
     magic_number = b"mrtrix image\n"
     binary = True
 
-    def load_metadata(self):
+    def read_metadata(self):
         metadata = {}
         with open(self.fspath, "rb") as f:
             line = f.readline()
