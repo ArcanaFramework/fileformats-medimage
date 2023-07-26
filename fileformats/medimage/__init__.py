@@ -16,6 +16,7 @@ from .diffusion import (
     DwiEncoding,
     MrtrixTrack,
     Bvec,
+    Bval,
     Bfile,
     NiftiBvec,
     NiftiGzBvec,
