@@ -98,6 +98,6 @@ class MrtrixImageHeader(BaseMrtrixImage):
         super().__attrs_post_init__()
 
 
-class MrtrixDataFile(BaseMrtrixImage):
+class MrtrixDataFile(File):
 
     ext = ".dat"
