@@ -2,7 +2,6 @@ from pathlib import Path
 from fileformats.core import mark
 from fileformats.generic import File
 from fileformats.core.mixin import WithMagicNumber
-from fileformats.numeric import DataFile
 from fileformats.core.exceptions import FormatMismatchError
 from .misc import MedicalImage
 
@@ -90,10 +89,15 @@ class MrtrixImageHeader(BaseMrtrixImage):
     @mark.required
     @property
     def data_file(self):
-        return DataFile(self.data_fspath)
+        return MrtrixDataFile(self.data_fspath)
 
     def __attrs_post_init__(self):
         if len(self.fspaths) == 1:
             # add in data file if only header file is provided
             self.fspaths |= set([BaseMrtrixImage(self.fspath).data_fspath])
         super().__attrs_post_init__()
+
+
+class MrtrixDataFile(BaseMrtrixImage):
+
+    ext = ".dat"
