@@ -3,6 +3,8 @@ from .base import MedicalImage
 from fileformats.misc import Dicom  # imported to alias it here as well
 from .misc import (  # noqa: F401
     Analyze,
+    MGH,
+    MGHZip,
 )
 from .nifti import (
     Nifti,
