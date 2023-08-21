@@ -1,5 +1,7 @@
+from fileformats.archive import Zip
 from fileformats.generic import File
-from fileformats.core.mixin import WithSeparateHeader
+from fileformats.core import mark
+from fileformats.core.mixin import WithSeparateHeader, WithMagicVersion
 from .base import MedicalImage
 
 
@@ -17,3 +19,28 @@ class Analyze(WithSeparateHeader, MedicalImage, File):
 
     ext = ".img"
     header_type = AnalyzeHeader
+
+
+class MGH(WithMagicVersion, File):
+    """
+    FreeSurfer 4-dimensional brain images
+
+    See https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat
+    """
+
+    ext = ".mgh"
+    magic_pattern = rb"(....)"  # First integer is the version string
+
+    @mark.check
+    def is_supported_version(self):
+        self.version == 1
+
+
+class MGHZip(Zip[MGH]):
+    """
+    FreeSurfer 4-dimensional brain images
+
+    See https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat
+    """
+
+    ext = ".mgz"
