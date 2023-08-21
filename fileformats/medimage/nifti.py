@@ -2,7 +2,7 @@ import typing as ty
 from fileformats.generic import File
 from fileformats.core import mark
 from fileformats.core.mixin import (
-    WithSideCars, WithMagicNumber, WithSeparateHeader, WithAdjacentFiles)
+    WithSideCars, WithMagicNumber, WithAdjacentFiles)
 from fileformats.serialization import Json
 # from fileformats.text import Tsv
 from fileformats.archive import Gzip

@@ -49,26 +49,12 @@ class Bvec(WithAdjacentFiles, DwiEncoding):
         return Bval(self.select_by_ext(Bval))
 
 
-class Bfile(DwiEncoding):
-    """MRtrix-style diffusion encoding, all in one file"""
-
-    ext = ".b"
-
-
 # NIfTI file format gzipped with BIDS side car
 class WithBvec(WithAdjacentFiles):
     @mark.required
     @property
     def encoding(self) -> Bvec:
         return Bvec(self.select_by_ext(Bvec))
-
-
-# NIfTI file format gzipped with BIDS side car
-class WithBfile(WithAdjacentFiles):
-    @mark.required
-    @property
-    def encoding(self) -> Bfile:
-        return Bfile(self.select_by_ext(Bfile))
 
 
 class NiftiBvec(WithBvec, Nifti1):
@@ -85,27 +71,3 @@ class NiftiXBvec(WithBvec, NiftiX):
 
 class NiftiGzXBvec(WithBvec, NiftiGzX):
     iana_mime = "application/x-nifti2+gzip.json.bvec"
-
-
-class NiftiB(WithBfile, Nifti1):
-    iana_mime = "application/x-nifti2+b"
-
-
-class NiftiGzB(WithBfile, NiftiGz):
-    iana_mime = "application/x-nifti2+gzip.b"
-
-
-class NiftiXB(WithBfile, NiftiX):
-    iana_mime = "application/x-nifti2+json.b"
-
-
-class NiftiGzXB(WithBfile, NiftiGzX):
-    iana_mime = "application/x-nifti2+gzip.json.b"
-
-
-# Track files
-
-
-class MrtrixTrack(File):
-
-    ext = ".tck"
