@@ -21,7 +21,7 @@ class Analyze(WithSeparateHeader, MedicalImage, File):
     header_type = AnalyzeHeader
 
 
-class MGH(WithMagicVersion, File):
+class Mgh(WithMagicVersion, File):
     """
     FreeSurfer 4-dimensional brain images
 
@@ -36,7 +36,7 @@ class MGH(WithMagicVersion, File):
         self.version == 1
 
 
-class MGHZip(Zip[MGH]):
+class MghZip(Zip[Mgh]):
     """
     FreeSurfer 4-dimensional brain images
 
