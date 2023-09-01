@@ -3,9 +3,9 @@ from fileformats.generic import File
 from fileformats.core import mark
 from fileformats.core.mixin import (
     WithSideCars, WithMagicNumber, WithAdjacentFiles)
-from fileformats.serialization import Json
+from fileformats.application import Json
 # from fileformats.text import Tsv
-from fileformats.archive import Gzip
+from fileformats.application import Gzip
 from .base import MedicalImage
 
 

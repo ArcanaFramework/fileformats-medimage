@@ -1,6 +1,6 @@
 from ._version import __version__
 from .base import MedicalImage
-from fileformats.misc import Dicom  # imported to alias it here as well
+from fileformats.application import Dicom  # imported to alias it here as well
 from .misc import (  # noqa: F401
     Analyze,
     Mgh,

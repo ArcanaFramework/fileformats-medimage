@@ -43,4 +43,5 @@ class Mgz(Gzip[Mgh]):
     See https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat
     """
 
+    iana_mime = "application/x-mgh+zip"
     ext = ".mgz"

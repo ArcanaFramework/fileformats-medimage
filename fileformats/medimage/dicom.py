@@ -1,6 +1,6 @@
 from fileformats.core import mark
 from fileformats.generic import Directory, TypedSet
-from fileformats.misc import Dicom
+from fileformats.application import Dicom
 from .base import MedicalImage
 
 # =====================================================================
