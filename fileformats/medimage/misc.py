@@ -1,4 +1,5 @@
-from fileformats.archive import Zip
+
+from fileformats.application import Gzip
 from fileformats.generic import File
 from fileformats.core import mark
 from fileformats.core.mixin import WithSeparateHeader, WithMagicVersion
@@ -36,9 +37,9 @@ class Mgh(WithMagicVersion, File):
         self.version == 1
 
 
-class MghZip(Zip[Mgh]):
+class Mgz(Gzip[Mgh]):
     """
-    FreeSurfer 4-dimensional brain images
+    FreeSurfer 4-dimensional brain images, gzipped
 
     See https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat
     """
