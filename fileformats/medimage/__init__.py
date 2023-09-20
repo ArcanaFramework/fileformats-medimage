@@ -4,7 +4,7 @@ from fileformats.application import Dicom  # imported to alias it here as well
 from .misc import (  # noqa: F401
     Analyze,
     Mgh,
-    MghZip,
+    MghGz,
 )
 from .nifti import (
     Nifti,

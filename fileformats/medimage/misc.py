@@ -36,7 +36,7 @@ class Mgh(WithMagicVersion, File):
         self.version == 1
 
 
-class Mgz(Gzip[Mgh]):
+class MghGz(Gzip[Mgh]):
     """
     FreeSurfer 4-dimensional brain images, gzipped
 
