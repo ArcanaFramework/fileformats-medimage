@@ -1,4 +1,3 @@
-
 from fileformats.application import Gzip
 from fileformats.generic import File
 from fileformats.core import mark
