@@ -1,6 +1,9 @@
 import typing as ty
+import logging
 from fileformats.generic import FileSet
 from fileformats.core import mark
+
+logger = logging.getLogger("fileformats")
 
 
 # =====================================================================
