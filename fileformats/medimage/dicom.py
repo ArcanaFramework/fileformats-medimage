@@ -33,20 +33,6 @@ class DicomCollection(MedicalImage):
     def contents(self) -> ty.List[Dicom]:
         return sorted(super().contents, key=itemgetter("SOPInstanceUID"))
 
-    @cached_property
-    def metadata(self):
-        # Collated DICOM headers across series
-        collated = copy(self.contents[0].metadata)
-        if len(self.contents) > 1:
-            for key, val in self.contents[1].metadata.items():
-                if val != collated[key]:  # Turn field into list
-                    collated[key] = [collated[key], val]
-        for dicom in self.contents[2:]:
-            for key, val in dicom.metadata.items():
-                if val != collated[key]:
-                    collated[key].append(val)
-        return collated
-
 
 class DicomDir(DicomCollection, DirectoryContaining[Dicom]):
     pass
@@ -63,3 +49,18 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
         for dicom in dicoms:
             series_dict[dicom["SeriesNumber"]].append(dicom)
         return set([cls(s) for s in series_dict.values()]), remaining
+
+
+@FileSet.read_metadata.register
+def dicom_collection_read_metadata(collection: DicomCollection) -> ty.Dict[str, ty.Any]:
+    # Collated DICOM headers across series
+    collated = copy(collection.contents[0].metadata)
+    if len(collection.contents) > 1:
+        for key, val in collection.contents[1].metadata.items():
+            if val != collated[key]:  # Turn field into list
+                collated[key] = [collated[key], val]
+    for dicom in collection.contents[2:]:
+        for key, val in dicom.metadata.items():
+            if val != collated[key]:
+                collated[key].append(val)
+    return collated
