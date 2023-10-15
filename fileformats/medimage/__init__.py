@@ -26,7 +26,7 @@ from .diffusion import (
 from .dicom import (  # noqa: F401
     DicomCollection,
     DicomDir,
-    DicomSet,
+    DicomSeries,
     # SiemensDicomDir,
 )
 from .raw import (  # noqa: F401
