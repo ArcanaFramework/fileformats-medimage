@@ -27,7 +27,7 @@ def test_series_from_paths(tmp_path):
 
     detected = from_paths(fspaths, DicomSeries)
 
-    assert len(detected) == 3
+    assert set(detected) == set(filesets)
 
 
 def test_dicom_series_metadata(tmp_path):
