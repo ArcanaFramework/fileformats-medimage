@@ -24,10 +24,10 @@ This extension can be installed for Python 3 using *pip*::
 
 This will install the core package and any other dependencies to validate the file formats.
 
-To use converters and load methods use the ``extended`` install option to install additional
-dependencies required for these methods::
+To use converters and metadata reading methods that depend on third-party packages, also install the
+associated `extras` package::
 
-    $ pip3 install fileformats-medimage[extended]
+    $ pip3 install fileformats-medimage-extras
 
 For most of the converter to work, you will also need to use the ``[extended]`` install option and
 install the Dcm2NiiX_ and MRtrix_ software packages. There are various ways to do this, but on
