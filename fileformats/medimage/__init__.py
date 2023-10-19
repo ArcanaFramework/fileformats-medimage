@@ -30,9 +30,15 @@ from .dicom import (  # noqa: F401
     # SiemensDicomDir,
 )
 from .raw import (  # noqa: F401
-    ListMode,
     Kspace,
-    TwixVb,
-    # CustomKspace,
     Rda,
+    PetListMode,
+    PetSinogram,
+    PetCountRate,
+    PetNormalisation,
+    Vnd_Siemens_PetRawData,
+    Vnd_Siemens_PetListMode,
+    Vnd_Siemens_PetSinogram,
+    Vnd_Siemens_PetCountRate,
+    Vnd_Siemens_PetNormalisation,
 )
