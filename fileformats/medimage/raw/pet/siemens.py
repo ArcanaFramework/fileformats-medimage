@@ -7,23 +7,30 @@ from .base import (
 )
 
 
-class Vnd_Siemens_PetRawData(PetRawData):
-
+class Vnd_Siemens_BiographVisionVr20b_PetRawData(PetRawData):
     iana_mime = None
     ext = ".ptd"
 
 
-class Vnd_Siemens_PetListMode(Vnd_Siemens_PetRawData, PetListMode):
+class Vnd_Siemens_BiographVisionVr20b_PetListMode(
+    Vnd_Siemens_BiographVisionVr20b_PetRawData, PetListMode
+):
     pass
 
 
-class Vnd_Siemens_PetSinogram(Vnd_Siemens_PetRawData, PetSinogram):
+class Vnd_Siemens_BiographVisionVr20b_PetSinogram(
+    Vnd_Siemens_BiographVisionVr20b_PetRawData, PetSinogram
+):
     "histogrammed projection data in a reconstruction-friendly format"
 
 
-class Vnd_Siemens_PetCountRate(Vnd_Siemens_PetRawData, PetCountRate):
+class Vnd_Siemens_BiographVisionVr20b_PetCountRate(
+    Vnd_Siemens_BiographVisionVr20b_PetRawData, PetCountRate
+):
     "number of prompt/random/single events per unit time"
 
 
-class Vnd_Siemens_PetNormalisation(Vnd_Siemens_PetRawData, PetNormalisation):
+class Vnd_Siemens_BiographVisionVr20b_PetNormalisation(
+    Vnd_Siemens_BiographVisionVr20b_PetRawData, PetNormalisation
+):
     "normalisation scan or the current cross calibration factor"
