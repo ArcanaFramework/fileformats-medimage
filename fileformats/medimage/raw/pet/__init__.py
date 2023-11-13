@@ -6,9 +6,9 @@ from .base import (
     PetNormalisation,
 )
 from .siemens import (
-    Vnd_Siemens_PetRawData,
-    Vnd_Siemens_PetListMode,
-    Vnd_Siemens_PetSinogram,
-    Vnd_Siemens_PetCountRate,
-    Vnd_Siemens_PetNormalisation,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetListMode,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation,
 )

@@ -39,7 +39,6 @@ class DicomDir(DicomCollection, DirectoryContaining[Dicom]):
 
 
 class DicomSeries(DicomCollection, SetOf[Dicom]):
-
     @classmethod
     def from_paths(
         cls, fspaths: ty.Iterable[Path], common_ok: bool = False
@@ -47,7 +46,7 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
         dicoms, remaining = Dicom.from_paths(fspaths, common_ok=common_ok)
         series_dict = defaultdict(list)
         for dicom in dicoms:
-            series_dict[dicom["SeriesNumber"]].append(dicom)
+            series_dict[(str(dicom["StudyInstanceUID"]), str(dicom["SeriesNumber"]))].append(dicom)
         return set([cls(s) for s in series_dict.values()]), remaining
 
 
@@ -55,12 +54,16 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
 def dicom_collection_read_metadata(collection: DicomCollection) -> ty.Dict[str, ty.Any]:
     # Collated DICOM headers across series
     collated = copy(collection.contents[0].metadata)
-    if len(collection.contents) > 1:
-        for key, val in collection.contents[1].metadata.items():
-            if val != collated[key]:  # Turn field into list
-                collated[key] = [collated[key], val]
-    for dicom in collection.contents[2:]:
+    for i, dicom in enumerate(collection.contents[1:], start=1):
         for key, val in dicom.metadata.items():
             if val != collated[key]:
+                # Check whether the value is the same as the values in the previous
+                # images in the series
+                if (
+                    not isinstance(collated[key], list)
+                    or isinstance(val, list)
+                    and not isinstance(collated[key][0], list)
+                ):
+                    collated[key] = [collated[key]] * i + [val]
                 collated[key].append(val)
     return collated
