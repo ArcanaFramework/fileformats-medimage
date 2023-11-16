@@ -1,7 +1,7 @@
 import typing as ty
 import logging
 from fileformats.generic import FileSet
-from fileformats.core import mark
+from fileformats.core import hook
 
 logger = logging.getLogger("fileformats")
 
@@ -18,19 +18,19 @@ class MedicalImage(FileSet):
     IGNORE_HDR_KEYS = None
     binary = True
 
-    @mark.extra
+    @hook.extra
     def read_array(self):
         """
         Returns the binary data of the image in a numpy array
         """
         raise NotImplementedError
 
-    @mark.extra
+    @hook.extra
     def vox_sizes(self) -> ty.Tuple[float]:
         """The length of the voxels along each dimension"""
         raise NotImplementedError
 
-    @mark.extra
+    @hook.extra
     def dims(self) -> ty.Tuple[int]:
         """The dimensions of the image"""
         raise NotImplementedError

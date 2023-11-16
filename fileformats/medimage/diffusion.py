@@ -1,5 +1,5 @@
 import typing as ty
-from fileformats.core import mark
+from fileformats.core import hook
 from fileformats.core.mixin import WithAdjacentFiles
 from fileformats.generic import File
 from .nifti import NiftiGzX, NiftiGz, Nifti1, NiftiX
@@ -9,7 +9,7 @@ class DwiEncoding(File):
 
     iana_mime: ty.Optional[str] = None
 
-    @mark.extra
+    @hook.extra
     def read_array(self):
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
@@ -33,7 +33,7 @@ class Bval(File):
 
     ext = ".bval"
 
-    @mark.extra
+    @hook.extra
     def read_array(self):
         raise NotImplementedError
 
@@ -43,7 +43,7 @@ class Bvec(WithAdjacentFiles, DwiEncoding):
 
     ext = ".bvec"
 
-    @mark.required
+    @hook.required
     @property
     def b_values_file(self) -> Bval:
         return Bval(self.select_by_ext(Bval))
@@ -51,7 +51,7 @@ class Bvec(WithAdjacentFiles, DwiEncoding):
 
 # NIfTI file format gzipped with BIDS side car
 class WithBvec(WithAdjacentFiles):
-    @mark.required
+    @hook.required
     @property
     def encoding(self) -> Bvec:
         return Bvec(self.select_by_ext(Bvec))
