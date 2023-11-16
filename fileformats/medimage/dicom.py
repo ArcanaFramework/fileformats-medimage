@@ -4,7 +4,7 @@ from operator import itemgetter
 from collections import defaultdict
 from pathlib import Path
 from functools import cached_property
-from fileformats.core import mark, FileSet
+from fileformats.core import hook, FileSet
 from fileformats.generic import DirectoryContaining, SetOf
 from fileformats.application import Dicom
 from .base import MedicalImage
@@ -25,7 +25,7 @@ class DicomCollection(MedicalImage):
     def __len__(self):
         return len(self.contents)
 
-    @mark.extra
+    @hook.extra
     def series_number(self):
         raise NotImplementedError
 

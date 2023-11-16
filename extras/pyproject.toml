@@ -3,12 +3,22 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "fileformats-medimage"
-description = "Classes for representing various medical imaging file formats in Python classes for use in type hinting in data workflows"
+name = "fileformats-medimage-extras"
+description = "Classes for representing different file formats in Python classes for use in type hinting in data workflows"
 readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
-    "fileformats >=0.7.1",
+    "fileformats >= 0.6",
+    "fileformats-extras >= 0.2.1",
+    "fileformats-medimage >= 0.3",
+    "jq >=1.4.0",
+    "nibabel >=5.0.0",
+    "numpy >=1.20",
+    "medimages4tests >=0.3.0",
+    "pydicom >=2.3.1",
+    "pydra >= 0.22.0",
+    "pydra-dcm2niix",
+    "pydra-mrtrix3",
 ]
 license = {file = "LICENSE"}
 authors = [
@@ -49,29 +59,25 @@ test = [
     "pytest >=6.2.5",
     "pytest-env>=0.6.2",
     "pytest-cov>=2.12.1",
-    "medimages4tests >=0.3",
-    "fileformats-medimage-extras",
+    "codecov",
 ]
-
 
 [project.urls]
 repository = "https://github.com/ArcanaFramework/fileformats-medimage"
 
-
 [tool.hatch.version]
 source = "vcs"
+raw-options = {root = ".."}
 
 [tool.hatch.build.hooks.vcs]
-version-file = "fileformats/medimage/_version.py"
+version-file = "fileformats/extras/medimage/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["fileformats"]
-exclude = ["tests"]
-include = ["./fileformats"]
 
 [tool.black]
 target-version = ['py38']
-exclude = "fileformats/medimage/_version.py"
+exclude = "fileformats/extras/medimage/_version.py"
 
 [tool.codespell]
 ignore-words = ".codespell-ignorewords"
@@ -83,4 +89,4 @@ per-file-ignores = [
 ]
 max-line-length = 88
 select = "C,E,F,W,B,B950"
-extend-ignore = ['E203', 'E501', 'E129', 'W503']
+extend-ignore = ['E203', 'E501', 'E129', 'F403']
