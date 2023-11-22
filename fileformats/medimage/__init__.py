@@ -1,12 +1,13 @@
-from ._version import __version__
-from .base import MedicalImage
-from fileformats.application import Dicom  # imported to alias it here as well
+from ._version import __version__  # noqa: F401
+from .base import MedicalImage  # noqa: F401
+# import Dicom to alias to the medimage namespace it here as well
+from fileformats.application import Dicom  # noqa: F401
 from .misc import (  # noqa: F401
     Analyze,
     Mgh,
     MghGz,
 )
-from .nifti import (
+from .nifti import (  # noqa: F401
     Nifti,
     Nifti1,
     Nifti2,
@@ -14,7 +15,7 @@ from .nifti import (
     NiftiX,
     NiftiGzX,
 )
-from .diffusion import (
+from .diffusion import (  # noqa: F401
     DwiEncoding,
     Bvec,
     Bval,
