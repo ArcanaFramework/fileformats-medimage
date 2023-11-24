@@ -43,3 +43,6 @@ from .raw import (  # noqa: F401
     Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation,
 )
+from .surface import (
+    Gifti  # noqa: F401
+)
