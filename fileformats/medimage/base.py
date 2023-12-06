@@ -26,11 +26,11 @@ class MedicalImage(FileSet):
         raise NotImplementedError
 
     @hook.extra
-    def vox_sizes(self) -> ty.Tuple[float]:
+    def vox_sizes(self) -> ty.Tuple[float, float, float]:
         """The length of the voxels along each dimension"""
         raise NotImplementedError
 
     @hook.extra
-    def dims(self) -> ty.Tuple[int]:
+    def dims(self) -> ty.Tuple[int, int, int]:
         """The dimensions of the image"""
         raise NotImplementedError

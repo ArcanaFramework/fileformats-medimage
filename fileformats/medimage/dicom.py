@@ -26,7 +26,7 @@ class DicomCollection(MedicalImage):
         return len(self.contents)
 
     @hook.extra
-    def series_number(self):
+    def series_number(self) -> str:
         raise NotImplementedError
 
     @cached_property

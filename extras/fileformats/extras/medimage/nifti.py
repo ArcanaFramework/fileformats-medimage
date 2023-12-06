@@ -1,5 +1,6 @@
 from pathlib import Path
 import typing as ty
+from random import Random
 import nibabel
 from fileformats.core import FileSet
 from fileformats.core.utils import gen_filename
@@ -31,7 +32,7 @@ def nifti_dims(nifti: Nifti):
 
 @FileSet.generate_sample_data.register
 def nifti_generate_sample_data(
-    nifti: Nifti1, dest_dir: Path, seed: int, stem: ty.Optional[str]
+    nifti: Nifti1, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None
 ) -> ty.Iterable[Path]:
     return medimages4tests.dummy.nifti.get_image(
         out_file=dest_dir / gen_filename(seed, file_type=Nifti1, stem=stem)
@@ -40,7 +41,7 @@ def nifti_generate_sample_data(
 
 @FileSet.generate_sample_data.register
 def nifti_gz_generate_sample_data(
-    nifti: NiftiGz, dest_dir: Path, seed: int, stem: ty.Optional[str]
+    nifti: NiftiGz, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None
 ) -> ty.Iterable[Path]:
     return medimages4tests.dummy.nifti.get_image(
         out_file=dest_dir / gen_filename(seed, file_type=NiftiGz, stem=stem),
@@ -50,14 +51,14 @@ def nifti_gz_generate_sample_data(
 
 @FileSet.generate_sample_data.register
 def nifti_gz_x_generate_sample_data(
-    nifti: NiftiGzX, dest_dir: Path, seed: int, stem: ty.Optional[str]
+    nifti: NiftiGzX, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None
 ) -> ty.Iterable[Path]:
     return medimages4tests.mri.neuro.t1w.get_image()
 
 
 @FileSet.generate_sample_data.register
 def nifti_x_generate_sample_data(
-    nifti: NiftiX, dest_dir: Path, seed: int, stem: ty.Optional[str]
+    nifti: NiftiX, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None
 ) -> ty.Iterable[Path]:
     nifti_gz_x = NiftiGzX(medimages4tests.mri.neuro.t1w.get_image())
     return NiftiX.convert(nifti_gz_x)
