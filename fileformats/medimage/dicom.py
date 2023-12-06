@@ -51,7 +51,7 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
 
 
 @FileSet.read_metadata.register
-def dicom_collection_read_metadata(collection: DicomCollection) -> ty.Dict[str, ty.Any]:
+def dicom_collection_read_metadata(collection: DicomCollection) -> ty.Mapping[str, ty.Any]:
     # Collated DICOM headers across series
     collated = copy(collection.contents[0].metadata)
     for i, dicom in enumerate(collection.contents[1:], start=1):

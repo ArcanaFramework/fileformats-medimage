@@ -32,7 +32,7 @@ def nifti_dims(nifti: Nifti):
 @FileSet.generate_sample_data.register
 def nifti_generate_sample_data(
     nifti: Nifti1, dest_dir: Path, seed: int, stem: ty.Optional[str]
-):
+) -> ty.Iterable[Path]:
     return medimages4tests.dummy.nifti.get_image(
         out_file=dest_dir / gen_filename(seed, file_type=Nifti1, stem=stem)
     )
@@ -41,7 +41,7 @@ def nifti_generate_sample_data(
 @FileSet.generate_sample_data.register
 def nifti_gz_generate_sample_data(
     nifti: NiftiGz, dest_dir: Path, seed: int, stem: ty.Optional[str]
-):
+) -> ty.Iterable[Path]:
     return medimages4tests.dummy.nifti.get_image(
         out_file=dest_dir / gen_filename(seed, file_type=NiftiGz, stem=stem),
         compressed=True,
@@ -51,13 +51,13 @@ def nifti_gz_generate_sample_data(
 @FileSet.generate_sample_data.register
 def nifti_gz_x_generate_sample_data(
     nifti: NiftiGzX, dest_dir: Path, seed: int, stem: ty.Optional[str]
-):
+) -> ty.Iterable[Path]:
     return medimages4tests.mri.neuro.t1w.get_image()
 
 
 @FileSet.generate_sample_data.register
 def nifti_x_generate_sample_data(
     nifti: NiftiX, dest_dir: Path, seed: int, stem: ty.Optional[str]
-):
+) -> ty.Iterable[Path]:
     nifti_gz_x = NiftiGzX(medimages4tests.mri.neuro.t1w.get_image())
     return NiftiX.convert(nifti_gz_x)

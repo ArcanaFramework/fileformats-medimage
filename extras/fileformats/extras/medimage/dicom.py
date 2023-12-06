@@ -42,7 +42,7 @@ def dicom_series_number(collection: DicomCollection):
 
 
 @FileSet.generate_sample_data.register
-def dicom_dir_generate_sample_data(dcmdir: DicomDir, dest_dir: Path, seed: ty.Union[int, Random], stem: ty.Optional[str]):
+def dicom_dir_generate_sample_data(dcmdir: DicomDir, dest_dir: Path, seed: ty.Union[int, Random], stem: ty.Optional[str]) -> ty.Iterable[Path]:
     dcm_dir = medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c.get_image()
     # Set series number to random value to make it different
     if isinstance(seed, Random):
@@ -60,7 +60,7 @@ def dicom_dir_generate_sample_data(dcmdir: DicomDir, dest_dir: Path, seed: ty.Un
 
 
 @FileSet.generate_sample_data.register
-def dicom_set_generate_sample_data(dcm_series: DicomSeries, dest_dir: Path, seed: int, stem: ty.Optional[str]):
+def dicom_set_generate_sample_data(dcm_series: DicomSeries, dest_dir: Path, seed: int, stem: ty.Optional[str]) -> ty.Iterable[Path]:
     rng = Random(seed)
     dicom_dir = dicom_dir_generate_sample_data(dcm_series, dest_dir=mkdtemp(), seed=rng, stem=None)[0]
     stem = gen_filename(rng, stem=stem)
