@@ -11,7 +11,7 @@ import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
 
 @MedicalImage.read_array.register
-def dicom_read_array(collection: DicomCollection):
+def dicom_read_array(collection: DicomCollection) -> np.ndarray:
     image_stack = []
     for dcm_file in collection.contents:
         image_stack.append(pydicom.dcmread(dcm_file).pixel_array)
@@ -19,14 +19,14 @@ def dicom_read_array(collection: DicomCollection):
 
 
 @MedicalImage.vox_sizes.register
-def dicom_vox_sizes(collection: DicomCollection):
+def dicom_vox_sizes(collection: DicomCollection) -> ty.Tuple[float, float, float]:
     return tuple(
         collection.metadata["PixelSpacing"] + [collection.metadata["SliceThickness"]]
     )
 
 
 @MedicalImage.dims.register
-def dicom_dims(collection: DicomCollection):
+def dicom_dims(collection: DicomCollection) -> ty.Tuple[int, int, int]:
     return tuple(
         (
             collection.metadata["Rows"],
@@ -37,12 +37,12 @@ def dicom_dims(collection: DicomCollection):
 
 
 @DicomCollection.series_number.register
-def dicom_series_number(collection: DicomCollection):
+def dicom_series_number(collection: DicomCollection) -> str:
     return str(collection.metadata["SeriesNumber"])
 
 
 @FileSet.generate_sample_data.register
-def dicom_dir_generate_sample_data(dcmdir: DicomDir, dest_dir: Path, seed: ty.Union[int, Random], stem: ty.Optional[str]):
+def dicom_dir_generate_sample_data(dcmdir: DicomDir, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None) -> ty.Iterable[Path]:
     dcm_dir = medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c.get_image()
     # Set series number to random value to make it different
     if isinstance(seed, Random):
@@ -60,7 +60,7 @@ def dicom_dir_generate_sample_data(dcmdir: DicomDir, dest_dir: Path, seed: ty.Un
 
 
 @FileSet.generate_sample_data.register
-def dicom_set_generate_sample_data(dcm_series: DicomSeries, dest_dir: Path, seed: int, stem: ty.Optional[str]):
+def dicom_set_generate_sample_data(dcm_series: DicomSeries, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None) -> ty.Iterable[Path]:
     rng = Random(seed)
     dicom_dir = dicom_dir_generate_sample_data(dcm_series, dest_dir=mkdtemp(), seed=rng, stem=None)[0]
     stem = gen_filename(rng, stem=stem)

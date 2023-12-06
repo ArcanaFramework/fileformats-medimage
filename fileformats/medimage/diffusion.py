@@ -10,21 +10,21 @@ class DwiEncoding(File):
     iana_mime: ty.Optional[str] = None
 
     @hook.extra
-    def read_array(self):
+    def read_array(self) -> "numpy.ndarray":  # noqa
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
 
     @property
-    def array(self):
+    def array(self) -> "numpy.ndarray":  # noqa
         return self.read_array()
 
     @property
-    def directions(self):
+    def directions(self) -> "numpy.ndarray":  # noqa
         "gradient direction and weighting combined into a single Nx4 array"
         return self.array[:, :3]
 
     @property
-    def b_values(self):
+    def b_values(self) -> "numpy.ndarray":  # noqa
         "the b-value weighting"
         return self.array[:, 3]
 
@@ -34,7 +34,7 @@ class Bval(File):
     ext = ".bval"
 
     @hook.extra
-    def read_array(self):
+    def read_array(self) -> "numpy.ndarray":  # noqa
         raise NotImplementedError
 
 
