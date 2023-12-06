@@ -19,7 +19,7 @@ class MedicalImage(FileSet):
     binary = True
 
     @hook.extra
-    def read_array(self):
+    def read_array(self) -> "numpy.ndarray":  # noqa
         """
         Returns the binary data of the image in a numpy array
         """

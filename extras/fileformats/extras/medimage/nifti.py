@@ -2,6 +2,7 @@ from pathlib import Path
 import typing as ty
 from random import Random
 import nibabel
+import numpy as np
 from fileformats.core import FileSet
 from fileformats.core.utils import gen_filename
 from fileformats.medimage import MedicalImage, Nifti, NiftiGz, Nifti1, NiftiGzX, NiftiX
@@ -9,25 +10,25 @@ import medimages4tests.dummy.nifti
 
 
 @FileSet.read_metadata.register
-def nifti_read_metadata(nifti: Nifti):
+def nifti_read_metadata(nifti: Nifti) -> ty.Mapping[str, ty.Any]:
     return dict(nibabel.load(nifti.fspath).header)
 
 
 @MedicalImage.read_array.register
-def nifti_data_array(nifti: Nifti):
+def nifti_data_array(nifti: Nifti) -> np.ndarray:  # noqa
     return nibabel.load(nifti.fspath).get_data()
 
 
 @MedicalImage.vox_sizes.register
-def nifti_vox_sizes(nifti: Nifti):
+def nifti_vox_sizes(nifti: Nifti) -> ty.Tuple[float, float, float]:
     # FIXME: This won't work for 4-D files
-    return nifti.metadata["pixdim"][1:4]
+    return tuple(float(d) for d in nifti.metadata["pixdim"][1:4])
 
 
 @MedicalImage.dims.register
-def nifti_dims(nifti: Nifti):
+def nifti_dims(nifti: Nifti) -> ty.Tuple[int, int, int]:
     # FIXME: This won't work for 4-D files
-    return nifti.metadata["dim"][1:4]
+    return tuple(int(d) for d in nifti.metadata["dim"][1:4])
 
 
 @FileSet.generate_sample_data.register
