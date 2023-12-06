@@ -29,9 +29,8 @@ associated `extras` package::
 
     $ pip3 install fileformats-medimage-extras
 
-For most of the converter to work, you will also need to use the ``[extended]`` install option and
-install the Dcm2NiiX_ and MRtrix_ software packages. There are various ways to do this, but on
-Ubuntu you can install Dcm2NiiX_ with::
+For most of the converters to work, you will need to install the Dcm2NiiX_ and MRtrix_ software packages.
+There are various ways to do this, but on Ubuntu you can install Dcm2NiiX_ with::
 
    $ sudo apt install libopenjp2-7
    $ curl -fLO https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_lnx.zip
