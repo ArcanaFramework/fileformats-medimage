@@ -1,11 +1,10 @@
 import typing as ty
-from copy import copy
 from operator import itemgetter
-from collections import defaultdict
+from collections import defaultdict, Counter
 from pathlib import Path
 from functools import cached_property
 from fileformats.core import hook, FileSet
-from fileformats.generic import DirectoryContaining, SetOf
+from fileformats.generic import DirectoryContaining, SetOf, TypedSet
 from fileformats.application import Dicom
 from .base import MedicalImage
 
@@ -41,11 +40,32 @@ class DicomDir(DicomCollection, DirectoryContaining[Dicom]):
 class DicomSeries(DicomCollection, SetOf[Dicom]):
     @classmethod
     def from_paths(
-        cls, fspaths: ty.Iterable[Path], common_ok: bool = False
-    ) -> ty.Tuple[ty.Set[FileSet], ty.Set[Path]]:
+        cls, fspaths: ty.Iterable[Path], common_ok: bool = False,
+        selected_keys: ty.Optional[ty.Sequence[str]] = None
+    ) -> ty.Tuple[ty.Set["DicomSeries"], ty.Set[Path]]:
+        """Separates a list of DICOM files into separate series from the file-system
+        paths
+
+        Parameters
+        ----------
+        fspaths : ty.Iterable[Path]
+            the fspaths pointing to the DICOM files
+        common_ok : bool, optional
+            included to match the signature of the overriden method, but ignored as each
+            dicom should belong to only one series.
+        selected_keys : ty.Optional[ty.Sequence[str]], optional
+            metadata keys to load from the DICOM files, typically used for performance
+            reasons, by default None (i.e. all metadata is loaded)
+
+        Returns
+        -------
+        tuple[set[DicomSeries], set[Path]]
+            the found dicom series objects and any unrecognised file paths
+        """
         dicoms, remaining = Dicom.from_paths(fspaths, common_ok=common_ok)
         series_dict = defaultdict(list)
         for dicom in dicoms:
+            dicom.select_metadata(selected_keys)
             series_dict[
                 (str(dicom["StudyInstanceUID"]), str(dicom["SeriesNumber"]))
             ].append(dicom)
@@ -57,17 +77,28 @@ def dicom_collection_read_metadata(
     collection: DicomCollection, selected_keys: ty.Optional[ty.Sequence[str]] = None
 ) -> ty.Mapping[str, ty.Any]:
     # Collated DICOM headers across series
-    collated = copy(collection.contents[0].metadata)
-    for i, dicom in enumerate(collection.contents[1:], start=1):
+    collated = {}
+    key_repeats = Counter()
+    varying_keys = set()
+    # We use the "contents" property implementation in TypeSet instead of the overload
+    # in DicomCollection because we don't want the metadata to be read ahead of the
+    # the `select_metadata` call below
+    for dicom in TypedSet.contents.fget(collection):
+        dicom.select_metadata(selected_keys)
         for key, val in dicom.metadata.items():
-            if val != collated[key]:
+            try:
+                prev_val = collated[key]
+            except KeyError:
+                collated[key] = val  # Insert initial value (should only happen on first iter)
+                key_repeats.update([key])
+            else:
+                if key in varying_keys:
+                    collated[key].append(val)
                 # Check whether the value is the same as the values in the previous
                 # images in the series
-                if (
-                    not isinstance(collated[key], list)
-                    or isinstance(val, list)
-                    and not isinstance(collated[key][0], list)
-                ):
-                    collated[key] = [collated[key]] * i + [val]
-                collated[key].append(val)
+                elif val != prev_val:
+                    collated[key] = [prev_val] * key_repeats[key] + [val]
+                    varying_keys.add(key)
+                else:
+                    key_repeats.update([key])
     return collated
