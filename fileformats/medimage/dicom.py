@@ -46,12 +46,16 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
         dicoms, remaining = Dicom.from_paths(fspaths, common_ok=common_ok)
         series_dict = defaultdict(list)
         for dicom in dicoms:
-            series_dict[(str(dicom["StudyInstanceUID"]), str(dicom["SeriesNumber"]))].append(dicom)
+            series_dict[
+                (str(dicom["StudyInstanceUID"]), str(dicom["SeriesNumber"]))
+            ].append(dicom)
         return set([cls(s) for s in series_dict.values()]), remaining
 
 
 @FileSet.read_metadata.register
-def dicom_collection_read_metadata(collection: DicomCollection) -> ty.Mapping[str, ty.Any]:
+def dicom_collection_read_metadata(
+    collection: DicomCollection, selected_keys: ty.Optional[ty.Sequence[str]] = None
+) -> ty.Mapping[str, ty.Any]:
     # Collated DICOM headers across series
     collated = copy(collection.contents[0].metadata)
     for i, dicom in enumerate(collection.contents[1:], start=1):
