@@ -83,7 +83,8 @@ def dicom_collection_read_metadata(
     # We use the "contents" property implementation in TypeSet instead of the overload
     # in DicomCollection because we don't want the metadata to be read ahead of the
     # the `select_metadata` call below
-    for dicom in TypedSet.contents.fget(collection):
+    base_class = TypedSet if isinstance(collection, DicomSeries) else DirectoryContaining
+    for dicom in base_class.contents.fget(collection):
         dicom.select_metadata(selected_keys)
         for key, val in dicom.metadata.items():
             try:
