@@ -60,7 +60,7 @@ def dicom_dir_generate_sample_data(dcmdir: DicomDir, dest_dir: Path, seed: ty.Un
 
 
 @FileSet.generate_sample_data.register
-def dicom_set_generate_sample_data(dcm_series: DicomSeries, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None) -> ty.Iterable[Path]:
+def dicom_series_generate_sample_data(dcm_series: DicomSeries, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None) -> ty.Iterable[Path]:
     rng = Random(seed)
     dicom_dir = dicom_dir_generate_sample_data(dcm_series, dest_dir=mkdtemp(), seed=rng, stem=None)[0]
     stem = gen_filename(rng, stem=stem)
