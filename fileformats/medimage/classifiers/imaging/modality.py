@@ -144,6 +144,7 @@ class ScreenFilmRadiography(ProjectionRadiography):
     description = 'Conventional radiography'
     dicom_modality = 'RG'
 
+
 class Stereoscopy(ProjectionRadiography):
     ontology_link = 'http://www.radlex.org/RID/RID50131'
     description = None
