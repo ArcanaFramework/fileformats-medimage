@@ -46,10 +46,10 @@ from .raw import (  # noqa: F401
 from .surface import (
     Gifti  # noqa: F401
 )
-from .classifiers.anatomical import (
+from .contents.anatomical import (
     AnatomicalEntity  # noqa: F401
 )
-from .classifiers.imaging.modality import (  # noqa: F401
+from .contents.imaging.modality import (  # noqa: F401
     ImagingModality,
     CombinedModalities,
     DualEnergyXrayAbsorptiometry,
@@ -91,4 +91,7 @@ from .classifiers.imaging.modality import (  # noqa: F401
     RF,
     RG,
     US,
+)
+from .contents.derivatives import (
+    Mask
 )

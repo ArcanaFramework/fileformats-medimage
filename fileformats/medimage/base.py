@@ -2,6 +2,8 @@ import typing as ty
 import logging
 from fileformats.generic import FileSet
 from fileformats.core import hook
+from fileformats.core.mixin import WithClassifiers
+from .contents import ContentsClassifier
 
 logger = logging.getLogger("fileformats")
 
@@ -11,12 +13,13 @@ logger = logging.getLogger("fileformats")
 # =====================================================================
 
 
-class MedicalImage(FileSet):
+class MedicalImage(WithClassifiers, FileSet):
 
     iana_mime: ty.Optional[str] = None
     INCLUDE_HDR_KEYS = None
     IGNORE_HDR_KEYS = None
     binary = True
+    allowed_classifiers = (ContentsClassifier,)
 
     @hook.extra
     def read_array(self) -> "numpy.ndarray":  # noqa

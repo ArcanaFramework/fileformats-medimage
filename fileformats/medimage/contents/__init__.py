@@ -1,5 +1,5 @@
 from fileformats.core import ClassifierCategory
 
 
-class ImagingSpecialty(ClassifierCategory):
+class ContentsClassifier(ClassifierCategory):
     pass

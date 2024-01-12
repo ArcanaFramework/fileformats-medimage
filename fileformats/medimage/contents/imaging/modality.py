@@ -1,7 +1,7 @@
-from fileformats.core import ClassifierCategory
+from .. import ContentsClassifier
 
 
-class ImagingModality(ClassifierCategory):
+class ImagingModality(ContentsClassifier):
     ontology_link = 'http://www.radlex.org/RID/RID10311'
     description = 'Form of imaging that depends on the way the image is produced'
     dicom_modality = None
