@@ -1,5 +1,5 @@
-from fileformats.core import ClassifierCategory
+from fileformats.core import Classifier
 
 
-class ContentsClassifier(ClassifierCategory):
+class ContentsClassifier(Classifier):
     pass
