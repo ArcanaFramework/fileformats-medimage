@@ -46,3 +46,53 @@ from .raw import (  # noqa: F401
 from .surface import (
     Gifti  # noqa: F401
 )
+from .contents.imaging.modality import (  # noqa: F401
+    ImagingModality,
+    CombinedModalities,
+    DualEnergyXrayAbsorptiometry,
+    Fluoroscopy,
+    MrFluoroscopy,
+    RadioFluoroscopy,
+    MagneticResonanceImaging,
+    DiffusionTensorImaging,
+    DynamicContrast,
+    EnhancedMagneticResonanceImaging,
+    FunctionalMagneticResonanceImaging,
+    MagneticResonanceAngiography,
+    MagneticResonanceSpectroscopy,
+    NuclearMedicineImaging,
+    PositronEmissionTomography,
+    PanographicRadiograph,
+    ProjectionRadiography,
+    ComputedRadiography,
+    DigitalRadiography,
+    DualEnergySubtractionRadiograpgy,
+    Mammography,
+    ScreenFilmRadiography,
+    Stereoscopy,
+    StereotacticRadiography,
+    Spectroscopy,
+    Tomography,
+    ComputedTomography,
+    Ultrasound,
+    MRI,
+    PET,
+    CR,
+    CT,
+    DX,
+    MG,
+    MR,
+    NM,
+    PT,
+    PX,
+    RF,
+    RG,
+    US,
+)
+from .contents.imaging.derivatives import (
+    Derivative,
+    Mask
+)
+from .contents.anatomical_entity.material_anatomical_entity.anatomical_structure import (
+    Brain, SpinalCord
+)
