@@ -46,9 +46,6 @@ from .raw import (  # noqa: F401
 from .surface import (
     Gifti  # noqa: F401
 )
-from .contents.anatomical import (
-    AnatomicalEntity  # noqa: F401
-)
 from .contents.imaging.modality import (  # noqa: F401
     ImagingModality,
     CombinedModalities,
@@ -92,6 +89,10 @@ from .contents.imaging.modality import (  # noqa: F401
     RG,
     US,
 )
-from .contents.derivatives import (
+from .contents.imaging.derivatives import (
+    Derivative,
     Mask
+)
+from .contents.anatomical_entity.material_anatomical_entity.anatomical_structure import (
+    Brain, SpinalCord
 )
