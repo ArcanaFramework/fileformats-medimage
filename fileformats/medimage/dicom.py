@@ -67,7 +67,7 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
         for dicom in dicoms:
             dicom.select_metadata(selected_keys)
             series_dict[
-                (str(dicom["StudyInstanceUID"]), str(dicom["SeriesNumber"]))
+                (str(dicom.metadata["StudyInstanceUID"]), str(dicom.metadata["SeriesNumber"]))
             ].append(dicom)
         return set([cls(s) for s in series_dict.values()]), remaining
 

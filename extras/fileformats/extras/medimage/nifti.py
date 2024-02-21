@@ -4,7 +4,7 @@ from random import Random
 import nibabel
 import numpy as np
 from fileformats.core import FileSet
-from fileformats.core.utils import gen_filename
+from fileformats.core.utils import SampleFileGenerator
 from fileformats.medimage import MedicalImage, Nifti, NiftiGz, Nifti1, NiftiGzX, NiftiX
 import medimages4tests.dummy.nifti
 
@@ -33,33 +33,37 @@ def nifti_dims(nifti: Nifti) -> ty.Tuple[int, int, int]:
 
 @FileSet.generate_sample_data.register
 def nifti_generate_sample_data(
-    nifti: Nifti1, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None
+    nifti: Nifti1,
+    generator: SampleFileGenerator,
 ) -> ty.Iterable[Path]:
     return medimages4tests.dummy.nifti.get_image(
-        out_file=dest_dir / gen_filename(seed, file_type=Nifti1, stem=stem)
+        out_file=generator.generate_fspath(file_type=Nifti1)
     )
 
 
 @FileSet.generate_sample_data.register
 def nifti_gz_generate_sample_data(
-    nifti: NiftiGz, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None
+    nifti: NiftiGz,
+    generator: SampleFileGenerator,
 ) -> ty.Iterable[Path]:
     return medimages4tests.dummy.nifti.get_image(
-        out_file=dest_dir / gen_filename(seed, file_type=NiftiGz, stem=stem),
+        out_file=generator.generate_fspath(file_type=NiftiGz),
         compressed=True,
     )
 
 
 @FileSet.generate_sample_data.register
 def nifti_gz_x_generate_sample_data(
-    nifti: NiftiGzX, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None
+    nifti: NiftiGzX,
+    generator: SampleFileGenerator,
 ) -> ty.Iterable[Path]:
-    return medimages4tests.mri.neuro.t1w.get_image()
+    return medimages4tests.mri.neuro.t1w.get_image(out_dir=generator.dest_dir)
 
 
 @FileSet.generate_sample_data.register
 def nifti_x_generate_sample_data(
-    nifti: NiftiX, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None
+    nifti: NiftiX,
+    generator: SampleFileGenerator,
 ) -> ty.Iterable[Path]:
-    nifti_gz_x = NiftiGzX(medimages4tests.mri.neuro.t1w.get_image())
+    nifti_gz_x = NiftiGzX(medimages4tests.mri.neuro.t1w.get_image(out_dir=generator.dest_dir))
     return NiftiX.convert(nifti_gz_x)
