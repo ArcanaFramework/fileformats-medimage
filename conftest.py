@@ -12,7 +12,7 @@ else:
 from fileformats.medimage.dicom import DicomDir
 
 try:
-    import pydra.tasks.mrtrix3.v3_0
+    import pydra.tasks.mrtrix3.v3_0  # noqa
 except ImportError:
     OLD_MRTRIX_VERSION = True
 else:
