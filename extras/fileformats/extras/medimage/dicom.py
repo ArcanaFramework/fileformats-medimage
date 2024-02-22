@@ -5,7 +5,7 @@ from random import Random
 import pydicom
 import numpy as np
 from fileformats.core import FileSet
-from fileformats.core.utils import gen_filename
+from fileformats.core.utils import SampleFileGenerator
 from fileformats.medimage import MedicalImage, DicomCollection, DicomDir, DicomSeries
 import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
@@ -42,15 +42,13 @@ def dicom_series_number(collection: DicomCollection) -> str:
 
 
 @FileSet.generate_sample_data.register
-def dicom_dir_generate_sample_data(dcmdir: DicomDir, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None) -> ty.Iterable[Path]:
+def dicom_dir_generate_sample_data(
+    dcmdir: DicomDir,
+    generator: SampleFileGenerator,
+) -> ty.Iterable[Path]:
     dcm_dir = medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c.get_image()
-    # Set series number to random value to make it different
-    if isinstance(seed, Random):
-        rng = seed
-    else:
-        rng = Random(seed)
-    series_number = rng.randint(1, SERIES_NUMBER_RANGE)
-    dest = Path(dest_dir) / gen_filename(seed_or_rng=seed, stem=stem)
+    series_number = generator.rng.randint(1, SERIES_NUMBER_RANGE)
+    dest = generator.generate_fspath(DicomDir)
     dest.mkdir()
     for dcm_file in dcm_dir.iterdir():
         dcm = pydicom.dcmread(dcm_file)
@@ -60,13 +58,16 @@ def dicom_dir_generate_sample_data(dcmdir: DicomDir, dest_dir: Path, seed: ty.Un
 
 
 @FileSet.generate_sample_data.register
-def dicom_series_generate_sample_data(dcm_series: DicomSeries, dest_dir: Path, seed: ty.Union[int, Random] = 0, stem: ty.Optional[str] = None) -> ty.Iterable[Path]:
-    rng = Random(seed)
-    dicom_dir = dicom_dir_generate_sample_data(dcm_series, dest_dir=mkdtemp(), seed=rng, stem=None)[0]
-    stem = gen_filename(rng, stem=stem)
+def dicom_series_generate_sample_data(
+    dcm_series: DicomSeries,
+    generator: SampleFileGenerator,
+) -> ty.Iterable[Path]:
+    dicom_dir: Path = dicom_dir_generate_sample_data(dcm_series, generator=generator)[0]
+    stem = generator.generate_fspath().stem
     fspaths = []
     for i, dicom_file in enumerate(dicom_dir.iterdir(), start=1):
-        fspaths.append(dicom_file.rename(dest_dir / f"{stem}-{i}.dcm"))
+        fspaths.append(dicom_file.rename(generator.dest_dir / f"{stem}-{i}.dcm"))
+    dicom_dir.rmdir()
     return fspaths
 
 
