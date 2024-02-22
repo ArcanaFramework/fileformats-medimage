@@ -2,10 +2,10 @@ import pytest
 from fileformats.medimage import (
     NiftiGzX,
     NiftiGzXBvec,
-    NiftiBvec,
     Analyze,
 )
 from logging import getLogger
+from conftest import OLD_MRTRIX_VERSION
 
 
 logger = getLogger("fileformats")
@@ -27,6 +27,7 @@ def test_dicom_to_nifti_select_echo(dummy_magfmap_dicom):
     assert nifti_gz_x_e2.metadata["EchoNumber"] == 2
 
 
+@pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
 def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
 
     nifti_gz_x_ph = NiftiGzX.convert(dummy_mixedfmap_dicom, file_postfix="_ph")
@@ -57,6 +58,7 @@ def test_dicom_to_nifti_with_jq_edit(dummy_t1w_dicom):
     assert nifti_gz_x.metadata["EchoTime"] == 2.07
 
 
+@pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
 def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
 
     logger.debug("Performing FSL grad conversion")
@@ -74,12 +76,13 @@ def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
     assert all(abs(1 - m) < 1e5 for m in bvec_mags)
 
 
-# @pytest.mark.skip("Mrtrix isn't installed in test environment yet")
+@pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
 def test_dicom_to_nifti_as_4d(dummy_t1w_dicom):
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_t1w_dicom, to_4d=True)
     assert nifti_gz_x_e1.metadata["dim"][0] == 4
 
 
+@pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
 def test_dicom_to_analyze(dummy_t1w_dicom):
     Analyze.convert(dummy_t1w_dicom)

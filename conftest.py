@@ -11,6 +11,12 @@ else:
     set_input_validator(True)
 from fileformats.medimage.dicom import DicomDir
 
+try:
+    import pydra.tasks.mrtrix3.v3_0
+except ImportError:
+    OLD_MRTRIX_VERSION = True
+else:
+    OLD_MRTRIX_VERSION = False
 
 # Set DEBUG logging for unittests
 

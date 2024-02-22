@@ -1,6 +1,9 @@
+import pytest
 from fileformats.medimage import DicomSeries, DicomDir
+from conftest import OLD_MRTRIX_VERSION
 
 
+@pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
 def test_dicom_series_metadata(tmp_path):
     series = DicomSeries.sample(tmp_path)
 
@@ -10,6 +13,7 @@ def test_dicom_series_metadata(tmp_path):
     assert isinstance(series.metadata["SOPInstanceUID"], list)
 
 
+@pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
 def test_dicom_dir_metadata(tmp_path):
     series = DicomDir.sample(tmp_path)
 
