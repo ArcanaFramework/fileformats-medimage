@@ -43,6 +43,7 @@ def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
     assert list(nifti_gz_x_real.dims()) == [256, 256, 60]
 
 
+@pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
 def test_dicom_to_nifti_with_extract_volume(dummy_dwi_dicom):
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_dwi_dicom, extract_volume=30)
