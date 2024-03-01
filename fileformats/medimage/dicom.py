@@ -30,7 +30,7 @@ class DicomCollection(MedicalImage):
 
     @cached_property
     def contents(self) -> ty.List[Dicom]:
-        return sorted(super().contents, key=itemgetter("SOPInstanceUID"))
+        return sorted(super().contents, key=lambda d: d.metadata["SOPInstanceUID"])
 
 
 class DicomDir(DicomCollection, DirectoryContaining[Dicom]):
