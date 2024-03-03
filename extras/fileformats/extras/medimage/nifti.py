@@ -1,10 +1,8 @@
 from pathlib import Path
 import typing as ty
-from random import Random
 import nibabel
 import numpy as np
-from fileformats.core import FileSet
-from fileformats.core.utils import SampleFileGenerator
+from fileformats.core import FileSet, SampleFileGenerator
 from fileformats.medimage import MedicalImage, Nifti, NiftiGz, Nifti1, NiftiGzX, NiftiX
 import medimages4tests.dummy.nifti
 
