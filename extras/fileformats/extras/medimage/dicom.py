@@ -1,11 +1,9 @@
 from pathlib import Path
 import typing as ty
-from tempfile import mkdtemp
-from random import Random
 import pydicom
 import numpy as np
 from fileformats.core import FileSet
-from fileformats.core.utils import SampleFileGenerator
+from fileformats.core import SampleFileGenerator
 from fileformats.medimage import MedicalImage, DicomCollection, DicomDir, DicomSeries
 import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
