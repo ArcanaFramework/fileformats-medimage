@@ -1,7 +1,6 @@
 import typing as ty
 import logging
-from fileformats.generic import FileSet
-from fileformats.core import hook
+from fileformats.core import hook, FileSet
 from fileformats.core.mixin import WithClassifiers
 from .contents import ContentsClassifier
 from .contents.imaging.modality import ImagingModality
