@@ -44,6 +44,10 @@ class NrrdGz(Gzip[Nrrd]):
     alternate_exts = (".nhdr.gz",)
 
 
+ItkImage = ty.Union[
+    Nifti1, NiftiGz, Dicom, Bitmap, Tiff, Jpeg, GIPL, MetaImage, Nrrd, NrrdGz, PGM
+]
+
 ItkSupported = ty.Union[
     Nifti1, NiftiGz, Dicom, Bitmap, Tiff, Jpeg, GIPL, MetaImage, Nrrd, NrrdGz, PGM, VTK
 ]
