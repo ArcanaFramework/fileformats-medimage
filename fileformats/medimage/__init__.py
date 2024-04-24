@@ -102,5 +102,6 @@ from .itk import (  # noqa: F401
     MetaImage,
     Nrrd,
     NrrdGz,
-    ItkSupported,
+    ItkImage,
+    ItkAll,
 )
