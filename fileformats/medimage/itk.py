@@ -48,6 +48,6 @@ ItkImage = ty.Union[
     Nifti1, NiftiGz, Dicom, Bitmap, Tiff, Jpeg, GIPL, MetaImage, Nrrd, NrrdGz, PGM
 ]
 
-ItkSupported = ty.Union[
+ItkAll = ty.Union[
     Nifti1, NiftiGz, Dicom, Bitmap, Tiff, Jpeg, GIPL, MetaImage, Nrrd, NrrdGz, PGM, VTK
 ]
