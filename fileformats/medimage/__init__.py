@@ -103,5 +103,4 @@ from .itk import (  # noqa: F401
     Nrrd,
     NrrdGz,
     ItkSupported,
-    ItkVector,
 )
