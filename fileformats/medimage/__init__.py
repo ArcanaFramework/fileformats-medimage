@@ -1,5 +1,6 @@
 from ._version import __version__  # noqa: F401
 from .base import MedicalImage  # noqa: F401
+
 # import Dicom to alias to the medimage namespace it here as well
 from fileformats.application import Dicom  # noqa: F401
 from .misc import (  # noqa: F401
@@ -28,7 +29,8 @@ from .dicom import (  # noqa: F401
     DicomCollection,
     DicomDir,
     DicomSeries,
-    # SiemensDicomDir,
+    # Vnd_Siemens_Vision,
+    # Vnd_Siemens_VisionDir,
 )
 from .raw import (  # noqa: F401
     Kspace,
@@ -43,9 +45,7 @@ from .raw import (  # noqa: F401
     Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation,
 )
-from .surface import (
-    Gifti  # noqa: F401
-)
+from .surface import Gifti  # noqa: F401
 from .contents.imaging.modality import (  # noqa: F401
     ImagingModality,
     CombinedModalities,
@@ -89,10 +89,19 @@ from .contents.imaging.modality import (  # noqa: F401
     RG,
     US,
 )
-from .contents.imaging.derivatives import (
-    Derivative,
-    Mask
+from .contents.imaging.derivatives import Derivative, Mask  # noqa: F401
+from .contents.anatomical_entity.material_anatomical_entity.anatomical_structure import (  # noqa: F401
+    Brain,
+    SpinalCord,
 )
-from .contents.anatomical_entity.material_anatomical_entity.anatomical_structure import (
-    Brain, SpinalCord
+from .itk import (  # noqa: F401
+    GDCM,
+    GIPL,
+    VTK,
+    PGM,
+    MetaImage,
+    Nrrd,
+    NrrdGz,
+    ItkRaster,
+    ItkVector,
 )

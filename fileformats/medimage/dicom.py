@@ -1,5 +1,4 @@
 import typing as ty
-from operator import itemgetter
 from collections import defaultdict, Counter
 from pathlib import Path
 from functools import cached_property
@@ -40,8 +39,10 @@ class DicomDir(DicomCollection, DirectoryContaining[Dicom]):
 class DicomSeries(DicomCollection, SetOf[Dicom]):
     @classmethod
     def from_paths(
-        cls, fspaths: ty.Iterable[Path], common_ok: bool = False,
-        selected_keys: ty.Optional[ty.Sequence[str]] = None
+        cls,
+        fspaths: ty.Iterable[Path],
+        common_ok: bool = False,
+        selected_keys: ty.Optional[ty.Sequence[str]] = None,
     ) -> ty.Tuple[ty.Set["DicomSeries"], ty.Set[Path]]:
         """Separates a list of DICOM files into separate series from the file-system
         paths
@@ -67,7 +68,10 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
         for dicom in dicoms:
             dicom.select_metadata(selected_keys)
             series_dict[
-                (str(dicom.metadata["StudyInstanceUID"]), str(dicom.metadata["SeriesNumber"]))
+                (
+                    str(dicom.metadata["StudyInstanceUID"]),
+                    str(dicom.metadata["SeriesNumber"]),
+                )
             ].append(dicom)
         return set([cls(s) for s in series_dict.values()]), remaining
 
@@ -83,14 +87,18 @@ def dicom_collection_read_metadata(
     # We use the "contents" property implementation in TypeSet instead of the overload
     # in DicomCollection because we don't want the metadata to be read ahead of the
     # the `select_metadata` call below
-    base_class = TypedSet if isinstance(collection, DicomSeries) else DirectoryContaining
+    base_class = (
+        TypedSet if isinstance(collection, DicomSeries) else DirectoryContaining
+    )
     for dicom in base_class.contents.fget(collection):
         dicom.select_metadata(selected_keys)
         for key, val in dicom.metadata.items():
             try:
                 prev_val = collated[key]
             except KeyError:
-                collated[key] = val  # Insert initial value (should only happen on first iter)
+                collated[key] = (
+                    val  # Insert initial value (should only happen on first iter)
+                )
                 key_repeats.update([key])
             else:
                 if key in varying_keys:
@@ -103,3 +111,11 @@ def dicom_collection_read_metadata(
                 else:
                     key_repeats.update([key])
     return collated
+
+
+# class Vnd_Siemens_Vision(Dicom):
+#     ext = ".ima"
+
+
+# class Vnd_Siemens_VisionDir(DicomDir):
+#     content_types = (Vnd_Siemens_Vision,)
