@@ -20,10 +20,7 @@ from fileformats.medimage import (
     NiftiGzXBvec,
 )
 
-try:
-    from pydra.tasks.mrtrix3.utils import MRConvert
-except ImportError:
-    from pydra.tasks.mrtrix3.latest import mrconvert as MRConvert
+from pydra.tasks.mrtrix3.latest import MrConvert
 from pydra.tasks.dcm2niix import Dcm2Niix
 
 
@@ -43,7 +40,7 @@ def mrconvert(name, out_ext: str):
     pydra.ShellCommandTask
         the converter task
     """
-    return MRConvert(name=name, out_file="out" + out_ext)
+    return MrConvert(name=name, out_file="out" + out_ext)
 
 
 @pydra.mark.task
@@ -67,9 +64,7 @@ def ensure_dicom_dir(dicom: DicomCollection) -> DicomDir:
 @hook.converter(source_format=DicomCollection, target_format=NiftiXBvec)
 @hook.converter(source_format=DicomCollection, target_format=NiftiBvec)
 @hook.converter(source_format=DicomCollection, target_format=NiftiGzBvec)
-@hook.converter(
-    source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y"
-)
+@hook.converter(source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y")
 def extended_dcm2niix(
     name,
     compress: str = "n",
@@ -153,7 +148,7 @@ def extended_dcm2niix(
             coord = attrs.NOTHING  # type: ignore
             axes = [0, 1, 2, -1]
         wf.add(
-            MRConvert(
+            MrConvert(
                 in_file=out_file,
                 coord=coord,
                 axes=axes,
