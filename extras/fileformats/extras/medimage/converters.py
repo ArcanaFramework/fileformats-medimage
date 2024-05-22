@@ -142,7 +142,7 @@ def extended_dcm2niix(
     # wrap a single volume in a 4D dataset
     if extract_volume is not None or to_4d:
         if extract_volume:
-            coord = [3, extract_volume]
+            coord = (3, extract_volume)
             axes = [0, 1, 2]
         else:  # to_4d
             coord = attrs.NOTHING  # type: ignore
@@ -150,6 +150,7 @@ def extended_dcm2niix(
         wf.add(
             MrConvert(
                 in_file=out_file,
+                out_file="out" + NiftiGzX.ext,
                 coord=coord,
                 axes=axes,
                 name="mrconvert",
