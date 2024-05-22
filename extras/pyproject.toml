@@ -18,7 +18,7 @@ dependencies = [
     "pydicom >=2.3.1",
     "pydra >= 0.22.0",
     "pydra-dcm2niix",
-    "pydra-mrtrix3 >= 3.0.3a",
+    "pydra-mrtrix3 >= 3.0.3a0",
 ]
 license = { file = "LICENSE" }
 authors = [{ name = "Thomas G. Close", email = "tom.g.close@gmail.com" }]
