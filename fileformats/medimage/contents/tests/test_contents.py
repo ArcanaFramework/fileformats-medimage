@@ -7,7 +7,7 @@ from fileformats.medimage import (
 
 
 def test_image_contents1():
-    assert from_mime("medimage/mri.t1w+nifti-gz") == NiftiGz[T1w]
+    assert from_mime("medimage/t1w+nifti-gz") == NiftiGz[T1w]
 
 
 def test_image_contents_generation():
