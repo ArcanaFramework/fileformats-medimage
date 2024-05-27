@@ -21,8 +21,8 @@ class MedicalImage(WithClassifiers, FileSet):
     INCLUDE_HDR_KEYS = None
     IGNORE_HDR_KEYS = None
     binary = True
-    classifiers_attr_name = "contents"
-    contents = ()
+    classifiers_attr_name = "image_contents"
+    image_contents = ()
     allowed_classifiers = (ContentsClassifier,)
     multiple_classifiers = True
     exclusive_classifiers = (ImagingModality, AnatomicalEntity, Derivative)

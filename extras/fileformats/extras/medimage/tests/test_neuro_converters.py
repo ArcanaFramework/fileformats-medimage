@@ -34,16 +34,15 @@ def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
     nifti_gz_x_imaginary = NiftiGzX.convert(
         dummy_mixedfmap_dicom, file_postfix="_imaginary"
     )
-    nifti_gz_x_real = NiftiGzX.convert(
-        dummy_mixedfmap_dicom, file_postfix="_real"
-    )
+    nifti_gz_x_real = NiftiGzX.convert(dummy_mixedfmap_dicom, file_postfix="_real")
 
     assert list(nifti_gz_x_ph.dims()) == [256, 256, 60]
     assert list(nifti_gz_x_imaginary.dims()) == [256, 256, 60]
     assert list(nifti_gz_x_real.dims()) == [256, 256, 60]
 
 
-@pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
+# @pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
+@pytest.mark.xfail(reason="Waiting on next Pydra release")
 def test_dicom_to_nifti_with_extract_volume(dummy_dwi_dicom):
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_dwi_dicom, extract_volume=30)
@@ -53,9 +52,7 @@ def test_dicom_to_nifti_with_extract_volume(dummy_dwi_dicom):
 @pytest.mark.xfail(reason="refactoring of side car handling incomplete")
 def test_dicom_to_nifti_with_jq_edit(dummy_t1w_dicom):
 
-    nifti_gz_x = NiftiGzX.convert(
-        dummy_t1w_dicom, side_car_jq=".EchoTime *= 1000"
-    )
+    nifti_gz_x = NiftiGzX.convert(dummy_t1w_dicom, side_car_jq=".EchoTime *= 1000")
     assert nifti_gz_x.metadata["EchoTime"] == 2.07
 
 
@@ -77,7 +74,8 @@ def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
     assert all(abs(1 - m) < 1e5 for m in bvec_mags)
 
 
-@pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
+# @pytest.mark.xfail(condition=OLD_MRTRIX_VERSION, reason="Old MRtrix version")
+@pytest.mark.xfail(reason="Waiting on next Pydra release")
 def test_dicom_to_nifti_as_4d(dummy_t1w_dicom):
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_t1w_dicom, to_4d=True)

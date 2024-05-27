@@ -12,6 +12,11 @@ from .base import MedicalImage
 # =====================================================================
 
 
+def dicom_sort_key(dicom: Dicom) -> str:
+    """Sorts DICOM objects by SOPInstanceUID"""
+    return dicom.metadata["SOPInstanceUID"]
+
+
 class DicomCollection(MedicalImage):
     """Base class for collections of DICOM files, which can either be stored within a
     directory (DicomDir) or presented as a flat list (DicomSeries)
@@ -27,13 +32,12 @@ class DicomCollection(MedicalImage):
     def series_number(self) -> str:
         raise NotImplementedError
 
-    @cached_property
-    def contents(self) -> ty.List[Dicom]:
-        return sorted(super().contents, key=lambda d: d.metadata["SOPInstanceUID"])
-
 
 class DicomDir(DicomCollection, DirectoryContaining[Dicom]):
-    pass
+
+    @cached_property
+    def contents(self) -> ty.List[Dicom]:
+        return sorted(super().contents, key=dicom_sort_key)
 
 
 class DicomSeries(DicomCollection, SetOf[Dicom]):
@@ -74,6 +78,10 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
                 )
             ].append(dicom)
         return set([cls(s) for s in series_dict.values()]), remaining
+
+    @cached_property
+    def contents(self) -> ty.List[Dicom]:
+        return sorted(super().contents, key=dicom_sort_key)
 
 
 @FileSet.read_metadata.register
