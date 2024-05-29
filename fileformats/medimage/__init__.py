@@ -78,6 +78,7 @@ from .contents.imaging.modality import (  # noqa: F401
     Mri,
     Pet,
     Dti,
+    Dmri,
     Fmri,
     Cr,
     Ct,
