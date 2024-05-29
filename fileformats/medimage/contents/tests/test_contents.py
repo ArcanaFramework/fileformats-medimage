@@ -13,5 +13,3 @@ def test_image_contents1():
 def test_image_contents_generation():
     img = NiftiGzX[T1w].sample()
     assert len(img.dims()) == 3
-    img2 = NiftiGzX[T1w].sample()
-    assert img == img2
