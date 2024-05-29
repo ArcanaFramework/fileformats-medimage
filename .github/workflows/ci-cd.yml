@@ -58,7 +58,9 @@ jobs:
       run: python3 -m pip install .[test] ./extras[test]
     - name: Pytest
       run: |
-        pytest -vvs --cov fileformats --cov-config .coveragerc --cov-report xml
+        mkdir work-dir
+        cd work-dir
+        pytest -vvs --cov fileformats --cov-config .coveragerc --cov-report xml ..
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
