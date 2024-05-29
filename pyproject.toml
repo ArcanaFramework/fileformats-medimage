@@ -52,7 +52,7 @@ test = [
     "medimages4tests >=0.3",
     "fileformats-medimage-extras",
     "pydra-dcm2niix",
-    "pydra-mrtrix3 >=3.0.3a0",
+    "pydra-mrtrix3 >=3.0.4a4",
 ]
 
 
