@@ -35,14 +35,17 @@ def nifti_data_array(nifti: Nifti) -> np.ndarray:  # noqa
 
 @MedicalImage.vox_sizes.register
 def nifti_vox_sizes(nifti: Nifti) -> ty.Tuple[float, float, float]:
-    # FIXME: This won't work for 4-D files
-    return tuple(float(d) for d in nifti.metadata["pixdim"][1:4])
+    ndims = len(nifti_dims(nifti))
+    return tuple(float(d) for d in nifti.metadata["pixdim"][1 : ndims + 1])
 
 
 @MedicalImage.dims.register
 def nifti_dims(nifti: Nifti) -> ty.Tuple[int, int, int]:
-    # FIXME: This won't work for 4-D files
-    return tuple(int(d) for d in nifti.metadata["dim"][1:4])
+    dim_array = [int(d) for d in nifti.metadata["dim"]]
+    for i in range(1, len(dim_array)):
+        if all(d == 1 for d in dim_array[i:]):
+            break  # Stop when the remaining dimensions are singletons
+    return tuple(dim_array[1:i])
 
 
 @FileSet.generate_sample_data.register

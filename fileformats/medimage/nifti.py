@@ -1,9 +1,9 @@
 import typing as ty
 from fileformats.generic import File
 from fileformats.core import hook
-from fileformats.core.mixin import (
-    WithSideCars, WithMagicNumber, WithAdjacentFiles)
+from fileformats.core.mixin import WithSideCars, WithMagicNumber, WithAdjacentFiles
 from fileformats.application import Json
+
 # from fileformats.text import Tsv
 from fileformats.application import Gzip
 from .base import MedicalImage
