@@ -8,7 +8,7 @@ def test_t1w_generator():
 
 def test_fmri_generator():
     img = NiftiGzX[Fmri].sample()
-    assert len(img.dims()) == 3
+    assert len(img.dims()) == 4
 
 
 def test_dmri_generator():
