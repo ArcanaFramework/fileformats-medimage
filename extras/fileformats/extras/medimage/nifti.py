@@ -172,7 +172,7 @@ def dmri_nifti_x_generate_sample_data(
 
 
 def _get_t1w_nifti_gz_x(generator: SampleFileGenerator) -> ty.Iterable[Path]:
-    sample = generator.seed if generator.seed else "ds004130-ON01016"
+    sample = generator.seed if generator.seed else "ds002014-01"
     fspaths = medimages4tests.mri.neuro.t1w.get_image(sample=sample)
     NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
     return fspaths
