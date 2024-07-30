@@ -3,7 +3,6 @@ import attrs
 import json
 import typing as ty
 import tempfile
-import jq
 from fileformats.core import hook
 import pydra
 from fileformats.medimage.base import MedicalImage
@@ -187,6 +186,15 @@ def edit_dcm2niix_side_car(in_file: Path, jq_expr: str, out_file=None) -> Path:
         out_file = in_file
     with open(in_file) as f:
         dct = json.load(f)
+    try:
+        import jq
+    except ImportError:
+        raise RuntimeError(
+            "Cannot edit dcm2niix file with jq expression as `jq` package is not "
+            "available in the current environment. It is planned to replace "
+            "this dependency as it does not install on Windows easily, but for now you "
+            "can enable this feature by installing `jq` with `pip install jq`"
+        )
     dct = jq.compile(jq_expr).input(dct).first()
     with open(out_file, "w") as f:
         json.dump(dct, f)
