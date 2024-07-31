@@ -11,7 +11,6 @@ dependencies = [
     "fileformats >= 0.6",
     "fileformats-extras >= 0.2.1",
     "fileformats-medimage >= 0.3",
-    "jq >=1.4.0",
     "nibabel >=5.0.0",
     "numpy >=1.20",
     "medimages4tests >=0.3.0",
@@ -43,6 +42,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 dev = ["black", "pre-commit", "codespell", "flake8", "flake8-pyproject"]
 test = ["pytest >=6.2.5", "pytest-env>=0.6.2", "pytest-cov>=2.12.1", "codecov"]
+jq = ["jq"]
 
 [project.urls]
 repository = "https://github.com/ArcanaFramework/fileformats-medimage"
