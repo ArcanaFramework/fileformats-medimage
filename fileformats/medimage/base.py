@@ -1,6 +1,6 @@
 import typing as ty
 import logging
-from fileformats.core import hook, FileSet
+from fileformats.core import extra, FileSet
 from fileformats.core.mixin import WithClassifiers
 from .contents import ContentsClassifier
 from .contents.imaging.modality import ImagingModality
@@ -27,19 +27,19 @@ class MedicalImage(WithClassifiers, FileSet):
     multiple_classifiers = True
     exclusive_classifiers = (ImagingModality, AnatomicalEntity, Derivative)
 
-    @hook.extra
+    @extra
     def read_array(self) -> "numpy.ndarray":  # noqa
         """
         Returns the binary data of the image in a numpy array
         """
         raise NotImplementedError
 
-    @hook.extra
+    @extra
     def vox_sizes(self) -> ty.Tuple[float, float, float]:
         """The length of the voxels along each dimension"""
         raise NotImplementedError
 
-    @hook.extra
+    @extra
     def dims(self) -> ty.Tuple[int, int, int]:
         """The dimensions of the image"""
         raise NotImplementedError

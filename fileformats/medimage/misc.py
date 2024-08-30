@@ -1,6 +1,5 @@
 from fileformats.application import Gzip
 from fileformats.generic import File
-from fileformats.core import hook
 from fileformats.core.mixin import WithSeparateHeader, WithMagicVersion
 from .base import MedicalImage
 
@@ -31,7 +30,7 @@ class Mgh(WithMagicVersion, File):
     ext = ".mgh"
     magic_pattern = rb"(....)"  # First integer is the version string
 
-    @hook.check
+    @property
     def is_supported_version(self):
         self.version == 1
 

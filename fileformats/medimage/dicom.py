@@ -2,8 +2,8 @@ import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
 from functools import cached_property
-from fileformats.core import hook, FileSet
-from fileformats.generic import DirectoryContaining, SetOf, TypedSet
+from fileformats.core import extra, FileSet
+from fileformats.generic import Directory, SetOf, TypedSet
 from fileformats.application import Dicom
 from .base import MedicalImage
 
@@ -28,12 +28,14 @@ class DicomCollection(MedicalImage):
     def __len__(self):
         return len(self.contents)
 
-    @hook.extra
+    @extra
     def series_number(self) -> str:
         raise NotImplementedError
 
 
-class DicomDir(DicomCollection, DirectoryContaining[Dicom]):
+class DicomDir(DicomCollection, Directory):
+
+    content_types = (Dicom,)
 
     @cached_property
     def contents(self) -> ty.List[Dicom]:
@@ -95,9 +97,7 @@ def dicom_collection_read_metadata(
     # We use the "contents" property implementation in TypeSet instead of the overload
     # in DicomCollection because we don't want the metadata to be read ahead of the
     # the `select_metadata` call below
-    base_class = (
-        TypedSet if isinstance(collection, DicomSeries) else DirectoryContaining
-    )
+    base_class = TypedSet if isinstance(collection, DicomSeries) else DirectoryOf
     for dicom in base_class.contents.fget(collection):
         dicom.select_metadata(selected_keys)
         for key, val in dicom.metadata.items():

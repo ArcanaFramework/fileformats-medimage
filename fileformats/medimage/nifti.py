@@ -1,6 +1,5 @@
 import typing as ty
 from fileformats.generic import File
-from fileformats.core import hook
 from fileformats.core.mixin import WithSideCars, WithMagicNumber, WithAdjacentFiles
 from fileformats.application import Json
 
@@ -20,13 +19,11 @@ class WithBids(WithSideCars):
     primary_type = Nifti
     side_car_types = (Json,)
 
-    @hook.required
     @property
     def json_file(self):
         return Json(self.select_by_ext(Json))
 
-    # @hook.required
-    # @property
+    # @    # @property
     # def tsv_file(self):
     #     return Tsv(self.select_by_ext(Tsv, allow_none=True))
 
@@ -70,7 +67,6 @@ class NiftiWithDataFile(WithAdjacentFiles, Nifti1):
     magic_number = "6E693100"
     alternate_exts = (".hdr",)
 
-    @hook.required
     @property
     def data_file(self):
         return self.select_by_ext(NiftiDataFile)

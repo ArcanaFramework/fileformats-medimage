@@ -3,6 +3,7 @@ import logging
 import tempfile
 from pathlib import Path
 import pytest
+
 try:
     from pydra import set_input_validator
 except ImportError:
@@ -22,7 +23,7 @@ else:
 
 log_level = logging.WARNING
 
-logger = logging.getLogger("arcana")
+logger = logging.getLogger("fileformats.medimage")
 logger.setLevel(log_level)
 
 sch = logging.StreamHandler()
@@ -65,6 +66,7 @@ def dummy_dwi_dicom():
     import medimages4tests.dummy.dicom.mri.dwi.siemens.skyra.syngo_d13c as module
 
     return DicomDir(module.get_image())
+
 
 # For debugging in IDE's don't catch raised exceptions and let the IDE
 # break at it

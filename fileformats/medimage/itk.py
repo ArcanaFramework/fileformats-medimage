@@ -12,7 +12,7 @@ from .nifti import Nifti1, NiftiGz
 
 
 class GDCM(Dicom):
-    pass
+    iana_mime = None
 
 
 class GIPL(RasterImage):

@@ -3,7 +3,7 @@ import attrs
 import json
 import typing as ty
 import tempfile
-from fileformats.core import hook
+from fileformats.core import converter
 import pydra
 from fileformats.medimage.base import MedicalImage
 from fileformats.medimage.dicom import DicomDir, DicomCollection, DicomSeries
@@ -23,7 +23,7 @@ from pydra.tasks.mrtrix3.latest import MrConvert
 from pydra.tasks.dcm2niix import Dcm2Niix
 
 
-@hook.converter(source_format=MedicalImage, target_format=Analyze, out_ext=Analyze.ext)
+@converter(source_format=MedicalImage, target_format=Analyze, out_ext=Analyze.ext)
 def mrconvert(name, out_ext: str):
     """Initiate an MRConvert task with the output file extension set
 
@@ -56,14 +56,14 @@ def ensure_dicom_dir(dicom: DicomCollection) -> DicomDir:
     return dicom
 
 
-@hook.converter(source_format=DicomCollection, target_format=Nifti)
-@hook.converter(source_format=DicomCollection, target_format=NiftiGz, compress="y")
-@hook.converter(source_format=DicomCollection, target_format=NiftiX)
-@hook.converter(source_format=DicomCollection, target_format=NiftiGzX, compress="y")
-@hook.converter(source_format=DicomCollection, target_format=NiftiXBvec)
-@hook.converter(source_format=DicomCollection, target_format=NiftiBvec)
-@hook.converter(source_format=DicomCollection, target_format=NiftiGzBvec)
-@hook.converter(source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y")
+@converter(source_format=DicomCollection, target_format=Nifti)
+@converter(source_format=DicomCollection, target_format=NiftiGz, compress="y")
+@converter(source_format=DicomCollection, target_format=NiftiX)
+@converter(source_format=DicomCollection, target_format=NiftiGzX, compress="y")
+@converter(source_format=DicomCollection, target_format=NiftiXBvec)
+@converter(source_format=DicomCollection, target_format=NiftiBvec)
+@converter(source_format=DicomCollection, target_format=NiftiGzBvec)
+@converter(source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y")
 def extended_dcm2niix(
     name,
     compress: str = "n",
