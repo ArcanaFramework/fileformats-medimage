@@ -9,7 +9,8 @@ from .base import (
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(PetRawData):
-    iana_mime = None
+    # iana_mime = None
+    pass
     ext = ".ptd"
 
 

@@ -34,36 +34,29 @@ logger.addHandler(sch)
 
 
 @pytest.fixture(scope="session")
-def dummy_t1w_dicom():
+def dummy_t1w_dicom() -> DicomDir:
     import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c as module
 
     return DicomDir(module.get_image())
 
 
 @pytest.fixture(scope="session")
-def dummy_magfmap_dicom():
+def dummy_magfmap_dicom() -> DicomDir:
     import medimages4tests.dummy.dicom.mri.fmap.siemens.skyra.syngo_d13c as module
 
     return DicomDir(module.get_image())
 
 
 @pytest.fixture(scope="session")
-def dummy_dwi_dicom():
+def dummy_dwi_dicom() -> DicomDir:
     import medimages4tests.dummy.dicom.mri.dwi.siemens.skyra.syngo_d13c as module
 
     return DicomDir(module.get_image())
 
 
 @pytest.fixture(scope="session")
-def dummy_mixedfmap_dicom():
+def dummy_mixedfmap_dicom() -> DicomDir:
     import medimages4tests.dummy.dicom.mri.fmap.ge.discovery_mr888.dv26_0_r05_2008a as module
-
-    return DicomDir(module.get_image())
-
-
-@pytest.fixture(scope="session")
-def dummy_dwi_dicom():
-    import medimages4tests.dummy.dicom.mri.dwi.siemens.skyra.syngo_d13c as module
 
     return DicomDir(module.get_image())
 
@@ -72,16 +65,16 @@ def dummy_dwi_dicom():
 # break at it
 if os.getenv("_PYTEST_RAISE", "0") != "0":
 
-    @pytest.hookimpl(tryfirst=True)
-    def pytest_exception_interact(call):
+    @pytest.hookimpl(tryfirst=True)  # type: ignore
+    def pytest_exception_interact(call) -> None:
         raise call.excinfo.value
 
-    @pytest.hookimpl(tryfirst=True)
-    def pytest_internalerror(excinfo):
+    @pytest.hookimpl(tryfirst=True)  # type: ignore
+    def pytest_internalerror(excinfo) -> None:
         raise excinfo.value
 
 
 @pytest.fixture
-def work_dir():
+def work_dir() -> Path:
     work_dir = tempfile.mkdtemp()
     return Path(work_dir)

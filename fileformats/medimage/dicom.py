@@ -3,7 +3,7 @@ from collections import defaultdict, Counter
 from pathlib import Path
 from functools import cached_property
 from fileformats.core import extra, FileSet
-from fileformats.generic import Directory, SetOf, TypedSet
+from fileformats.generic import Directory, DirectoryOf, SetOf, TypedSet
 from fileformats.application import Dicom
 from .base import MedicalImage
 
@@ -23,7 +23,8 @@ class DicomCollection(MedicalImage):
     """
 
     content_types = (Dicom,)
-    iana_mime = None
+    # iana_mime = None
+    pass
 
     def __len__(self):
         return len(self.contents)
