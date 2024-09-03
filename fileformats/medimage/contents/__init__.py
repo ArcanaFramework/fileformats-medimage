@@ -1,5 +1,6 @@
+import typing as ty
 from fileformats.core import Classifier
 
 
 class ContentsClassifier(Classifier):
-    pass
+    description: ty.Optional[str] = None

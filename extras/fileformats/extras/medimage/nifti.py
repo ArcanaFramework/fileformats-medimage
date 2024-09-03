@@ -2,7 +2,7 @@ from pathlib import Path
 import typing as ty
 import nibabel
 import numpy as np
-from fileformats.core import FileSet, SampleFileGenerator
+from fileformats.core import FileSet, SampleFileGenerator, extra_implementation
 from fileformats.medimage import (
     MedicalImage,
     Nifti,
@@ -23,23 +23,23 @@ import medimages4tests.mri.neuro.dwi
 import medimages4tests.mri.neuro.bold
 
 
-@FileSet.read_metadata.register
+@extra_implementation(FileSet.read_metadata)
 def nifti_read_metadata(nifti: Nifti) -> ty.Mapping[str, ty.Any]:
     return dict(nibabel.load(nifti.fspath).header)
 
 
-@MedicalImage.read_array.register
+@extra_implementation(MedicalImage.read_array)
 def nifti_data_array(nifti: Nifti) -> np.ndarray:  # noqa
     return nibabel.load(nifti.fspath).get_data()
 
 
-@MedicalImage.vox_sizes.register
+@extra_implementation(MedicalImage.vox_sizes)
 def nifti_vox_sizes(nifti: Nifti) -> ty.Tuple[float, float, float]:
     ndims = len(nifti_dims(nifti))
     return tuple(float(d) for d in nifti.metadata["pixdim"][1 : ndims + 1])
 
 
-@MedicalImage.dims.register
+@extra_implementation(MedicalImage.dims)
 def nifti_dims(nifti: Nifti) -> ty.Tuple[int, int, int]:
     dim_array = [int(d) for d in nifti.metadata["dim"]]
     for i in range(1, len(dim_array)):
@@ -48,7 +48,7 @@ def nifti_dims(nifti: Nifti) -> ty.Tuple[int, int, int]:
     return tuple(dim_array[1:i])
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def nifti_generate_sample_data(
     nifti: Nifti1,
     generator: SampleFileGenerator,
@@ -58,7 +58,7 @@ def nifti_generate_sample_data(
     )
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def nifti_gz_generate_sample_data(
     nifti: NiftiGz,
     generator: SampleFileGenerator,
@@ -69,7 +69,7 @@ def nifti_gz_generate_sample_data(
     )
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def t1w_nifti_gz_x_generate_sample_data(
     nifti: NiftiGzX[T1w],
     generator: SampleFileGenerator,
@@ -77,7 +77,7 @@ def t1w_nifti_gz_x_generate_sample_data(
     return _get_t1w_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def t1w_nifti_x_generate_sample_data(
     nifti: NiftiX[T1w],
     generator: SampleFileGenerator,
@@ -86,7 +86,7 @@ def t1w_nifti_x_generate_sample_data(
     return NiftiX.convert(nifti_gz_x)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def t1w_brain_nifti_gz_x_generate_sample_data(
     nifti: NiftiGzX[T1w, Brain],
     generator: SampleFileGenerator,
@@ -94,7 +94,7 @@ def t1w_brain_nifti_gz_x_generate_sample_data(
     return _get_t1w_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def t1w_brain_nifti_x_generate_sample_data(
     nifti: NiftiX[T1w, Brain],
     generator: SampleFileGenerator,
@@ -103,7 +103,7 @@ def t1w_brain_nifti_x_generate_sample_data(
     return NiftiX.convert(nifti_gz_x)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def fmri_brain_nifti_gz_x_generate_sample_data(
     nifti: NiftiGzX[Fmri, Brain],
     generator: SampleFileGenerator,
@@ -111,7 +111,7 @@ def fmri_brain_nifti_gz_x_generate_sample_data(
     return _get_fmri_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def fmri_brain_nifti_x_generate_sample_data(
     nifti: NiftiX[Fmri, Brain],
     generator: SampleFileGenerator,
@@ -120,7 +120,7 @@ def fmri_brain_nifti_x_generate_sample_data(
     return NiftiX.convert(nifti_gz_x)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def fmri_nifti_gz_x_generate_sample_data(
     nifti: NiftiGzX[Fmri],
     generator: SampleFileGenerator,
@@ -128,7 +128,7 @@ def fmri_nifti_gz_x_generate_sample_data(
     return _get_fmri_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def fmri_nifti_x_generate_sample_data(
     nifti: NiftiX[Fmri],
     generator: SampleFileGenerator,
@@ -137,7 +137,7 @@ def fmri_nifti_x_generate_sample_data(
     return NiftiX.convert(nifti_gz_x)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dmri_brain_nifti_gz_x_generate_sample_data(
     nifti: NiftiGzXBvec[Dmri, Brain],
     generator: SampleFileGenerator,
@@ -145,7 +145,7 @@ def dmri_brain_nifti_gz_x_generate_sample_data(
     return _get_dmri_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dmri_brain_nifti_x_generate_sample_data(
     nifti: NiftiXBvec[Dmri, Brain],
     generator: SampleFileGenerator,
@@ -154,7 +154,7 @@ def dmri_brain_nifti_x_generate_sample_data(
     return NiftiX.convert(nifti_gz_x)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dmri_nifti_gz_x_generate_sample_data(
     nifti: NiftiGzXBvec[Dmri],
     generator: SampleFileGenerator,
@@ -162,7 +162,7 @@ def dmri_nifti_gz_x_generate_sample_data(
     return _get_dmri_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dmri_nifti_x_generate_sample_data(
     nifti: NiftiXBvec[Dmri],
     generator: SampleFileGenerator,

@@ -1,13 +1,14 @@
 import numpy as np
+from fileformats.core import extra_implementation
 from fileformats.medimage import DwiEncoding, Bval, Bvec
 
 
-@Bval.read_array.register
+@extra_implementation(Bval.read_array)
 def bval_read_array(bval: Bval) -> np.ndarray:  # noqa
     return np.asarray([float(ln) for ln in bval.read_contents().split()])
 
 
-@DwiEncoding.read_array.register
+@extra_implementation(DwiEncoding.read_array)
 def bvec_read_array(bvec: Bvec) -> np.ndarray:  # noqa
     bvals = bvec.b_values_file.read_array()
     directions = np.asarray(

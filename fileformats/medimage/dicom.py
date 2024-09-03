@@ -2,7 +2,7 @@ import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
 from functools import cached_property
-from fileformats.core import extra, FileSet
+from fileformats.core import extra, FileSet, extra_implementation
 from fileformats.generic import Directory, DirectoryOf, SetOf, TypedSet
 from fileformats.application import Dicom
 from .base import MedicalImage
@@ -87,7 +87,7 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
         return sorted(super().contents, key=dicom_sort_key)
 
 
-@FileSet.read_metadata.register
+@extra_implementation(FileSet.read_metadata)
 def dicom_collection_read_metadata(
     collection: DicomCollection, selected_keys: ty.Optional[ty.Sequence[str]] = None
 ) -> ty.Mapping[str, ty.Any]:

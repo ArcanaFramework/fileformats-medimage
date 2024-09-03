@@ -2,13 +2,13 @@ from pathlib import Path
 import typing as ty
 import pydicom
 import numpy as np
-from fileformats.core import FileSet
+from fileformats.core import FileSet, extra_implementation
 from fileformats.core import SampleFileGenerator
 from fileformats.medimage import MedicalImage, DicomCollection, DicomDir, DicomSeries
 import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
 
-@MedicalImage.read_array.register
+@extra_implementation(MedicalImage.read_array)
 def dicom_read_array(collection: DicomCollection) -> np.ndarray:
     image_stack = []
     for dcm_file in collection.contents:
@@ -16,14 +16,14 @@ def dicom_read_array(collection: DicomCollection) -> np.ndarray:
     return np.asarray(image_stack)
 
 
-@MedicalImage.vox_sizes.register
+@extra_implementation(MedicalImage.vox_sizes)
 def dicom_vox_sizes(collection: DicomCollection) -> ty.Tuple[float, float, float]:
     return tuple(
         collection.metadata["PixelSpacing"] + [collection.metadata["SliceThickness"]]
     )
 
 
-@MedicalImage.dims.register
+@extra_implementation(MedicalImage.dims)
 def dicom_dims(collection: DicomCollection) -> ty.Tuple[int, int, int]:
     return tuple(
         (
@@ -34,12 +34,12 @@ def dicom_dims(collection: DicomCollection) -> ty.Tuple[int, int, int]:
     )
 
 
-@DicomCollection.series_number.register
+@extra_implementation(DicomCollection.series_number)
 def dicom_series_number(collection: DicomCollection) -> str:
     return str(collection.metadata["SeriesNumber"])
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dicom_dir_generate_sample_data(
     dcmdir: DicomDir,
     generator: SampleFileGenerator,
@@ -55,7 +55,7 @@ def dicom_dir_generate_sample_data(
     return [dest]
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dicom_series_generate_sample_data(
     dcm_series: DicomSeries,
     generator: SampleFileGenerator,
