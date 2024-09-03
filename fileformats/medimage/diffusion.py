@@ -5,25 +5,30 @@ from fileformats.generic import File
 from .nifti import NiftiGzX, NiftiGz, Nifti1, NiftiX
 
 
+if ty.TYPE_CHECKING:
+    import numpy as np
+    import numpy.typing
+
+
 class DwiEncoding(File):
 
     iana_mime: ty.Optional[str] = None
 
     @extra
-    def read_array(self) -> "numpy.ndarray":  # noqa
+    def read_array(self) -> numpy.typing.NDArray[np.float_]:
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
 
-    def array(self) -> "numpy.ndarray":  # noqa
+    def array(self) -> numpy.typing.NDArray[np.float_]:
         return self.read_array()
 
-    def directions(self) -> "numpy.ndarray":  # noqa
+    def directions(self) -> numpy.typing.NDArray[np.float_]:
         "gradient direction and weighting combined into a single Nx4 array"
-        return self.array[:, :3]
+        return self.array()[:, :3]
 
-    def b_values(self) -> "numpy.ndarray":  # noqa
+    def b_values(self) -> numpy.typing.NDArray[np.float_]:
         "the b-value weighting"
-        return self.array[:, 3]
+        return self.array()[:, 3]
 
 
 class Bval(File):
@@ -31,7 +36,7 @@ class Bval(File):
     ext = ".bval"
 
     @extra
-    def read_array(self) -> "numpy.ndarray":  # noqa
+    def read_array(self) -> numpy.typing.NDArray[np.float_]:
         raise NotImplementedError
 
 
@@ -49,7 +54,7 @@ class Bvec(WithAdjacentFiles, DwiEncoding):
 class WithBvec(WithAdjacentFiles):
     @property
     def encoding(self) -> Bvec:
-        return Bvec(self.select_by_ext(Bvec))
+        return Bvec(self.select_by_ext(Bvec))  # type: ignore[attr-defined]
 
 
 class NiftiBvec(WithBvec, Nifti1):

@@ -20,12 +20,8 @@ class WithBids(WithSideCars):
     side_car_types = (Json,)
 
     @property
-    def json_file(self):
-        return Json(self.select_by_ext(Json))
-
-    # @    # @property
-    # def tsv_file(self):
-    #     return Tsv(self.select_by_ext(Tsv, allow_none=True))
+    def json_file(self) -> Json:
+        return Json(self.select_by_ext(Json))  # type: ignore[attr-defined]
 
 
 class Nifti1(WithMagicNumber, Nifti):
@@ -43,7 +39,6 @@ class Nifti2(WithMagicNumber, Nifti):
 
 
 class NiftiGz(Nifti, Gzip):  # Should be Gzip[Nifti1]
-
     ext = ".nii.gz"
     iana_mime = "application/x-nifti1+gzip"
 
@@ -68,5 +63,5 @@ class NiftiWithDataFile(WithAdjacentFiles, Nifti1):
     alternate_exts = (".hdr",)
 
     @property
-    def data_file(self):
-        return self.select_by_ext(NiftiDataFile)
+    def data_file(self) -> NiftiDataFile:
+        return NiftiDataFile(self.select_by_ext(NiftiDataFile))

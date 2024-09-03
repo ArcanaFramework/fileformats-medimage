@@ -4,7 +4,9 @@ from .. import ContentsClassifier
 
 class ImagingModality(ContentsClassifier):
     ontology_link = "http://www.radlex.org/RID/RID10311"
-    description = "Form of imaging that depends on the way the image is produced"
+    description: ty.Optional[str] = (
+        "Form of imaging that depends on the way the image is produced"
+    )
     dicom_modality: ty.Optional[str] = None
 
 
@@ -26,7 +28,7 @@ class DualEnergyXrayAbsorptiometry(ImagingModality):
 
 class Fluoroscopy(ImagingModality):
     ontology_link = "http://www.radlex.org/RID/RID10361"
-    description = None
+    description: ty.Optional[str] = None
 
 
 class MrFluoroscopy(Fluoroscopy):
@@ -49,7 +51,7 @@ class RadioFluoroscopy(Fluoroscopy):
 
 class MagneticResonanceImaging(ImagingModality):
     ontology_link = "http://www.radlex.org/RID/RID10312"
-    description = (
+    description: ty.Optional[str] = (
         "Non-invasive method of demonstrating internal anatomy "
         "based on the principle that atomic nuclei in a strong "
         "magnetic field absorb pulses of radiofrequency energy and "
@@ -107,7 +109,7 @@ class MagneticResonanceSpectroscopy(ImagingModality):
 
 class NuclearMedicineImaging(ImagingModality):
     ontology_link = "http://www.radlex.org/RID/RID10330"
-    description = None
+    description: ty.Optional[str] = None
     dicom_modality = "NM"
 
 
@@ -133,7 +135,7 @@ class PanographicRadiograph(ImagingModality):
 
 class ProjectionRadiography(ImagingModality):
     ontology_link = "http://www.radlex.org/RID/RID10345"
-    description = (
+    description: ty.Optional[str] = (
         "Examination of any part of the body for diagnostic purposes "
         "by means of roentgen rays, recording the image on a "
         "sensitized surface (such as photographic film). [MeSH]"
@@ -190,7 +192,7 @@ class Spectroscopy(ImagingModality):
 
 class Tomography(ImagingModality):
     ontology_link = "http://www.radlex.org/RID/RID28840"
-    description = None
+    description: ty.Optional[str] = None
 
 
 class ComputedTomography(Tomography):

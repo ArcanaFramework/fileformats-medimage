@@ -18,13 +18,17 @@ from fileformats.medimage import (
     NiftiGzBvec,
     NiftiGzXBvec,
 )
-
+from fileformats.core.type_aliases import PathType
 from pydra.tasks.mrtrix3.latest import MrConvert
 from pydra.tasks.dcm2niix import Dcm2Niix
 
 
+if ty.TYPE_CHECKING:
+    from pydra.engine.task import TaskBase, Workflow
+
+
 @converter(source_format=MedicalImage, target_format=Analyze, out_ext=Analyze.ext)
-def mrconvert(name, out_ext: str):
+def mrconvert(name: str, out_ext: str) -> "TaskBase":
     """Initiate an MRConvert task with the output file extension set
 
     Parameters
@@ -42,7 +46,7 @@ def mrconvert(name, out_ext: str):
     return MrConvert(name=name, out_file="out" + out_ext)
 
 
-@pydra.mark.task
+@pydra.mark.task  # type: ignore[misc]
 def ensure_dicom_dir(dicom: DicomCollection) -> DicomDir:
     if isinstance(dicom, DicomSeries):
         dicom_dir_fspath = tempfile.mkdtemp()
@@ -65,13 +69,13 @@ def ensure_dicom_dir(dicom: DicomCollection) -> DicomDir:
 @converter(source_format=DicomCollection, target_format=NiftiGzBvec)
 @converter(source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y")
 def extended_dcm2niix(
-    name,
+    name: str,
     compress: str = "n",
     file_postfix: ty.Optional[str] = None,
     side_car_jq: ty.Optional[str] = None,
     extract_volume: ty.Optional[int] = None,
     to_4d: bool = False,
-):
+) -> "Workflow":
     """The Dcm2niix command wrapped in a workflow in order to map the inputs and outputs
     onto "in_file" and "out_file", respectively, and implement optional post-conversion
     manipulations to allow manual override of conversion issues.
@@ -179,8 +183,10 @@ def extended_dcm2niix(
     return wf
 
 
-@pydra.mark.task
-def edit_dcm2niix_side_car(in_file: Path, jq_expr: str, out_file=None) -> Path:
+@pydra.mark.task  # type: ignore[misc]
+def edit_dcm2niix_side_car(
+    in_file: Path, jq_expr: str, out_file: ty.Optional[PathType] = None
+) -> Path:
     """ "Applies ad-hoc edit of JSON side car with JQ query language"""
     if out_file is None:
         out_file = in_file
@@ -201,7 +207,7 @@ def edit_dcm2niix_side_car(in_file: Path, jq_expr: str, out_file=None) -> Path:
     return in_file
 
 
-@pydra.mark.task
+@pydra.mark.task  # type: ignore[misc]
 def collect_dcm2niix_outputs(
     out_file: Path, out_json: Path, out_bvec: Path, out_bval: Path
 ) -> ty.List[Path]:

@@ -1,4 +1,4 @@
-from fileformats.generic import SetOf
+from fileformats.generic import TypedSet
 from .base import (
     PetRawData,
     PetListMode,
@@ -38,8 +38,6 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation(
     "normalisation scan or the current cross calibration factor"
 
 
-class Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogramSeries(
-    SetOf[Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram],
-    Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData,
-):
+class Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogramSeries(TypedSet):
     "Series of sinogram images"
+    content_types = (Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram,)

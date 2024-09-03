@@ -3,7 +3,7 @@ from collections import defaultdict, Counter
 from pathlib import Path
 from functools import cached_property
 from fileformats.core import extra, FileSet, extra_implementation
-from fileformats.generic import Directory, DirectoryOf, SetOf, TypedSet
+from fileformats.generic import Directory, TypedSet
 from fileformats.application import Dicom
 from .base import MedicalImage
 
@@ -14,7 +14,8 @@ from .base import MedicalImage
 
 def dicom_sort_key(dicom: Dicom) -> str:
     """Sorts DICOM objects by SOPInstanceUID"""
-    return dicom.metadata["SOPInstanceUID"]
+    assert isinstance(dicom.metadata, dict)
+    return dicom.metadata["SOPInstanceUID"]  # type: ignore[no-any-return]
 
 
 class DicomCollection(MedicalImage):
@@ -22,16 +23,18 @@ class DicomCollection(MedicalImage):
     directory (DicomDir) or presented as a flat list (DicomSeries)
     """
 
-    content_types = (Dicom,)
-    # iana_mime = None
-    pass
+    content_types: ty.Tuple[ty.Type[FileSet], ...] = (Dicom,)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.contents)
 
     @extra
     def series_number(self) -> str:
         raise NotImplementedError
+
+    @property
+    def contents(self) -> ty.List[Dicom]:
+        raise NotImplementedError("`contents` should be implemented by base class")
 
 
 class DicomDir(DicomCollection, Directory):
@@ -40,10 +43,10 @@ class DicomDir(DicomCollection, Directory):
 
     @cached_property
     def contents(self) -> ty.List[Dicom]:
-        return sorted(super().contents, key=dicom_sort_key)
+        return sorted(Directory.contents(self), key=dicom_sort_key)  # type: ignore[arg-type]
 
 
-class DicomSeries(DicomCollection, SetOf[Dicom]):
+class DicomSeries(DicomCollection, TypedSet):
     @classmethod
     def from_paths(
         cls,
@@ -84,7 +87,7 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
 
     @cached_property
     def contents(self) -> ty.List[Dicom]:
-        return sorted(super().contents, key=dicom_sort_key)
+        return sorted(TypedSet.contents(self), key=dicom_sort_key)  # type: ignore[arg-type]
 
 
 @extra_implementation(FileSet.read_metadata)
@@ -92,14 +95,16 @@ def dicom_collection_read_metadata(
     collection: DicomCollection, selected_keys: ty.Optional[ty.Sequence[str]] = None
 ) -> ty.Mapping[str, ty.Any]:
     # Collated DICOM headers across series
-    collated = {}
-    key_repeats = Counter()
+    collated: ty.Dict[str, ty.Any] = {}
+    key_repeats: ty.Counter[str] = Counter()
     varying_keys = set()
     # We use the "contents" property implementation in TypeSet instead of the overload
     # in DicomCollection because we don't want the metadata to be read ahead of the
     # the `select_metadata` call below
-    base_class = TypedSet if isinstance(collection, DicomSeries) else DirectoryOf
-    for dicom in base_class.contents.fget(collection):
+    base_class: ty.Union[ty.Type[TypedSet], ty.Type[Directory]] = (
+        TypedSet if isinstance(collection, DicomSeries) else Directory
+    )
+    for dicom in base_class.contents.fget(collection):  # type: ignore[union-attr]
         dicom.select_metadata(selected_keys)
         for key, val in dicom.metadata.items():
             try:

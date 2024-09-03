@@ -2,6 +2,7 @@ from fileformats.application import Gzip
 from fileformats.generic import File
 from fileformats.core.mixin import WithSeparateHeader, WithMagicVersion
 from .base import MedicalImage
+from fileformats.core.exceptions import FormatMismatchError
 
 
 # ==================
@@ -31,11 +32,15 @@ class Mgh(WithMagicVersion, File):
     magic_pattern = rb"(....)"  # First integer is the version string
 
     @property
-    def is_supported_version(self):
-        self.version == 1
+    def _is_supported_version(self) -> None:
+        assert isinstance(self.version, str)
+        if int(self.version) != 1:
+            raise FormatMismatchError(
+                f"Unsupported version {self.version} found in MGH format {self}"
+            )
 
 
-class MghGz(Gzip[Mgh]):
+class MghGz(Gzip[Mgh]):  # type: ignore[type-arg]
     """
     FreeSurfer 4-dimensional brain images, gzipped
 

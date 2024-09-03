@@ -2,6 +2,7 @@ from pathlib import Path
 import typing as ty
 import pydicom
 import numpy as np
+import numpy.typing
 from fileformats.core import FileSet, extra_implementation
 from fileformats.core import SampleFileGenerator
 from fileformats.medimage import MedicalImage, DicomCollection, DicomDir, DicomSeries
@@ -9,7 +10,7 @@ import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
 
 @extra_implementation(MedicalImage.read_array)
-def dicom_read_array(collection: DicomCollection) -> np.ndarray:
+def dicom_read_array(collection: DicomCollection) -> numpy.typing.NDArray[np.float_]:
     image_stack = []
     for dcm_file in collection.contents:
         image_stack.append(pydicom.dcmread(dcm_file).pixel_array)
@@ -20,7 +21,7 @@ def dicom_read_array(collection: DicomCollection) -> np.ndarray:
 def dicom_vox_sizes(collection: DicomCollection) -> ty.Tuple[float, float, float]:
     return tuple(
         collection.metadata["PixelSpacing"] + [collection.metadata["SliceThickness"]]
-    )
+    )  # type: ignore[return-value]
 
 
 @extra_implementation(MedicalImage.dims)
@@ -31,7 +32,7 @@ def dicom_dims(collection: DicomCollection) -> ty.Tuple[int, int, int]:
             collection.metadata["DataColumns"],
             len(list(collection.contents)),
         ),
-    )
+    )  # type: ignore[return-value]
 
 
 @extra_implementation(DicomCollection.series_number)
@@ -43,7 +44,7 @@ def dicom_series_number(collection: DicomCollection) -> str:
 def dicom_dir_generate_sample_data(
     dcmdir: DicomDir,
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     dcm_dir = medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c.get_image()
     series_number = generator.rng.randint(1, SERIES_NUMBER_RANGE)
     dest = generator.generate_fspath(DicomDir)
@@ -60,7 +61,7 @@ def dicom_series_generate_sample_data(
     dcm_series: DicomSeries,
     generator: SampleFileGenerator,
 ) -> ty.Iterable[Path]:
-    dicom_dir: Path = dicom_dir_generate_sample_data(dcm_series, generator=generator)[0]
+    dicom_dir: Path = dicom_dir_generate_sample_data(dcm_series, generator=generator)[0]  # type: ignore[arg-type]
     stem = generator.generate_fspath().stem
     fspaths = []
     for i, dicom_file in enumerate(dicom_dir.iterdir(), start=1):
