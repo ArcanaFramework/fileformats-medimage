@@ -1,40 +1,42 @@
 import typing as ty
-from fileformats.core import hook
+from fileformats.core import extra
 from fileformats.core.mixin import WithAdjacentFiles
 from fileformats.generic import File
 from .nifti import NiftiGzX, NiftiGz, Nifti1, NiftiX
+
+
+if ty.TYPE_CHECKING:
+    import numpy as np
+    import numpy.typing
 
 
 class DwiEncoding(File):
 
     iana_mime: ty.Optional[str] = None
 
-    @hook.extra
-    def read_array(self) -> "numpy.ndarray":  # noqa
+    @extra
+    def read_array(self) -> "numpy.typing.NDArray[np.floating]":
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
 
-    @property
-    def array(self) -> "numpy.ndarray":  # noqa
+    def array(self) -> "numpy.typing.NDArray[np.floating]":
         return self.read_array()
 
-    @property
-    def directions(self) -> "numpy.ndarray":  # noqa
+    def directions(self) -> "numpy.typing.NDArray[np.floating]":
         "gradient direction and weighting combined into a single Nx4 array"
-        return self.array[:, :3]
+        return self.array()[:, :3]
 
-    @property
-    def b_values(self) -> "numpy.ndarray":  # noqa
+    def b_values(self) -> "numpy.typing.NDArray[np.floating]":
         "the b-value weighting"
-        return self.array[:, 3]
+        return self.array()[:, 3]
 
 
 class Bval(File):
 
     ext = ".bval"
 
-    @hook.extra
-    def read_array(self) -> "numpy.ndarray":  # noqa
+    @extra
+    def read_array(self) -> "numpy.typing.NDArray[np.floating]":
         raise NotImplementedError
 
 
@@ -43,7 +45,6 @@ class Bvec(WithAdjacentFiles, DwiEncoding):
 
     ext = ".bvec"
 
-    @hook.required
     @property
     def b_values_file(self) -> Bval:
         return Bval(self.select_by_ext(Bval))
@@ -51,10 +52,9 @@ class Bvec(WithAdjacentFiles, DwiEncoding):
 
 # NIfTI file format gzipped with BIDS side car
 class WithBvec(WithAdjacentFiles):
-    @hook.required
     @property
     def encoding(self) -> Bvec:
-        return Bvec(self.select_by_ext(Bvec))
+        return Bvec(self.select_by_ext(Bvec))  # type: ignore[attr-defined]
 
 
 class NiftiBvec(WithBvec, Nifti1):

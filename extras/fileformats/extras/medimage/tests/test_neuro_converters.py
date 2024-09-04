@@ -65,11 +65,11 @@ def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
 
     bvec_mags = [
         (v[0] ** 2 + v[1] ** 2 + v[2] ** 2)
-        for v in nifti_gz_x_fsgrad.encoding.directions
+        for v in nifti_gz_x_fsgrad.encoding.directions()
         if any(v)
     ]
 
-    assert all(b in (0.0, 3000.0) for b in nifti_gz_x_fsgrad.encoding.b_values)
+    assert all(b in (0.0, 3000.0) for b in nifti_gz_x_fsgrad.encoding.b_values())
     assert len(bvec_mags) == 60
     assert all(abs(1 - m) < 1e5 for m in bvec_mags)
 

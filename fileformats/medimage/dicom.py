@@ -1,9 +1,10 @@
 import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
-from functools import cached_property
-from fileformats.core import hook, FileSet
-from fileformats.generic import DirectoryContaining, SetOf, TypedSet
+from abc import ABCMeta, abstractproperty
+from fileformats.core.utils import mtime_cached_property
+from fileformats.core import extra, FileSet, extra_implementation
+from fileformats.generic import Directory, TypedSet
 from fileformats.application import Dicom
 from .base import MedicalImage
 
@@ -14,39 +15,44 @@ from .base import MedicalImage
 
 def dicom_sort_key(dicom: Dicom) -> str:
     """Sorts DICOM objects by SOPInstanceUID"""
-    return dicom.metadata["SOPInstanceUID"]
+    assert isinstance(dicom.metadata, dict)
+    return dicom.metadata["SOPInstanceUID"]  # type: ignore[no-any-return]
 
 
-class DicomCollection(MedicalImage):
+class DicomCollection(MedicalImage, metaclass=ABCMeta):
     """Base class for collections of DICOM files, which can either be stored within a
     directory (DicomDir) or presented as a flat list (DicomSeries)
     """
 
-    content_types = (Dicom,)
-    iana_mime = None
+    content_types: ty.Tuple[ty.Type[FileSet], ...] = (Dicom,)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.contents)
 
-    @hook.extra
+    @extra
     def series_number(self) -> str:
         raise NotImplementedError
 
-
-class DicomDir(DicomCollection, DirectoryContaining[Dicom]):
-
-    @cached_property
+    @abstractproperty
     def contents(self) -> ty.List[Dicom]:
-        return sorted(super().contents, key=dicom_sort_key)
+        raise NotImplementedError
 
 
-class DicomSeries(DicomCollection, SetOf[Dicom]):
+class DicomDir(DicomCollection, Directory):
+
+    content_types = (Dicom,)
+
+    @mtime_cached_property
+    def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
+        return sorted(Directory.contents.__get__(self), key=dicom_sort_key)
+
+
+class DicomSeries(DicomCollection, TypedSet):
     @classmethod
     def from_paths(
         cls,
         fspaths: ty.Iterable[Path],
         common_ok: bool = False,
-        selected_keys: ty.Optional[ty.Sequence[str]] = None,
     ) -> ty.Tuple[ty.Set["DicomSeries"], ty.Set[Path]]:
         """Separates a list of DICOM files into separate series from the file-system
         paths
@@ -58,7 +64,7 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
         common_ok : bool, optional
             included to match the signature of the overriden method, but ignored as each
             dicom should belong to only one series.
-        selected_keys : ty.Optional[ty.Sequence[str]], optional
+        selected_keys : ty.Optional[ty.Collection[str]], optional
             metadata keys to load from the DICOM files, typically used for performance
             reasons, by default None (i.e. all metadata is loaded)
 
@@ -70,36 +76,34 @@ class DicomSeries(DicomCollection, SetOf[Dicom]):
         dicoms, remaining = Dicom.from_paths(fspaths, common_ok=common_ok)
         series_dict = defaultdict(list)
         for dicom in dicoms:
-            dicom.select_metadata(selected_keys)
-            series_dict[
-                (
-                    str(dicom.metadata["StudyInstanceUID"]),
-                    str(dicom.metadata["SeriesNumber"]),
-                )
-            ].append(dicom)
-        return set([cls(s) for s in series_dict.values()]), remaining
+            metadata = dicom.read_metadata(selected_keys=cls.ID_KEYS)
+            series_dict[tuple(metadata[k] for k in cls.ID_KEYS)].append(dicom)
+        return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 
-    @cached_property
-    def contents(self) -> ty.List[Dicom]:
-        return sorted(super().contents, key=dicom_sort_key)
+    @mtime_cached_property
+    def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
+        return sorted(TypedSet.contents.__get__(self), key=dicom_sort_key)
+
+    ID_KEYS = ("StudyInstanceUID", "SeriesNumber")
 
 
-@FileSet.read_metadata.register
+@extra_implementation(FileSet.read_metadata)
 def dicom_collection_read_metadata(
-    collection: DicomCollection, selected_keys: ty.Optional[ty.Sequence[str]] = None
+    collection: DicomCollection, selected_keys: ty.Optional[ty.Collection[str]] = None
 ) -> ty.Mapping[str, ty.Any]:
     # Collated DICOM headers across series
-    collated = {}
-    key_repeats = Counter()
+    collated: ty.Dict[str, ty.Any] = {}
+    key_repeats: ty.Counter[str] = Counter()
     varying_keys = set()
     # We use the "contents" property implementation in TypeSet instead of the overload
     # in DicomCollection because we don't want the metadata to be read ahead of the
     # the `select_metadata` call below
-    base_class = (
-        TypedSet if isinstance(collection, DicomSeries) else DirectoryContaining
+    base_class: ty.Union[ty.Type[TypedSet], ty.Type[Directory]] = (
+        TypedSet if isinstance(collection, DicomSeries) else Directory
     )
-    for dicom in base_class.contents.fget(collection):
-        dicom.select_metadata(selected_keys)
+    for dicom in base_class.contents.__get__(collection):  # type: ignore[union-attr, arg-type]
+        if selected_keys is not None:
+            dicom = Dicom(dicom, metadata_keys=selected_keys)
         for key, val in dicom.metadata.items():
             try:
                 prev_val = collated[key]

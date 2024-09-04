@@ -7,20 +7,11 @@ name = "fileformats-medimage"
 description = "Classes for representing various medical imaging file formats in Python classes for use in type hinting in data workflows"
 readme = "README.rst"
 requires-python = ">=3.8"
-dependencies = [
-    "fileformats >=0.7.1",
-]
-license = {file = "LICENSE"}
-authors = [
-    {name = "Thomas G. Close", email = "tom.g.close@gmail.com"},
-]
-maintainers = [
-    {name = "Thomas G. Close", email = "tom.g.close@gmail.com"},
-]
-keywords = [
-    "file formats",
-    "data",
-]
+dependencies = ["fileformats >=0.7.1"]
+license = { file = "LICENSE" }
+authors = [{ name = "Thomas G. Close", email = "tom.g.close@gmail.com" }]
+maintainers = [{ name = "Thomas G. Close", email = "tom.g.close@gmail.com" }]
+keywords = ["file formats", "data"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -38,13 +29,7 @@ classifiers = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-dev = [
-    "black",
-    "pre-commit",
-    "codespell",
-    "flake8",
-    "flake8-pyproject",
-]
+dev = ["black", "pre-commit", "codespell", "flake8", "flake8-pyproject"]
 test = [
     "pytest >=6.2.5",
     "pytest-env>=0.6.2",
@@ -52,7 +37,7 @@ test = [
     "medimages4tests >=0.3",
     "fileformats-medimage-extras",
     "pydra-dcm2niix",
-    "pydra-mrtrix3 >=3.0.4a4",
+    "pydra-mrtrix3 >=3.0.4a5",
 ]
 
 
@@ -78,11 +63,17 @@ exclude = "fileformats/medimage/_version.py"
 [tool.codespell]
 ignore-words = ".codespell-ignorewords"
 
+[tool.mypy]
+python_version = "3.8"
+ignore_missing_imports = true
+strict = true
+namespace_packages = true
+explicit_package_bases = true
+exclude = ["tests"]
+
 [tool.flake8]
 doctests = true
-per-file-ignores = [
-    "__init__.py:F401"
-]
+per-file-ignores = ["__init__.py:F401"]
 max-line-length = 88
 select = "C,E,F,W,B,B950"
 extend-ignore = ['E203', 'E501', 'E129', 'W503']

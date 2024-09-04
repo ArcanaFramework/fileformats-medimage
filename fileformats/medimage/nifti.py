@@ -1,11 +1,8 @@
 import typing as ty
 from fileformats.generic import File
-from fileformats.core import hook
 from fileformats.core.mixin import WithSideCars, WithMagicNumber, WithAdjacentFiles
 from fileformats.application import Json
-
-# from fileformats.text import Tsv
-from fileformats.application import Gzip
+from fileformats.application.archive import BaseGzip
 from .base import MedicalImage
 
 
@@ -20,15 +17,9 @@ class WithBids(WithSideCars):
     primary_type = Nifti
     side_car_types = (Json,)
 
-    @hook.required
     @property
-    def json_file(self):
-        return Json(self.select_by_ext(Json))
-
-    # @hook.required
-    # @property
-    # def tsv_file(self):
-    #     return Tsv(self.select_by_ext(Tsv, allow_none=True))
+    def json_file(self) -> Json:
+        return Json(self.select_by_ext(Json))  # type: ignore[attr-defined]
 
 
 class Nifti1(WithMagicNumber, Nifti):
@@ -45,10 +36,10 @@ class Nifti2(WithMagicNumber, Nifti):
     magic_number_offset = 344
 
 
-class NiftiGz(Nifti, Gzip):  # Should be Gzip[Nifti1]
-
+class NiftiGz(Nifti, BaseGzip):
     ext = ".nii.gz"
     iana_mime = "application/x-nifti1+gzip"
+    archived_type = Nifti
 
 
 class NiftiX(WithBids, Nifti):
@@ -70,7 +61,6 @@ class NiftiWithDataFile(WithAdjacentFiles, Nifti1):
     magic_number = "6E693100"
     alternate_exts = (".hdr",)
 
-    @hook.required
     @property
-    def data_file(self):
-        return self.select_by_ext(NiftiDataFile)
+    def data_file(self) -> NiftiDataFile:
+        return NiftiDataFile(self.select_by_ext(NiftiDataFile))

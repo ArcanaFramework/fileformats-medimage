@@ -2,7 +2,8 @@ from pathlib import Path
 import typing as ty
 import nibabel
 import numpy as np
-from fileformats.core import FileSet, SampleFileGenerator
+import numpy.typing
+from fileformats.core import FileSet, SampleFileGenerator, extra_implementation
 from fileformats.medimage import (
     MedicalImage,
     Nifti,
@@ -23,170 +24,179 @@ import medimages4tests.mri.neuro.dwi
 import medimages4tests.mri.neuro.bold
 
 
-@FileSet.read_metadata.register
-def nifti_read_metadata(nifti: Nifti) -> ty.Mapping[str, ty.Any]:
-    return dict(nibabel.load(nifti.fspath).header)
+@extra_implementation(FileSet.read_metadata)
+def nifti_read_metadata(
+    nifti: Nifti, selected_keys: ty.Optional[ty.Collection[str]] = None
+) -> ty.Mapping[str, ty.Any]:
+    metadata = dict(nibabel.load(nifti.fspath).header)  # type: ignore[attr-defined]
+    if selected_keys:
+        metadata = {k: v for k, v in metadata.items() if k in selected_keys}
+    return metadata
 
 
-@MedicalImage.read_array.register
-def nifti_data_array(nifti: Nifti) -> np.ndarray:  # noqa
-    return nibabel.load(nifti.fspath).get_data()
+@extra_implementation(MedicalImage.read_array)
+def nifti_data_array(nifti: Nifti) -> numpy.typing.NDArray[np.floating]:  # noqa
+    return nibabel.load(nifti.fspath).get_data()  # type: ignore[attr-defined, no-any-return]
 
 
-@MedicalImage.vox_sizes.register
+@extra_implementation(MedicalImage.vox_sizes)
 def nifti_vox_sizes(nifti: Nifti) -> ty.Tuple[float, float, float]:
     ndims = len(nifti_dims(nifti))
-    return tuple(float(d) for d in nifti.metadata["pixdim"][1 : ndims + 1])
+    return tuple(float(d) for d in nifti.metadata["pixdim"][1 : ndims + 1])  # type: ignore[return-value]
 
 
-@MedicalImage.dims.register
+@extra_implementation(MedicalImage.dims)
 def nifti_dims(nifti: Nifti) -> ty.Tuple[int, int, int]:
     dim_array = [int(d) for d in nifti.metadata["dim"]]
     for i in range(1, len(dim_array)):
         if all(d == 1 for d in dim_array[i:]):
             break  # Stop when the remaining dimensions are singletons
-    return tuple(dim_array[1:i])
+    return tuple(dim_array[1:i])  # type: ignore[return-value]
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def nifti_generate_sample_data(
     nifti: Nifti1,
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
-    return medimages4tests.dummy.nifti.get_image(
-        out_file=generator.generate_fspath(file_type=Nifti1)
-    )
+) -> ty.List[Path]:
+    return [
+        medimages4tests.dummy.nifti.get_image(
+            out_file=generator.generate_fspath(file_type=Nifti1)
+        )
+    ]
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def nifti_gz_generate_sample_data(
     nifti: NiftiGz,
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
-    return medimages4tests.dummy.nifti.get_image(
-        out_file=generator.generate_fspath(file_type=NiftiGz),
-        compressed=True,
-    )
+) -> ty.List[Path]:
+    return [
+        medimages4tests.dummy.nifti.get_image(
+            out_file=generator.generate_fspath(file_type=NiftiGz),
+            compressed=True,
+        )
+    ]
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def t1w_nifti_gz_x_generate_sample_data(
-    nifti: NiftiGzX[T1w],
+    nifti: NiftiGzX[T1w],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     return _get_t1w_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def t1w_nifti_x_generate_sample_data(
-    nifti: NiftiX[T1w],
+    nifti: NiftiX[T1w],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     nifti_gz_x = NiftiGzX(_get_t1w_nifti_gz_x(generator))
-    return NiftiX.convert(nifti_gz_x)
+    return NiftiX.convert(nifti_gz_x)  # type: ignore[return-value]
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def t1w_brain_nifti_gz_x_generate_sample_data(
-    nifti: NiftiGzX[T1w, Brain],
+    nifti: NiftiGzX[T1w, Brain],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     return _get_t1w_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def t1w_brain_nifti_x_generate_sample_data(
-    nifti: NiftiX[T1w, Brain],
+    nifti: NiftiX[T1w, Brain],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     nifti_gz_x = NiftiGzX(_get_t1w_nifti_gz_x(generator))
-    return NiftiX.convert(nifti_gz_x)
+    return NiftiX.convert(nifti_gz_x)  # type: ignore[return-value]
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def fmri_brain_nifti_gz_x_generate_sample_data(
-    nifti: NiftiGzX[Fmri, Brain],
+    nifti: NiftiGzX[Fmri, Brain],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     return _get_fmri_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def fmri_brain_nifti_x_generate_sample_data(
-    nifti: NiftiX[Fmri, Brain],
+    nifti: NiftiX[Fmri, Brain],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     nifti_gz_x = NiftiGzX(_get_fmri_nifti_gz_x(generator))
-    return NiftiX.convert(nifti_gz_x)
+    return NiftiX.convert(nifti_gz_x)  # type: ignore[return-value]
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def fmri_nifti_gz_x_generate_sample_data(
-    nifti: NiftiGzX[Fmri],
+    nifti: NiftiGzX[Fmri],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     return _get_fmri_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def fmri_nifti_x_generate_sample_data(
-    nifti: NiftiX[Fmri],
+    nifti: NiftiX[Fmri],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     nifti_gz_x = NiftiGzX(_get_fmri_nifti_gz_x(generator))
-    return NiftiX.convert(nifti_gz_x)
+    return NiftiX.convert(nifti_gz_x)  # type: ignore[return-value]
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dmri_brain_nifti_gz_x_generate_sample_data(
-    nifti: NiftiGzXBvec[Dmri, Brain],
+    nifti: NiftiGzXBvec[Dmri, Brain],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     return _get_dmri_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dmri_brain_nifti_x_generate_sample_data(
-    nifti: NiftiXBvec[Dmri, Brain],
+    nifti: NiftiXBvec[Dmri, Brain],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     nifti_gz_x = NiftiGzX(_get_dmri_nifti_gz_x(generator))
-    return NiftiX.convert(nifti_gz_x)
+    return NiftiX.convert(nifti_gz_x)  # type: ignore[return-value]
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dmri_nifti_gz_x_generate_sample_data(
-    nifti: NiftiGzXBvec[Dmri],
+    nifti: NiftiGzXBvec[Dmri],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     return _get_dmri_nifti_gz_x(generator)
 
 
-@FileSet.generate_sample_data.register
+@extra_implementation(FileSet.generate_sample_data)
 def dmri_nifti_x_generate_sample_data(
-    nifti: NiftiXBvec[Dmri],
+    nifti: NiftiXBvec[Dmri],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     nifti_gz_x = NiftiGzXBvec(_get_dmri_nifti_gz_x(generator))
-    return NiftiX.convert(nifti_gz_x)
+    return NiftiX.convert(nifti_gz_x)  # type: ignore[return-value]
 
 
-def _get_t1w_nifti_gz_x(generator: SampleFileGenerator) -> ty.Iterable[Path]:
+def _get_t1w_nifti_gz_x(generator: SampleFileGenerator) -> ty.List[Path]:
     sample = generator.seed if generator.seed else "ds002014-01"
     fspaths = medimages4tests.mri.neuro.t1w.get_image(sample=sample)
     NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
-    return fspaths
+    return fspaths  # type: ignore[no-any-return]
 
 
-def _get_fmri_nifti_gz_x(generator: SampleFileGenerator) -> ty.Iterable[Path]:
+def _get_fmri_nifti_gz_x(generator: SampleFileGenerator) -> ty.List[Path]:
     sample = generator.seed if generator.seed else "ds002014-01"
     fspaths = medimages4tests.mri.neuro.bold.get_image(sample=sample)
     NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
-    return fspaths
+    return fspaths  # type: ignore[no-any-return]
 
 
-def _get_dmri_nifti_gz_x(generator: SampleFileGenerator) -> ty.Iterable[Path]:
+def _get_dmri_nifti_gz_x(generator: SampleFileGenerator) -> ty.List[Path]:
     sample = generator.seed if generator.seed else "ds004024-CON031"
     fspaths = medimages4tests.mri.neuro.dwi.get_image(sample=sample)
     NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
-    return fspaths
+    return fspaths  # type: ignore[no-any-return]

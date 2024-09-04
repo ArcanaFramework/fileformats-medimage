@@ -12,6 +12,7 @@ from .nifti import Nifti1, NiftiGz
 
 
 class GDCM(Dicom):
+    # iana_mime = None
     pass
 
 
@@ -38,7 +39,7 @@ class Nrrd(WithMagicNumber, RasterImage):
     magic_number = b"NRRD"
 
 
-class NrrdGz(Gzip[Nrrd]):
+class NrrdGz(Gzip[Nrrd]):  # type: ignore[type-arg]
 
     ext = ".nrrd.gz"
     alternate_exts = (".nhdr.gz",)
@@ -50,4 +51,16 @@ ItkImage = ty.Union[
 
 ItkAll = ty.Union[
     Nifti1, NiftiGz, Dicom, Bitmap, Tiff, Jpeg, GIPL, MetaImage, Nrrd, NrrdGz, PGM, VTK
+]
+
+__all__ = [
+    "GDCM",
+    "GIPL",
+    "VTK",
+    "PGM",
+    "MetaImage",
+    "Nrrd",
+    "NrrdGz",
+    "ItkImage",
+    "ItkAll",
 ]
