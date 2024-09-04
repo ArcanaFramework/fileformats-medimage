@@ -2,7 +2,7 @@ import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
 from abc import ABCMeta, abstractproperty
-from functools import cached_property
+from fileformats.core.utils import mtime_cached_property
 from fileformats.core import extra, FileSet, extra_implementation
 from fileformats.generic import Directory, TypedSet
 from fileformats.application import Dicom
@@ -42,9 +42,9 @@ class DicomDir(DicomCollection, Directory):
 
     content_types = (Dicom,)
 
-    @cached_property
+    @mtime_cached_property
     def contents(self) -> ty.List[Dicom]:
-        return sorted(Directory.contents.fget(self), key=dicom_sort_key)  # type: ignore[attr-defined]
+        return sorted(Directory.contents.__get__(self), key=dicom_sort_key)  # type: ignore[attr-defined]
 
 
 class DicomSeries(DicomCollection, TypedSet):
@@ -80,9 +80,9 @@ class DicomSeries(DicomCollection, TypedSet):
             series_dict[tuple(metadata[k] for k in cls.ID_KEYS)].append(dicom)
         return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 
-    @cached_property
+    @mtime_cached_property
     def contents(self) -> ty.List[Dicom]:
-        return sorted(TypedSet.contents.fget(self), key=dicom_sort_key)  # type: ignore[attr-defined]
+        return sorted(TypedSet.contents.__get__(self), key=dicom_sort_key)  # type: ignore[attr-defined]
 
     ID_KEYS = ("StudyInstanceUID", "SeriesNumber")
 
@@ -101,7 +101,7 @@ def dicom_collection_read_metadata(
     base_class: ty.Union[ty.Type[TypedSet], ty.Type[Directory]] = (
         TypedSet if isinstance(collection, DicomSeries) else Directory
     )
-    for dicom in base_class.contents.fget(collection):  # type: ignore[union-attr]
+    for dicom in base_class.contents.fget(collection):  # type: ignore[union-attr, arg-type]
         dicom.select_metadata(selected_keys)
         for key, val in dicom.metadata.items():
             try:
