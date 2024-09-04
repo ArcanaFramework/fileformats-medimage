@@ -5,12 +5,12 @@ from fileformats.medimage import DwiEncoding, Bval, Bvec
 
 
 @extra_implementation(Bval.read_array)
-def bval_read_array(bval: Bval) -> numpy.typing.NDArray[np.float_]:  # noqa
+def bval_read_array(bval: Bval) -> numpy.typing.NDArray[np.floating]:  # noqa
     return np.asarray([float(ln) for ln in bval.read_contents().split()])
 
 
 @extra_implementation(DwiEncoding.read_array)
-def bvec_read_array(bvec: Bvec) -> numpy.typing.NDArray[np.float_]:  # noqa
+def bvec_read_array(bvec: Bvec) -> numpy.typing.NDArray[np.floating]:  # noqa
     bvals = bvec.b_values_file.read_array()
     directions = np.asarray(
         [[float(x) for x in ln.split()] for ln in bvec.read_contents().splitlines()]

@@ -10,7 +10,7 @@ import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
 
 @extra_implementation(MedicalImage.read_array)
-def dicom_read_array(collection: DicomCollection) -> numpy.typing.NDArray[np.float_]:
+def dicom_read_array(collection: DicomCollection) -> numpy.typing.NDArray[np.floating]:
     image_stack = []
     for dcm_file in collection.contents:
         image_stack.append(pydicom.dcmread(dcm_file).pixel_array)

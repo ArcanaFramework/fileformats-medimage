@@ -35,7 +35,7 @@ def nifti_read_metadata(
 
 
 @extra_implementation(MedicalImage.read_array)
-def nifti_data_array(nifti: Nifti) -> numpy.typing.NDArray[np.float_]:  # noqa
+def nifti_data_array(nifti: Nifti) -> numpy.typing.NDArray[np.floating]:  # noqa
     return nibabel.load(nifti.fspath).get_data()  # type: ignore[attr-defined, no-any-return]
 
 
