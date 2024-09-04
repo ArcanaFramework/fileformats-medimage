@@ -32,7 +32,9 @@ class MedicalImage(WithClassifiers, FileSet):
     exclusive_classifiers = (ImagingModality, AnatomicalEntity, Derivative)
 
     @extra
-    def read_array(self) -> numpy.typing.NDArray[ty.Union[np.float_, np.int_]]:  # noqa
+    def read_array(
+        self,
+    ) -> "numpy.typing.NDArray[ty.Union[np.float_, np.int_]]":  # noqa
         """
         Returns the binary data of the image in a numpy array
         """

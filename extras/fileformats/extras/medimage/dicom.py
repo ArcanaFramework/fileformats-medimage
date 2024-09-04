@@ -60,7 +60,7 @@ def dicom_dir_generate_sample_data(
 def dicom_series_generate_sample_data(
     dcm_series: DicomSeries,
     generator: SampleFileGenerator,
-) -> ty.Iterable[Path]:
+) -> ty.List[Path]:
     dicom_dir: Path = dicom_dir_generate_sample_data(dcm_series, generator=generator)[0]  # type: ignore[arg-type]
     stem = generator.generate_fspath().stem
     fspaths = []

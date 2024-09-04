@@ -2,9 +2,7 @@ import typing as ty
 from fileformats.generic import File
 from fileformats.core.mixin import WithSideCars, WithMagicNumber, WithAdjacentFiles
 from fileformats.application import Json
-
-# from fileformats.text import Tsv
-from fileformats.application import Gzip
+from fileformats.application.archive import BaseGzip
 from .base import MedicalImage
 
 
@@ -38,9 +36,10 @@ class Nifti2(WithMagicNumber, Nifti):
     magic_number_offset = 344
 
 
-class NiftiGz(Nifti, Gzip):  # Should be Gzip[Nifti1]
+class NiftiGz(Nifti, BaseGzip):
     ext = ".nii.gz"
     iana_mime = "application/x-nifti1+gzip"
+    archived_type = Nifti
 
 
 class NiftiX(WithBids, Nifti):

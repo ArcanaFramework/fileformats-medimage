@@ -15,18 +15,18 @@ class DwiEncoding(File):
     iana_mime: ty.Optional[str] = None
 
     @extra
-    def read_array(self) -> numpy.typing.NDArray[np.float_]:
+    def read_array(self) -> "numpy.typing.NDArray[np.float_]":
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
 
-    def array(self) -> numpy.typing.NDArray[np.float_]:
+    def array(self) -> "numpy.typing.NDArray[np.float_]":
         return self.read_array()
 
-    def directions(self) -> numpy.typing.NDArray[np.float_]:
+    def directions(self) -> "numpy.typing.NDArray[np.float_]":
         "gradient direction and weighting combined into a single Nx4 array"
         return self.array()[:, :3]
 
-    def b_values(self) -> numpy.typing.NDArray[np.float_]:
+    def b_values(self) -> "numpy.typing.NDArray[np.float_]":
         "the b-value weighting"
         return self.array()[:, 3]
 
@@ -36,7 +36,7 @@ class Bval(File):
     ext = ".bval"
 
     @extra
-    def read_array(self) -> numpy.typing.NDArray[np.float_]:
+    def read_array(self) -> "numpy.typing.NDArray[np.float_]":
         raise NotImplementedError
 
 

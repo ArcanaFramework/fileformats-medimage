@@ -1,6 +1,7 @@
 import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
+from abc import ABCMeta, abstractproperty
 from functools import cached_property
 from fileformats.core import extra, FileSet, extra_implementation
 from fileformats.generic import Directory, TypedSet
@@ -18,7 +19,7 @@ def dicom_sort_key(dicom: Dicom) -> str:
     return dicom.metadata["SOPInstanceUID"]  # type: ignore[no-any-return]
 
 
-class DicomCollection(MedicalImage):
+class DicomCollection(MedicalImage, metaclass=ABCMeta):
     """Base class for collections of DICOM files, which can either be stored within a
     directory (DicomDir) or presented as a flat list (DicomSeries)
     """
@@ -26,15 +27,15 @@ class DicomCollection(MedicalImage):
     content_types: ty.Tuple[ty.Type[FileSet], ...] = (Dicom,)
 
     def __len__(self) -> int:
-        return len(self.contents)
+        return len(self.contents)  # type: ignore[attr-defined]
 
     @extra
     def series_number(self) -> str:
         raise NotImplementedError
 
-    @property
+    @abstractproperty
     def contents(self) -> ty.List[Dicom]:
-        raise NotImplementedError("`contents` should be implemented by base class")
+        raise NotImplementedError
 
 
 class DicomDir(DicomCollection, Directory):
@@ -43,7 +44,7 @@ class DicomDir(DicomCollection, Directory):
 
     @cached_property
     def contents(self) -> ty.List[Dicom]:
-        return sorted(Directory.contents(self), key=dicom_sort_key)  # type: ignore[arg-type]
+        return sorted(Directory.contents.fget(self), key=dicom_sort_key)  # type: ignore[attr-defined]
 
 
 class DicomSeries(DicomCollection, TypedSet):
@@ -52,7 +53,6 @@ class DicomSeries(DicomCollection, TypedSet):
         cls,
         fspaths: ty.Iterable[Path],
         common_ok: bool = False,
-        selected_keys: ty.Optional[ty.Sequence[str]] = None,
     ) -> ty.Tuple[ty.Set["DicomSeries"], ty.Set[Path]]:
         """Separates a list of DICOM files into separate series from the file-system
         paths
@@ -76,18 +76,15 @@ class DicomSeries(DicomCollection, TypedSet):
         dicoms, remaining = Dicom.from_paths(fspaths, common_ok=common_ok)
         series_dict = defaultdict(list)
         for dicom in dicoms:
-            dicom.select_metadata(selected_keys)
-            series_dict[
-                (
-                    str(dicom.metadata["StudyInstanceUID"]),
-                    str(dicom.metadata["SeriesNumber"]),
-                )
-            ].append(dicom)
-        return set([cls(s) for s in series_dict.values()]), remaining
+            metadata = dicom.read_metadata(selected_keys=cls.ID_KEYS)
+            series_dict[tuple(metadata[k] for k in cls.ID_KEYS)].append(dicom)
+        return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 
     @cached_property
     def contents(self) -> ty.List[Dicom]:
-        return sorted(TypedSet.contents(self), key=dicom_sort_key)  # type: ignore[arg-type]
+        return sorted(TypedSet.contents.fget(self), key=dicom_sort_key)  # type: ignore[attr-defined]
+
+    ID_KEYS = ("StudyInstanceUID", "SeriesNumber")
 
 
 @extra_implementation(FileSet.read_metadata)
