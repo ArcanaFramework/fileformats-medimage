@@ -15,4 +15,4 @@ def bvec_read_array(bvec: Bvec) -> numpy.typing.NDArray[np.float_]:  # noqa
     directions = np.asarray(
         [[float(x) for x in ln.split()] for ln in bvec.read_contents().splitlines()]
     ).T
-    return np.concatenate((directions, bvals.reshape((-1, 1))), axis=1)  # type: ignore
+    return np.concatenate((directions, bvals.reshape((-1, 1))), axis=1)

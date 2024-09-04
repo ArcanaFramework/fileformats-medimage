@@ -27,7 +27,7 @@ class DicomCollection(MedicalImage, metaclass=ABCMeta):
     content_types: ty.Tuple[ty.Type[FileSet], ...] = (Dicom,)
 
     def __len__(self) -> int:
-        return len(self.contents)  # type: ignore[attr-defined]
+        return len(self.contents)
 
     @extra
     def series_number(self) -> str:
@@ -43,8 +43,8 @@ class DicomDir(DicomCollection, Directory):
     content_types = (Dicom,)
 
     @mtime_cached_property
-    def contents(self) -> ty.List[Dicom]:
-        return sorted(Directory.contents.__get__(self), key=dicom_sort_key)  # type: ignore[attr-defined]
+    def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
+        return sorted(Directory.contents.__get__(self), key=dicom_sort_key)
 
 
 class DicomSeries(DicomCollection, TypedSet):
@@ -81,8 +81,8 @@ class DicomSeries(DicomCollection, TypedSet):
         return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 
     @mtime_cached_property
-    def contents(self) -> ty.List[Dicom]:
-        return sorted(TypedSet.contents.__get__(self), key=dicom_sort_key)  # type: ignore[attr-defined]
+    def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
+        return sorted(TypedSet.contents.__get__(self), key=dicom_sort_key)
 
     ID_KEYS = ("StudyInstanceUID", "SeriesNumber")
 
