@@ -64,7 +64,7 @@ class DicomSeries(DicomCollection, TypedSet):
         common_ok : bool, optional
             included to match the signature of the overriden method, but ignored as each
             dicom should belong to only one series.
-        selected_keys : ty.Optional[ty.Sequence[str]], optional
+        selected_keys : ty.Optional[ty.Collection[str]], optional
             metadata keys to load from the DICOM files, typically used for performance
             reasons, by default None (i.e. all metadata is loaded)
 
@@ -89,7 +89,7 @@ class DicomSeries(DicomCollection, TypedSet):
 
 @extra_implementation(FileSet.read_metadata)
 def dicom_collection_read_metadata(
-    collection: DicomCollection, selected_keys: ty.Optional[ty.Sequence[str]] = None
+    collection: DicomCollection, selected_keys: ty.Optional[ty.Collection[str]] = None
 ) -> ty.Mapping[str, ty.Any]:
     # Collated DICOM headers across series
     collated: ty.Dict[str, ty.Any] = {}
@@ -101,8 +101,9 @@ def dicom_collection_read_metadata(
     base_class: ty.Union[ty.Type[TypedSet], ty.Type[Directory]] = (
         TypedSet if isinstance(collection, DicomSeries) else Directory
     )
-    for dicom in base_class.contents.fget(collection):  # type: ignore[union-attr, arg-type]
-        dicom.select_metadata(selected_keys)
+    for dicom in base_class.contents.__get__(collection):  # type: ignore[union-attr, arg-type]
+        if selected_keys is not None:
+            dicom = Dicom(dicom, metadata_keys=selected_keys)
         for key, val in dicom.metadata.items():
             try:
                 prev_val = collated[key]

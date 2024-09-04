@@ -26,7 +26,7 @@ import medimages4tests.mri.neuro.bold
 
 @extra_implementation(FileSet.read_metadata)
 def nifti_read_metadata(
-    nifti: Nifti, selected_keys: ty.Optional[ty.Sequence[str]] = None
+    nifti: Nifti, selected_keys: ty.Optional[ty.Collection[str]] = None
 ) -> ty.Mapping[str, ty.Any]:
     metadata = dict(nibabel.load(nifti.fspath).header)  # type: ignore[attr-defined]
     if selected_keys:
