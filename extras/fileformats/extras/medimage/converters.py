@@ -18,7 +18,7 @@ from fileformats.medimage import (
     NiftiGzBvec,
     NiftiGzXBvec,
 )
-from fileformats.core.type_aliases import PathType
+from fileformats.core.typing import PathType
 from pydra.tasks.mrtrix3.latest import MrConvert
 from pydra.tasks.dcm2niix import Dcm2Niix
 
