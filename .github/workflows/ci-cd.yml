@@ -23,6 +23,8 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
+    env:
+      PIP_BREAK_SYSTEM_PACKAGES: 1
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -56,6 +58,8 @@ jobs:
       run: python3 -m pip install --upgrade pip
     - name: Install Package
       run: python3 -m pip install .[test] ./extras[test]
+    - name: MyPy
+      run: mypy --install-types --non-interactive .
     - name: Pytest
       run: |
         mkdir work-dir

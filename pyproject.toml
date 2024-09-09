@@ -35,6 +35,7 @@ test = [
     "pytest-env>=0.6.2",
     "pytest-cov>=2.12.1",
     "medimages4tests >=0.3",
+    "mypy >=1.5.1",
     "fileformats-medimage-extras",
     "pydra-dcm2niix",
     "pydra-mrtrix3 >=3.0.4a5",
