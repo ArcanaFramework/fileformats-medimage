@@ -34,7 +34,9 @@ class MedicalImage(WithClassifiers, FileSet):
     @extra
     def read_array(
         self,
-    ) -> "numpy.typing.NDArray[ty.Union[np.floating, np.integer]]":  # noqa
+    ) -> (
+        "numpy.typing.NDArray[ty.Union[np.floating[ty.Any], np.integer[ty.Any]]]"
+    ):  # noqa
         """
         Returns the binary data of the image in a numpy array
         """

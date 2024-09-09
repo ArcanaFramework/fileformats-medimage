@@ -1,4 +1,5 @@
 from fileformats.generic import TypedSet
+from fileformats.core.mixin import WithMagicNumber
 from .base import (
     PetRawData,
     PetListMode,
@@ -8,10 +9,11 @@ from .base import (
 )
 
 
-class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(PetRawData):
+class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(WithMagicNumber, PetRawData):
     # iana_mime = None
-    pass
+
     ext = ".ptd"
+    magic_number = b"LARGE_PET_LM_RAWDATA"
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_PetListMode(
