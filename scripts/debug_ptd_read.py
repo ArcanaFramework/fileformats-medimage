@@ -3,10 +3,11 @@ from fileformats.medimage.raw import Vnd_Siemens_Biograph128Vision_Vr20b_PetRawD
 
 ptd = Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(
     Path(
-        "~/Data/tbp/0007_001_2408131530/605-605-EM_SINO/"
-        "MANGO_P001_FMISO_PresurgeryDynamic.PT.PET_U_TBPC230007_MANGO_First_(Adult)."
-        "605.PET_EM_SINO.2024.08.13.18.54.47.656000.2.0.602877000.ptd"
+        "/Users/tclose/Data/tbp/PET_Raw_Data_0602/"
+        "PHYSICS_SUV_TEST_PVE_F18.PT.PET_Onco_(Adult).602.PET_LISTMODE.2023.07.27.08.49.11.676000.2.0.2761856.ptd"
     ).expanduser()
 )
 
-print(ptd.metadata["AcquisitionTime"])
+mdata = ptd.metadata
+
+assert mdata
