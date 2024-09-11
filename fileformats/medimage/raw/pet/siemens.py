@@ -1,4 +1,3 @@
-import typing as ty
 import io
 from fileformats.generic import TypedSet
 from fileformats.core.decorators import mtime_cached_property
