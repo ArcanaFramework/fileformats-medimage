@@ -2,7 +2,7 @@ import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
 from abc import ABCMeta, abstractproperty
-from fileformats.core.decorators import contents_property
+from fileformats.core.decorators import mtime_cached_property
 from fileformats.core import extra, FileSet, extra_implementation
 from fileformats.generic import Directory, TypedSet
 from fileformats.application import Dicom
@@ -42,7 +42,7 @@ class DicomDir(DicomCollection, Directory):
 
     content_types = (Dicom,)
 
-    @contents_property
+    @mtime_cached_property
     def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
         return sorted(Directory.contents.__get__(self), key=dicom_sort_key)
 
@@ -80,7 +80,7 @@ class DicomSeries(DicomCollection, TypedSet):
             series_dict[tuple(metadata[k] for k in cls.ID_KEYS)].append(dicom)
         return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 
-    @contents_property
+    @mtime_cached_property
     def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
         return sorted(TypedSet.contents.__get__(self), key=dicom_sort_key)
 

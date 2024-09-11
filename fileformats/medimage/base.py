@@ -1,7 +1,7 @@
 import sys
 import typing as ty
 import logging
-from fileformats.core import extra, FileSet, contents_property
+from fileformats.core import extra, FileSet, mtime_cached_property
 from fileformats.core.mixin import WithClassifiers
 from .contents import ContentsClassifier
 from .contents.imaging.modality import ImagingModality
@@ -48,7 +48,7 @@ class MedicalImage(WithClassifiers, FileSet):
         """
         raise NotImplementedError
 
-    @contents_property
+    @mtime_cached_property
     def data_array(self) -> DataArrayType:
         return self.read_array()
 

@@ -1,7 +1,7 @@
 import typing as ty
 import io
 from fileformats.generic import TypedSet
-from fileformats.core.decorators import contents_property
+from fileformats.core.decorators import mtime_cached_property
 from fileformats.core.mixin import WithMagicNumber
 from .base import (
     PetRawData,
@@ -29,7 +29,7 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(WithMagicNumber, PetRawData
     # Offset from the end of the file where the magic number and header size integer
     dcm_hdr_size_int_offset: int = magic_number_offset - sizeof_dcm_hdr_size_int
 
-    @contents_property
+    @mtime_cached_property
     def dicom_header_size(self) -> int:
         with self.open() as f:
             f.seek(self.dcm_hdr_size_int_offset, io.SEEK_END)
