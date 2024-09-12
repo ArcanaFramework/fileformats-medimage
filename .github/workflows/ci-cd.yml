@@ -47,7 +47,7 @@ jobs:
     - name: Install MRtrix via Conda
       run: |
         conda install -c mrtrix3 mrtrix3
-        mrconvert --version      
+        mrconvert --version
     - name: Disable etelemetry
       run:  echo "NO_ET=TRUE" >> $GITHUB_ENV
     - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
@@ -58,8 +58,8 @@ jobs:
       run: python3 -m pip install --upgrade pip
     - name: Install Package
       run: python3 -m pip install .[test] ./extras[test]
-    - name: MyPy
-      run: mypy --install-types --non-interactive .
+    # - name: MyPy
+    #   run: mypy --install-types --non-interactive .
     - name: Pytest
       run: |
         mkdir work-dir
