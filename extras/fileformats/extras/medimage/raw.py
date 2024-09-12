@@ -2,7 +2,7 @@ import typing as ty
 import pydicom
 from fileformats.core import extra_implementation, FileSet
 from fileformats.medimage.raw import Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData
-from fileformats.medimage.utils import BinaryIOWindow
+from fileformats.core.io import BinaryIOWindow
 
 
 @extra_implementation(FileSet.read_metadata)
