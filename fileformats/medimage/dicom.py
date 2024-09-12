@@ -62,7 +62,7 @@ class DicomSeries(DicomCollection, TypedSet):
         fspaths : ty.Iterable[Path]
             the fspaths pointing to the DICOM files
         common_ok : bool, optional
-            included to match the signature of the overriden method, but ignored as each
+            included to match the signature of the overridden method, but ignored as each
             dicom should belong to only one series.
         selected_keys : ty.Optional[ty.Collection[str]], optional
             metadata keys to load from the DICOM files, typically used for performance
@@ -101,7 +101,7 @@ def dicom_collection_read_metadata(
     base_class: ty.Union[ty.Type[TypedSet], ty.Type[Directory]] = (
         TypedSet if isinstance(collection, DicomSeries) else Directory
     )
-    for dicom in base_class.contents.__get__(collection):  # type: ignore[union-attr, arg-type]
+    for dicom in base_class.contents.__get__(collection):  # type: ignore[arg-type]
         if selected_keys is not None:
             dicom = Dicom(dicom, metadata_keys=selected_keys)
         for key, val in dicom.metadata.items():
