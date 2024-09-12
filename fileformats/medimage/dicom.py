@@ -101,16 +101,16 @@ def dicom_collection_read_metadata(
     base_class: ty.Union[ty.Type[TypedSet], ty.Type[Directory]] = (
         TypedSet if isinstance(collection, DicomSeries) else Directory
     )
-    for dicom in base_class.contents.__get__(collection):  # type: ignore[arg-type]
+    for dicom in base_class.contents.__get__(collection):
         if selected_keys is not None:
             dicom = Dicom(dicom, metadata_keys=selected_keys)
         for key, val in dicom.metadata.items():
             try:
                 prev_val = collated[key]
             except KeyError:
-                collated[key] = (
-                    val  # Insert initial value (should only happen on first iter)
-                )
+                collated[
+                    key
+                ] = val  # Insert initial value (should only happen on first iter)
                 key_repeats.update([key])
             else:
                 if key in varying_keys:

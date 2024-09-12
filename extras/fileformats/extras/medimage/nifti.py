@@ -28,15 +28,15 @@ import medimages4tests.mri.neuro.bold
 def nifti_read_metadata(
     nifti: Nifti, selected_keys: ty.Optional[ty.Collection[str]] = None
 ) -> ty.Mapping[str, ty.Any]:
-    metadata = dict(nibabel.load(nifti.fspath).header)
+    metadata = dict(nibabel.load(nifti.fspath).header)  # type: ignore[call-overload, attr-defined]
     if selected_keys:
         metadata = {k: v for k, v in metadata.items() if k in selected_keys}
-    return metadata
+    return metadata  # type: ignore[no-any-return]
 
 
 @extra_implementation(MedicalImage.read_array)
 def nifti_data_array(nifti: Nifti) -> numpy.typing.NDArray[np.floating[ty.Any]]:  # noqa
-    return nibabel.load(nifti.fspath).get_data()  # type: ignore[no-any-return]
+    return nibabel.load(nifti.fspath).get_data()  # type: ignore[no-any-return, attr-defined]
 
 
 @extra_implementation(MedicalImage.vox_sizes)

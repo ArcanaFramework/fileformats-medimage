@@ -23,7 +23,7 @@ def dicom_read_array(
 def dicom_vox_sizes(collection: DicomCollection) -> ty.Tuple[float, float, float]:
     return tuple(
         collection.metadata["PixelSpacing"] + [collection.metadata["SliceThickness"]]
-    )  # type: ignore[return-value]
+    )
 
 
 @extra_implementation(MedicalImage.dims)
@@ -34,7 +34,7 @@ def dicom_dims(collection: DicomCollection) -> ty.Tuple[int, int, int]:
             collection.metadata["DataColumns"],
             len(list(collection.contents)),
         ),
-    )  # type: ignore[return-value]
+    )
 
 
 @extra_implementation(DicomCollection.series_number)
