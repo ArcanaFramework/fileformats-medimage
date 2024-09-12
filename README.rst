@@ -11,8 +11,8 @@ FileFormats - Medimage
    :target: https://pypi.python.org/pypi/fileformats-medimage/
    :alt: Latest Version
 
-This is an extension module to the `fileformats <https://github.com/ArcanaFramework/fileformats>`__ package
-, which that adds support for commonly used medical imaging formats, such as DICOM (sets/directories),
+This is an extension module to the `fileformats <https://github.com/ArcanaFramework/fileformats>`__ package,
+which that adds support for commonly used medical imaging formats, such as DICOM (sets/directories),
 NIfTI, and MRtrix Image Format, etc...
 
 Quick Installation

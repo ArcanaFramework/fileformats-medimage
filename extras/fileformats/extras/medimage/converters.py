@@ -213,6 +213,6 @@ def collect_dcm2niix_outputs(
 ) -> ty.List[Path]:
     lst = [out_file]
     for file in (out_json, out_bvec, out_bval):
-        if file is not attrs.NOTHING:
+        if file is not attrs.NOTHING:  # type: ignore[comparison-overlap]
             lst.append(file)
     return lst

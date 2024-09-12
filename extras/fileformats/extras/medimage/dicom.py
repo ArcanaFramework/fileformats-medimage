@@ -10,7 +10,9 @@ import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
 
 @extra_implementation(MedicalImage.read_array)
-def dicom_read_array(collection: DicomCollection) -> numpy.typing.NDArray[np.floating]:
+def dicom_read_array(
+    collection: DicomCollection,
+) -> numpy.typing.NDArray[np.floating[ty.Any]]:
     image_stack = []
     for dcm_file in collection.contents:
         image_stack.append(pydicom.dcmread(dcm_file).pixel_array)
@@ -21,7 +23,7 @@ def dicom_read_array(collection: DicomCollection) -> numpy.typing.NDArray[np.flo
 def dicom_vox_sizes(collection: DicomCollection) -> ty.Tuple[float, float, float]:
     return tuple(
         collection.metadata["PixelSpacing"] + [collection.metadata["SliceThickness"]]
-    )  # type: ignore[return-value]
+    )
 
 
 @extra_implementation(MedicalImage.dims)
@@ -32,7 +34,7 @@ def dicom_dims(collection: DicomCollection) -> ty.Tuple[int, int, int]:
             collection.metadata["DataColumns"],
             len(list(collection.contents)),
         ),
-    )  # type: ignore[return-value]
+    )
 
 
 @extra_implementation(DicomCollection.series_number)

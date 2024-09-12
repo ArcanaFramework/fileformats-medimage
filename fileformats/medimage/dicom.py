@@ -2,7 +2,7 @@ import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
 from abc import ABCMeta, abstractproperty
-from fileformats.core.utils import mtime_cached_property
+from fileformats.core.decorators import mtime_cached_property
 from fileformats.core import extra, FileSet, extra_implementation
 from fileformats.generic import Directory, TypedSet
 from fileformats.application import Dicom
@@ -62,7 +62,7 @@ class DicomSeries(DicomCollection, TypedSet):
         fspaths : ty.Iterable[Path]
             the fspaths pointing to the DICOM files
         common_ok : bool, optional
-            included to match the signature of the overriden method, but ignored as each
+            included to match the signature of the overridden method, but ignored as each
             dicom should belong to only one series.
         selected_keys : ty.Optional[ty.Collection[str]], optional
             metadata keys to load from the DICOM files, typically used for performance
@@ -101,16 +101,16 @@ def dicom_collection_read_metadata(
     base_class: ty.Union[ty.Type[TypedSet], ty.Type[Directory]] = (
         TypedSet if isinstance(collection, DicomSeries) else Directory
     )
-    for dicom in base_class.contents.__get__(collection):  # type: ignore[union-attr, arg-type]
+    for dicom in base_class.contents.__get__(collection):
         if selected_keys is not None:
             dicom = Dicom(dicom, metadata_keys=selected_keys)
         for key, val in dicom.metadata.items():
             try:
                 prev_val = collated[key]
             except KeyError:
-                collated[key] = (
-                    val  # Insert initial value (should only happen on first iter)
-                )
+                collated[
+                    key
+                ] = val  # Insert initial value (should only happen on first iter)
                 key_repeats.update([key])
             else:
                 if key in varying_keys:
