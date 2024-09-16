@@ -1,32 +1,34 @@
-import typing as ty
+import typing
 from fileformats.core import extra
+from fileformats.core.typing import TypeAlias
 from fileformats.core.mixin import WithAdjacentFiles
 from fileformats.generic import File
 from .nifti import NiftiGzX, NiftiGz, Nifti1, NiftiX
 
 
-if ty.TYPE_CHECKING:
-    import numpy as np
-    import numpy.typing
+if typing.TYPE_CHECKING:
+    import numpy.typing  # noqa: F401
+
+NDArray: TypeAlias = "numpy.typing.NDArray[numpy.floating[typing.Any]]"
 
 
 class DwiEncoding(File):
 
-    iana_mime: ty.Optional[str] = None
+    iana_mime: typing.Optional[str] = None
 
     @extra
-    def read_array(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def read_array(self) -> NDArray:
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
 
-    def array(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def array(self) -> NDArray:
         return self.read_array()
 
-    def directions(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def directions(self) -> NDArray:
         "gradient direction and weighting combined into a single Nx4 array"
         return self.array()[:, :3]
 
-    def b_values(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def b_values(self) -> NDArray:
         "the b-value weighting"
         return self.array()[:, 3]
 
@@ -36,7 +38,7 @@ class Bval(File):
     ext = ".bval"
 
     @extra
-    def read_array(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def read_array(self) -> NDArray:
         raise NotImplementedError
 
 

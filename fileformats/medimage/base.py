@@ -1,4 +1,5 @@
 import sys
+import typing
 import typing as ty
 import logging
 from fileformats.core import extra, FileSet, mtime_cached_property
@@ -16,17 +17,14 @@ else:
     from typing_extensions import TypeAlias
 
 if ty.TYPE_CHECKING:
-    import numpy as np
-    import numpy.typing
+    import numpy.typing  # noqa: F401
 
 
 # =====================================================================
 # Custom loader functions for different image types
 # =====================================================================
 
-DataArrayType: TypeAlias = (
-    "numpy.typing.NDArray[ty.Union[np.floating[ty.Any], np.integer[ty.Any]]]"
-)
+DataArrayType: TypeAlias = "numpy.typing.NDArray[typing.Union[numpy.floating[typing.Any], numpy.integer[typing.Any]]]"
 
 
 class MedicalImage(WithClassifiers, FileSet):
