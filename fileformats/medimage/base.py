@@ -24,7 +24,9 @@ if ty.TYPE_CHECKING:
 # Custom loader functions for different image types
 # =====================================================================
 
-DataArrayType: TypeAlias = "numpy.typing.NDArray[typing.Union[numpy.floating[typing.Any], numpy.integer[typing.Any]]]"
+DataArrayType: TypeAlias = (
+    ty.Any
+)  # In Py<3.9 this is problematic "numpy.typing.NDArray[typing.Union[numpy.floating[typing.Any], numpy.integer[typing.Any]]]"
 
 
 class MedicalImage(WithClassifiers, FileSet):

@@ -9,7 +9,9 @@ from .nifti import NiftiGzX, NiftiGz, Nifti1, NiftiX
 if typing.TYPE_CHECKING:
     import numpy.typing  # noqa: F401
 
-NDArray: TypeAlias = "numpy.typing.NDArray[numpy.floating[typing.Any]]"
+EncodingArrayType: TypeAlias = (
+    typing.Any
+)  # In Py<3.9 this is problematic "numpy.typing.NDArray[numpy.floating[typing.Any]]"
 
 
 class DwiEncoding(File):
@@ -17,18 +19,18 @@ class DwiEncoding(File):
     iana_mime: typing.Optional[str] = None
 
     @extra
-    def read_array(self) -> NDArray:
+    def read_array(self) -> EncodingArrayType:
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
 
-    def array(self) -> NDArray:
+    def array(self) -> EncodingArrayType:
         return self.read_array()
 
-    def directions(self) -> NDArray:
+    def directions(self) -> EncodingArrayType:
         "gradient direction and weighting combined into a single Nx4 array"
         return self.array()[:, :3]
 
-    def b_values(self) -> NDArray:
+    def b_values(self) -> EncodingArrayType:
         "the b-value weighting"
         return self.array()[:, 3]
 
@@ -38,7 +40,7 @@ class Bval(File):
     ext = ".bval"
 
     @extra
-    def read_array(self) -> NDArray:
+    def read_array(self) -> EncodingArrayType:
         raise NotImplementedError
 
 
