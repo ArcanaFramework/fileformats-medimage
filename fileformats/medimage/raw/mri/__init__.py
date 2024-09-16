@@ -1,14 +1,14 @@
-from fileformats.generic import File
+from fileformats.generic import BinaryFile
 
 
-class Kspace(File):
+class Kspace(BinaryFile):
 
     binary = True
     # iana_mime = None
     pass
 
 
-class Rda(File):
+class Rda(BinaryFile):
     """MRS format"""
 
     ext = ".rda"

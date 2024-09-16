@@ -1,8 +1,8 @@
 import typing
-from fileformats.core import extra
+from fileformats.core import extra, validated_property
 from fileformats.core.typing import TypeAlias
 from fileformats.core.mixin import WithAdjacentFiles
-from fileformats.generic import File
+from fileformats.generic import BinaryFile
 from .nifti import NiftiGzX, NiftiGz, Nifti1, NiftiX
 
 
@@ -14,10 +14,7 @@ EncodingArrayType: TypeAlias = (
 )  # In Py<3.9 this is problematic "numpy.typing.NDArray[numpy.floating[typing.Any]]"
 
 
-class DwiEncoding(File):
-
-    iana_mime: typing.Optional[str] = None
-
+class DwiEncoding:
     @extra
     def read_array(self) -> EncodingArrayType:
         "Both the gradient direction and weighting combined into a single Nx4 array"
@@ -35,7 +32,7 @@ class DwiEncoding(File):
         return self.array()[:, 3]
 
 
-class Bval(File):
+class Bval(BinaryFile):
 
     ext = ".bval"
 
@@ -44,19 +41,19 @@ class Bval(File):
         raise NotImplementedError
 
 
-class Bvec(WithAdjacentFiles, DwiEncoding):
+class Bvec(WithAdjacentFiles, DwiEncoding, BinaryFile):
     """FSL-style diffusion encoding, in two separate files"""
 
     ext = ".bvec"
 
-    @property
+    @validated_property
     def b_values_file(self) -> Bval:
         return Bval(self.select_by_ext(Bval))
 
 
 # NIfTI file format gzipped with BIDS side car
 class WithBvec(WithAdjacentFiles):
-    @property
+    @validated_property
     def encoding(self) -> Bvec:
         return Bvec(self.select_by_ext(Bvec))  # type: ignore[attr-defined]
 

@@ -1,5 +1,4 @@
 import sys
-import typing
 import typing as ty
 import logging
 from fileformats.core import extra, FileSet, mtime_cached_property
@@ -31,14 +30,12 @@ DataArrayType: TypeAlias = (
 
 class MedicalImage(WithClassifiers, FileSet):
 
-    iana_mime: ty.Optional[str] = None
     INCLUDE_HDR_KEYS: ty.Optional[ty.Tuple[str, ...]] = None
     IGNORE_HDR_KEYS: ty.Optional[ty.Tuple[str, ...]] = None
     binary = True
     classifiers_attr_name = "image_contents"
     image_contents = ()
     allowed_classifiers = (ContentsClassifier,)
-    multiple_classifiers = True
     exclusive_classifiers = (ImagingModality, AnatomicalEntity, Derivative)
 
     @extra

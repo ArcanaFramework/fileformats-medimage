@@ -1,15 +1,14 @@
-import typing as ty
-from fileformats.generic import File
+from fileformats.generic import BinaryFile
+from fileformats.core import validated_property
 from fileformats.core.mixin import WithSideCars, WithMagicNumber, WithAdjacentFiles
 from fileformats.application import Json
 from fileformats.application.archive import BaseGzip
 from .base import MedicalImage
 
 
-class Nifti(MedicalImage, File):
+class Nifti(MedicalImage, BinaryFile):
 
     ext: str = ".nii"
-    iana_mime: ty.Optional[str] = None
 
 
 class WithBids(WithSideCars):
@@ -17,7 +16,7 @@ class WithBids(WithSideCars):
     primary_type = Nifti
     side_car_types = (Json,)
 
-    @property
+    @validated_property
     def json_file(self) -> Json:
         return Json(self.select_by_ext(Json))  # type: ignore[attr-defined]
 
@@ -61,6 +60,6 @@ class NiftiWithDataFile(WithAdjacentFiles, Nifti1):
     magic_number = "6E693100"
     alternate_exts = (".hdr",)
 
-    @property
+    @validated_property
     def data_file(self) -> NiftiDataFile:
         return NiftiDataFile(self.select_by_ext(NiftiDataFile))
