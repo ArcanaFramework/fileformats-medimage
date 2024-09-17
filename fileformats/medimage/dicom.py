@@ -53,6 +53,7 @@ class DicomSeries(DicomCollection, TypedSet):
         cls,
         fspaths: ty.Iterable[Path],
         common_ok: bool = False,
+        specific_tags: ty.Optional[ty.Collection[str]] = None,
     ) -> ty.Tuple[ty.Set["DicomSeries"], ty.Set[Path]]:
         """Separates a list of DICOM files into separate series from the file-system
         paths
@@ -64,19 +65,22 @@ class DicomSeries(DicomCollection, TypedSet):
         common_ok : bool, optional
             included to match the signature of the overridden method, but ignored as each
             dicom should belong to only one series.
-        selected_keys : ty.Optional[ty.Collection[str]], optional
-            metadata keys to load from the DICOM files, typically used for performance
-            reasons, by default None (i.e. all metadata is loaded)
 
         Returns
         -------
         tuple[set[DicomSeries], set[Path]]
             the found dicom series objects and any unrecognised file paths
         """
+        tags_to_load: ty.Collection[str]
+        if specific_tags is not None:
+            tags_to_load = set(specific_tags)
+            tags_to_load.update(cls.ID_KEYS)
+        else:
+            tags_to_load = cls.ID_KEYS
         dicoms, remaining = Dicom.from_paths(fspaths, common_ok=common_ok)
         series_dict = defaultdict(list)
         for dicom in dicoms:
-            metadata = dicom.read_metadata(selected_keys=cls.ID_KEYS)
+            metadata = dicom.read_metadata(specific_tags=tags_to_load)
             series_dict[tuple(metadata[k] for k in cls.ID_KEYS)].append(dicom)
         return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 

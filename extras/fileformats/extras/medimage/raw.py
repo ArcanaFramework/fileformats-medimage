@@ -19,6 +19,6 @@ def siemens_pet_raw_data_read_metadata(
             pet_raw_data.dcm_hdr_size_int_offset,
         )
         if specific_tags is not None:
-            selected_keys = list(specific_tags)
-        dcm = pydicom.dcmread(window, specific_tags=selected_keys)
+            specific_tags = list(specific_tags)
+        dcm = pydicom.dcmread(window, specific_tags=specific_tags)
     return dcm  # type: ignore[return-value]
