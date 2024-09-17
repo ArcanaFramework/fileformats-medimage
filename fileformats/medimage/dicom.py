@@ -89,7 +89,7 @@ class DicomSeries(DicomCollection, TypedSet):
 
 @extra_implementation(FileSet.read_metadata)
 def dicom_collection_read_metadata(
-    collection: DicomCollection, selected_keys: ty.Optional[ty.Collection[str]] = None
+    collection: DicomCollection, **kwargs: ty.Any
 ) -> ty.Mapping[str, ty.Any]:
     # Collated DICOM headers across series
     collated: ty.Dict[str, ty.Any] = {}
@@ -102,8 +102,6 @@ def dicom_collection_read_metadata(
         TypedSet if isinstance(collection, DicomSeries) else Directory
     )
     for dicom in base_class.contents.__get__(collection):
-        if selected_keys is not None:
-            dicom = Dicom(dicom, metadata_keys=selected_keys)
         for key, val in dicom.metadata.items():
             try:
                 prev_val = collated[key]

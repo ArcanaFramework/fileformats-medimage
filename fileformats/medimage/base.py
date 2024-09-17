@@ -16,8 +16,7 @@ else:
     from typing_extensions import TypeAlias
 
 if ty.TYPE_CHECKING:
-    import numpy as np
-    import numpy.typing
+    import numpy.typing  # noqa: F401
 
 
 # =====================================================================
@@ -25,20 +24,18 @@ if ty.TYPE_CHECKING:
 # =====================================================================
 
 DataArrayType: TypeAlias = (
-    "numpy.typing.NDArray[ty.Union[np.floating[ty.Any], np.integer[ty.Any]]]"
-)
+    ty.Any
+)  # In Py<3.9 this is problematic "numpy.typing.NDArray[typing.Union[numpy.floating[typing.Any], numpy.integer[typing.Any]]]"
 
 
 class MedicalImage(WithClassifiers, FileSet):
 
-    iana_mime: ty.Optional[str] = None
     INCLUDE_HDR_KEYS: ty.Optional[ty.Tuple[str, ...]] = None
     IGNORE_HDR_KEYS: ty.Optional[ty.Tuple[str, ...]] = None
     binary = True
     classifiers_attr_name = "image_contents"
     image_contents = ()
     allowed_classifiers = (ContentsClassifier,)
-    multiple_classifiers = True
     exclusive_classifiers = (ImagingModality, AnatomicalEntity, Derivative)
 
     @extra

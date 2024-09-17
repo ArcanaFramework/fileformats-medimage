@@ -1,6 +1,6 @@
 import io
 from fileformats.generic import TypedSet
-from fileformats.core.decorators import mtime_cached_property
+from fileformats.core import mtime_cached_property, validated_property
 from fileformats.core.mixin import WithMagicNumber
 from .base import (
     PetRawData,
@@ -32,10 +32,10 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(WithMagicNumber, PetRawData
     def dicom_header_size(self) -> int:
         with self.open() as f:
             f.seek(self.dcm_hdr_size_int_offset, io.SEEK_END)
-            dcm_hdr_size_bytes: bytes = f.read(self.sizeof_dcm_hdr_size_int)  # type: ignore[assignment]
+            dcm_hdr_size_bytes: bytes = f.read(self.sizeof_dcm_hdr_size_int)
             return int.from_bytes(dcm_hdr_size_bytes, "little")
 
-    @property
+    @validated_property
     def dicom_header_offset(self) -> int:
         dcm_hdr_size: int = self.dicom_header_size
         return -dcm_hdr_size + self.dcm_hdr_size_int_offset

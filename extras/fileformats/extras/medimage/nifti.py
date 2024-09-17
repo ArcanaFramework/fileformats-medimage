@@ -1,8 +1,8 @@
 from pathlib import Path
 import typing as ty
 import nibabel
-import numpy as np
-import numpy.typing
+import typing  # noqa: F401
+import numpy.typing  # noqa: F401
 from fileformats.core import FileSet, SampleFileGenerator, extra_implementation
 from fileformats.medimage import (
     MedicalImage,
@@ -18,6 +18,7 @@ from fileformats.medimage import (
     Dmri,
     Brain,
 )
+from fileformats.medimage.base import DataArrayType
 import medimages4tests.dummy.nifti
 import medimages4tests.mri.neuro.t1w
 import medimages4tests.mri.neuro.dwi
@@ -25,17 +26,13 @@ import medimages4tests.mri.neuro.bold
 
 
 @extra_implementation(FileSet.read_metadata)
-def nifti_read_metadata(
-    nifti: Nifti, selected_keys: ty.Optional[ty.Collection[str]] = None
-) -> ty.Mapping[str, ty.Any]:
+def nifti_read_metadata(nifti: Nifti, **kwargs: ty.Any) -> ty.Mapping[str, ty.Any]:
     metadata = dict(nibabel.load(nifti.fspath).header)  # type: ignore[call-overload, attr-defined]
-    if selected_keys:
-        metadata = {k: v for k, v in metadata.items() if k in selected_keys}
     return metadata  # type: ignore[no-any-return]
 
 
 @extra_implementation(MedicalImage.read_array)
-def nifti_data_array(nifti: Nifti) -> numpy.typing.NDArray[np.floating[ty.Any]]:  # noqa
+def nifti_data_array(nifti: Nifti) -> DataArrayType:  # noqa
     return nibabel.load(nifti.fspath).get_data()  # type: ignore[attr-defined]
 
 

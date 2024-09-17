@@ -1,5 +1,6 @@
 from fileformats.application import Gzip
-from fileformats.generic import File
+from fileformats.generic import BinaryFile
+from fileformats.core import validated_property
 from fileformats.core.mixin import WithSeparateHeader, WithMagicVersion
 from .base import MedicalImage
 from fileformats.core.exceptions import FormatMismatchError
@@ -10,18 +11,18 @@ from fileformats.core.exceptions import FormatMismatchError
 # ==================
 
 
-class AnalyzeHeader(File):
+class AnalyzeHeader(BinaryFile):
 
     ext = ".hdr"
 
 
-class Analyze(WithSeparateHeader, MedicalImage, File):
+class Analyze(WithSeparateHeader, MedicalImage, BinaryFile):
 
     ext = ".img"
     header_type = AnalyzeHeader
 
 
-class Mgh(WithMagicVersion, File):
+class Mgh(WithMagicVersion, BinaryFile):
     """
     FreeSurfer 4-dimensional brain images
 
@@ -31,7 +32,7 @@ class Mgh(WithMagicVersion, File):
     ext = ".mgh"
     magic_pattern = rb"(....)"  # First integer is the version string
 
-    @property
+    @validated_property
     def _is_supported_version(self) -> None:
         assert isinstance(self.version, str)
         if int(self.version) != 1:

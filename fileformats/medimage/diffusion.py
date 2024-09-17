@@ -1,58 +1,59 @@
-import typing as ty
-from fileformats.core import extra
+import typing
+from fileformats.core import extra, validated_property
+from fileformats.core.typing import TypeAlias
 from fileformats.core.mixin import WithAdjacentFiles
-from fileformats.generic import File
+from fileformats.generic import BinaryFile
 from .nifti import NiftiGzX, NiftiGz, Nifti1, NiftiX
 
 
-if ty.TYPE_CHECKING:
-    import numpy as np
-    import numpy.typing
+if typing.TYPE_CHECKING:
+    import numpy.typing  # noqa: F401
+
+EncodingArrayType: TypeAlias = (
+    typing.Any
+)  # In Py<3.9 this is problematic "numpy.typing.NDArray[numpy.floating[typing.Any]]"
 
 
-class DwiEncoding(File):
-
-    iana_mime: ty.Optional[str] = None
-
+class DwiEncoding:
     @extra
-    def read_array(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def read_array(self) -> EncodingArrayType:
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
 
-    def array(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def array(self) -> EncodingArrayType:
         return self.read_array()
 
-    def directions(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def directions(self) -> EncodingArrayType:
         "gradient direction and weighting combined into a single Nx4 array"
         return self.array()[:, :3]
 
-    def b_values(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def b_values(self) -> EncodingArrayType:
         "the b-value weighting"
         return self.array()[:, 3]
 
 
-class Bval(File):
+class Bval(BinaryFile):
 
     ext = ".bval"
 
     @extra
-    def read_array(self) -> "numpy.typing.NDArray[np.floating[ty.Any]]":
+    def read_array(self) -> EncodingArrayType:
         raise NotImplementedError
 
 
-class Bvec(WithAdjacentFiles, DwiEncoding):
+class Bvec(WithAdjacentFiles, DwiEncoding, BinaryFile):
     """FSL-style diffusion encoding, in two separate files"""
 
     ext = ".bvec"
 
-    @property
+    @validated_property
     def b_values_file(self) -> Bval:
         return Bval(self.select_by_ext(Bval))
 
 
 # NIfTI file format gzipped with BIDS side car
 class WithBvec(WithAdjacentFiles):
-    @property
+    @validated_property
     def encoding(self) -> Bvec:
         return Bvec(self.select_by_ext(Bvec))  # type: ignore[attr-defined]
 

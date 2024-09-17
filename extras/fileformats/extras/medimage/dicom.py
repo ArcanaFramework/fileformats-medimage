@@ -1,33 +1,39 @@
 from pathlib import Path
-import typing as ty
+import typing
 import pydicom
-import numpy as np
+import numpy
 import numpy.typing
 from fileformats.core import FileSet, extra_implementation
 from fileformats.core import SampleFileGenerator
-from fileformats.medimage import MedicalImage, DicomCollection, DicomDir, DicomSeries
+from fileformats.medimage import (
+    MedicalImage,
+    DicomCollection,
+    DicomDir,
+    DicomSeries,
+)
+from fileformats.medimage.base import DataArrayType
 import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
 
 @extra_implementation(MedicalImage.read_array)
 def dicom_read_array(
     collection: DicomCollection,
-) -> numpy.typing.NDArray[np.floating[ty.Any]]:
+) -> DataArrayType:
     image_stack = []
     for dcm_file in collection.contents:
         image_stack.append(pydicom.dcmread(dcm_file).pixel_array)
-    return np.asarray(image_stack)
+    return numpy.asarray(image_stack)
 
 
 @extra_implementation(MedicalImage.vox_sizes)
-def dicom_vox_sizes(collection: DicomCollection) -> ty.Tuple[float, float, float]:
+def dicom_vox_sizes(collection: DicomCollection) -> typing.Tuple[float, float, float]:
     return tuple(
         collection.metadata["PixelSpacing"] + [collection.metadata["SliceThickness"]]
     )
 
 
 @extra_implementation(MedicalImage.dims)
-def dicom_dims(collection: DicomCollection) -> ty.Tuple[int, int, int]:
+def dicom_dims(collection: DicomCollection) -> typing.Tuple[int, int, int]:
     return tuple(
         (
             collection.metadata["Rows"],
@@ -46,7 +52,7 @@ def dicom_series_number(collection: DicomCollection) -> str:
 def dicom_dir_generate_sample_data(
     dcmdir: DicomDir,
     generator: SampleFileGenerator,
-) -> ty.List[Path]:
+) -> typing.List[Path]:
     dcm_dir = medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c.get_image()
     series_number = generator.rng.randint(1, SERIES_NUMBER_RANGE)
     dest = generator.generate_fspath(DicomDir)
@@ -62,7 +68,7 @@ def dicom_dir_generate_sample_data(
 def dicom_series_generate_sample_data(
     dcm_series: DicomSeries,
     generator: SampleFileGenerator,
-) -> ty.List[Path]:
+) -> typing.List[Path]:
     dicom_dir: Path = dicom_dir_generate_sample_data(dcm_series, generator=generator)[0]  # type: ignore[arg-type]
     stem = generator.generate_fspath().stem
     fspaths = []
