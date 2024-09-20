@@ -1,7 +1,6 @@
 import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
-from copy import copy
 from abc import ABCMeta, abstractproperty
 from typing_extensions import Self, TypeAlias
 from fileformats.core.decorators import mtime_cached_property
@@ -120,9 +119,9 @@ def dicom_collection_read_metadata(
             try:
                 prev_val = collated[key]
             except KeyError:
-                collated[key] = (
-                    val  # Insert initial value (should only happen on first iter)
-                )
+                collated[
+                    key
+                ] = val  # Insert initial value (should only happen on first iter)
                 key_repeats.update([key])
             else:
                 if key in varying_keys:
