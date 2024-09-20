@@ -1,13 +1,24 @@
 import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
+from copy import copy
 from abc import ABCMeta, abstractproperty
+from typing_extensions import Self, TypeAlias
 from fileformats.core.decorators import mtime_cached_property
 from fileformats.core import extra, FileSet, extra_implementation
-from fileformats.generic import Directory, TypedSet
+from fileformats.generic import TypedDirectory, TypedSet
 from fileformats.application import Dicom
 from .base import MedicalImage
 
+if ty.TYPE_CHECKING:
+    import pydicom.tag
+
+    TagListType: TypeAlias = ty.Union[
+        ty.List[int],
+        ty.List[str],
+        ty.List[ty.Tuple[int, int]],
+        ty.List[pydicom.tag.BaseTag],
+    ]
 # =====================================================================
 # Custom loader functions for different image types
 # =====================================================================
@@ -34,17 +45,17 @@ class DicomCollection(MedicalImage, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractproperty
-    def contents(self) -> ty.List[Dicom]:
+    def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
         raise NotImplementedError
 
 
-class DicomDir(DicomCollection, Directory):
+class DicomDir(DicomCollection, TypedDirectory):
 
     content_types = (Dicom,)
 
     @mtime_cached_property
     def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
-        return sorted(Directory.contents.__get__(self), key=dicom_sort_key)
+        return sorted(TypedDirectory.contents.__get__(self), key=dicom_sort_key)
 
 
 class DicomSeries(DicomCollection, TypedSet):
@@ -53,8 +64,8 @@ class DicomSeries(DicomCollection, TypedSet):
         cls,
         fspaths: ty.Iterable[Path],
         common_ok: bool = False,
-        specific_tags: ty.Optional[ty.Collection[str]] = None,
-    ) -> ty.Tuple[ty.Set["DicomSeries"], ty.Set[Path]]:
+        **kwargs: ty.Any,
+    ) -> ty.Tuple[ty.Set[Self], ty.Set[Path]]:
         """Separates a list of DICOM files into separate series from the file-system
         paths
 
@@ -65,22 +76,21 @@ class DicomSeries(DicomCollection, TypedSet):
         common_ok : bool, optional
             included to match the signature of the overridden method, but ignored as each
             dicom should belong to only one series.
+        specific_tags : ty.Optional[TagListType], optional
+            the DICOM tags to read from the files. If None, the default tags will be
+            read
+        **kwargs : ty.Any
+            additional keyword arguments to passed through to the Dicom constructor
 
         Returns
         -------
         tuple[set[DicomSeries], set[Path]]
             the found dicom series objects and any unrecognised file paths
         """
-        tags_to_load: ty.Collection[str]
-        if specific_tags is not None:
-            tags_to_load = set(specific_tags)
-            tags_to_load.update(cls.ID_KEYS)
-        else:
-            tags_to_load = cls.ID_KEYS
-        dicoms, remaining = Dicom.from_paths(fspaths, common_ok=common_ok)
+        dicoms, remaining = Dicom.from_paths(fspaths, common_ok=common_ok, **kwargs)
         series_dict = defaultdict(list)
         for dicom in dicoms:
-            metadata = dicom.read_metadata(specific_tags=tags_to_load)
+            metadata = dicom.read_metadata(specific_tags=cls.ID_KEYS)
             series_dict[tuple(metadata[k] for k in cls.ID_KEYS)].append(dicom)
         return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 
@@ -102,17 +112,17 @@ def dicom_collection_read_metadata(
     # We use the "contents" property implementation in TypeSet instead of the overload
     # in DicomCollection because we don't want the metadata to be read ahead of the
     # the `select_metadata` call below
-    base_class: ty.Union[ty.Type[TypedSet], ty.Type[Directory]] = (
-        TypedSet if isinstance(collection, DicomSeries) else Directory
+    base_class: ty.Union[ty.Type[TypedSet], ty.Type[TypedDirectory]] = (
+        TypedSet if isinstance(collection, DicomSeries) else TypedDirectory
     )
     for dicom in base_class.contents.__get__(collection):
         for key, val in dicom.metadata.items():
             try:
                 prev_val = collated[key]
             except KeyError:
-                collated[
-                    key
-                ] = val  # Insert initial value (should only happen on first iter)
+                collated[key] = (
+                    val  # Insert initial value (should only happen on first iter)
+                )
                 key_repeats.update([key])
             else:
                 if key in varying_keys:

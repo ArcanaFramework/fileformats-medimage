@@ -59,7 +59,7 @@ jobs:
     - name: Install Package
       run: python3 -m pip install .[test] ./extras[test]
     - name: MyPy
-      run: mypy --install-types --non-interactive .
+      run: mypy --install-types --non-interactive  --no-warn-unused-ignores .
     - name: Pytest
       run: |
         mkdir work-dir
