@@ -48,7 +48,7 @@ def siemens_pet_listmode_generate_sample_data(
     pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetListMode,
     generator: SampleFileGenerator,
 ) -> ty.List[Path]:
-    return get_pet_listmode_data(out_dir=generator.dest_dir)
+    return get_pet_listmode_data(out_dir=generator.dest_dir)  # type: ignore[no-any-return]
 
 
 @extra_implementation(FileSet.generate_sample_data)
@@ -56,4 +56,4 @@ def siemens_pet_countrate_generate_sample_data(
     pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
     generator: SampleFileGenerator,
 ) -> ty.List[Path]:
-    return get_pet_countrate_data(out_dir=generator.dest_dir)
+    return get_pet_countrate_data(out_dir=generator.dest_dir)  # type: ignore[no-any-return]

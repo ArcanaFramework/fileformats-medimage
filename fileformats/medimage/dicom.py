@@ -1,10 +1,10 @@
 import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
-from abc import ABCMeta, abstractproperty
 from typing_extensions import Self, TypeAlias
 from fileformats.core.decorators import mtime_cached_property
 from fileformats.core import extra, FileSet, extra_implementation
+from fileformats.core.collection import TypedCollection
 from fileformats.generic import TypedDirectory, TypedSet
 from fileformats.application import Dicom
 from .base import MedicalImage
@@ -29,12 +29,10 @@ def dicom_sort_key(dicom: Dicom) -> str:
     return dicom.metadata["SOPInstanceUID"]  # type: ignore[no-any-return]
 
 
-class DicomCollection(MedicalImage, metaclass=ABCMeta):
+class DicomCollection(MedicalImage, TypedCollection):
     """Base class for collections of DICOM files, which can either be stored within a
     directory (DicomDir) or presented as a flat list (DicomSeries)
     """
-
-    content_types: ty.Tuple[ty.Type[FileSet], ...] = (Dicom,)
 
     def __len__(self) -> int:
         return len(self.contents)
@@ -43,21 +41,17 @@ class DicomCollection(MedicalImage, metaclass=ABCMeta):
     def series_number(self) -> str:
         raise NotImplementedError
 
-    @abstractproperty
-    def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
-        raise NotImplementedError
 
-
-class DicomDir(DicomCollection, TypedDirectory):
+class DicomDir(TypedDirectory, DicomCollection):
 
     content_types = (Dicom,)
 
     @mtime_cached_property
-    def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
+    def contents(self) -> ty.List[Dicom]:
         return sorted(TypedDirectory.contents.__get__(self), key=dicom_sort_key)
 
 
-class DicomSeries(DicomCollection, TypedSet):
+class DicomSeries(TypedSet, DicomCollection):
     @classmethod
     def from_paths(
         cls,
@@ -94,7 +88,7 @@ class DicomSeries(DicomCollection, TypedSet):
         return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 
     @mtime_cached_property
-    def contents(self) -> ty.List[Dicom]:  # type: ignore[override]
+    def contents(self) -> ty.List[Dicom]:
         return sorted(TypedSet.contents.__get__(self), key=dicom_sort_key)
 
     ID_KEYS = ("StudyInstanceUID", "SeriesNumber")
