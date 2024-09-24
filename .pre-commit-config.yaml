@@ -38,7 +38,7 @@ repos:
                 ]
             exclude: tests
             additional_dependencies:
-            - fileformats>=0.13.0
+            - fileformats>=0.14.0
             - pytest
             - pydicom
             - nibabel

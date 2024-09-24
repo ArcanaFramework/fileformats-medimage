@@ -1,6 +1,8 @@
 import itertools
 import pytest
-from medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c import get_image as get_dicom
+from medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c import (
+    get_image as get_dicom,
+)
 from medimages4tests.dummy.nifti import get_image as get_nifti
 from fileformats.core.exceptions import FormatMismatchError
 from fileformats.core import from_paths
@@ -32,6 +34,15 @@ def test_series_from_paths(tmp_path):
 
 def test_dicom_series_metadata(tmp_path):
     series = DicomSeries.sample(tmp_path)
+
+    # Check series number is not a list
+    assert not isinstance(series.metadata["SeriesNumber"], list)
+    # check the SOP Instance ID has been converted into a list
+    assert isinstance(series.metadata["SOPInstanceUID"], list)
+
+
+def test_dicom_dir_metadata(tmp_path):
+    series = DicomDir.sample(tmp_path)
 
     # Check series number is not a list
     assert not isinstance(series.metadata["SeriesNumber"], list)
