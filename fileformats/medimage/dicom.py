@@ -34,6 +34,8 @@ class DicomCollection(MedicalImage, TypedCollection):
     directory (DicomDir) or presented as a flat list (DicomSeries)
     """
 
+    content_types = (Dicom,)
+
     def __len__(self) -> int:
         return len(self.contents)
 
@@ -43,7 +45,6 @@ class DicomCollection(MedicalImage, TypedCollection):
 
 
 class DicomDir(TypedDirectory, DicomCollection):
-
     content_types = (Dicom,)
 
     @mtime_cached_property
@@ -52,6 +53,8 @@ class DicomDir(TypedDirectory, DicomCollection):
 
 
 class DicomSeries(TypedSet, DicomCollection):
+    content_types = (Dicom,)
+
     @classmethod
     def from_paths(
         cls,
