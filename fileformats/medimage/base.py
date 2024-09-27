@@ -1,6 +1,8 @@
 import sys
 import typing as ty
+from pathlib import Path
 import logging
+from typing_extensions import Self
 from fileformats.core import extra, FileSet, mtime_cached_property
 from fileformats.core.mixin import WithClassifiers
 from .contents import ContentsClassifier
@@ -43,7 +45,6 @@ class MedicalImage(WithClassifiers, FileSet):
         """
         Returns the binary data of the image in a numpy array
         """
-        raise NotImplementedError
 
     @mtime_cached_property
     def data_array(self) -> DataArrayType:
@@ -57,4 +58,15 @@ class MedicalImage(WithClassifiers, FileSet):
     @extra
     def dims(self) -> ty.Tuple[int, int, int]:
         """The dimensions of the image"""
+        raise NotImplementedError
+
+    @extra
+    def deidentify(
+        self,
+        out_dir: ty.Optional[Path] = None,
+        new_stem: ty.Optional[str] = None,
+        copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
+    ) -> Self:
+        """Returns a new copy of the image with any subject-identifying information
+        stripped from the from the image header"""
         raise NotImplementedError

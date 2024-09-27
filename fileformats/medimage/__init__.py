@@ -1,8 +1,7 @@
 from ._version import __version__
 from .base import MedicalImage
 
-# import Dicom to alias to the medimage namespace it here as well
-from fileformats.application import Dicom
+
 from .misc import (
     Analyze,
     Mgh,
@@ -26,6 +25,7 @@ from .diffusion import (
     NiftiGzXBvec,
 )
 from .dicom import (
+    DicomImage,
     DicomCollection,
     DicomDir,
     DicomSeries,
@@ -129,7 +129,7 @@ from .itk import (
 __all__ = [
     "__version__",
     "MedicalImage",
-    "Dicom",
+    "DicomImage",
     "Analyze",
     "Mgh",
     "MghGz",

@@ -23,6 +23,11 @@ if ty.TYPE_CHECKING:
 # =====================================================================
 
 
+class DicomImage(MedicalImage, Dicom):
+    """A DICOM file that contains image data. Derives from the generic Dicom class in
+    the `application` namespace as well as medical image base class"""
+
+
 def dicom_sort_key(dicom: Dicom) -> str:
     """Sorts DICOM objects by SOPInstanceUID"""
     assert isinstance(dicom.metadata, dict)
@@ -34,7 +39,7 @@ class DicomCollection(MedicalImage, TypedCollection):
     directory (DicomDir) or presented as a flat list (DicomSeries)
     """
 
-    content_types = (Dicom,)
+    content_types = (DicomImage,)
 
     def __len__(self) -> int:
         return len(self.contents)
@@ -45,15 +50,15 @@ class DicomCollection(MedicalImage, TypedCollection):
 
 
 class DicomDir(TypedDirectory, DicomCollection):
-    content_types = (Dicom,)
+    content_types = (DicomImage,)
 
     @mtime_cached_property
-    def contents(self) -> ty.List[Dicom]:
+    def contents(self) -> ty.List[DicomImage]:
         return sorted(TypedDirectory.contents.__get__(self), key=dicom_sort_key)
 
 
 class DicomSeries(TypedSet, DicomCollection):
-    content_types = (Dicom,)
+    content_types = (DicomImage,)
 
     @classmethod
     def from_paths(
@@ -76,14 +81,16 @@ class DicomSeries(TypedSet, DicomCollection):
             the DICOM tags to read from the files. If None, the default tags will be
             read
         **kwargs : ty.Any
-            additional keyword arguments to passed through to the Dicom constructor
+            additional keyword arguments to passed through to the DicomImage constructor
 
         Returns
         -------
         tuple[set[DicomSeries], set[Path]]
             the found dicom series objects and any unrecognised file paths
         """
-        dicoms, remaining = Dicom.from_paths(fspaths, common_ok=common_ok, **kwargs)
+        dicoms, remaining = DicomImage.from_paths(
+            fspaths, common_ok=common_ok, **kwargs
+        )
         series_dict = defaultdict(list)
         for dicom in dicoms:
             metadata = dicom.read_metadata(specific_tags=cls.ID_KEYS)
@@ -91,7 +98,7 @@ class DicomSeries(TypedSet, DicomCollection):
         return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 
     @mtime_cached_property
-    def contents(self) -> ty.List[Dicom]:
+    def contents(self) -> ty.List[DicomImage]:
         return sorted(TypedSet.contents.__get__(self), key=dicom_sort_key)
 
     ID_KEYS = ("StudyInstanceUID", "SeriesNumber")
@@ -133,7 +140,7 @@ def dicom_collection_read_metadata(
     return collated
 
 
-# class Vnd_Siemens_Vision(Dicom):
+# class Vnd_Siemens_Vision(DicomImage):
 #     ext = ".ima"
 
 
