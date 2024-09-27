@@ -2,7 +2,6 @@ import sys
 import typing as ty
 from pathlib import Path
 import logging
-from typing_extensions import Self
 from fileformats.core import extra, FileSet, mtime_cached_property
 from fileformats.core.mixin import WithClassifiers
 from .contents import ContentsClassifier
@@ -16,6 +15,10 @@ if sys.version_info >= (3, 9):
     from typing import TypeAlias
 else:
     from typing_extensions import TypeAlias
+if sys.version_info >= (3, 12):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 if ty.TYPE_CHECKING:
     import numpy.typing  # noqa: F401
@@ -39,6 +42,7 @@ class MedicalImage(WithClassifiers, FileSet):
     image_contents = ()
     allowed_classifiers = (ContentsClassifier,)
     exclusive_classifiers = (ImagingModality, AnatomicalEntity, Derivative)
+    contains_phi: bool = True
 
     @extra
     def read_array(self) -> DataArrayType:

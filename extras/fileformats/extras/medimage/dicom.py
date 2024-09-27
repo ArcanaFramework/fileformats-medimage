@@ -96,7 +96,8 @@ def dicom_deidentify(
         out_dir = Path(tempfile.mkdtemp())
     out_dir.mkdir(parents=True, exist_ok=True)
     dcm = dicom.load()
-    dcm.PatientBirthDate = ""  # dcm.PatientBirthDate[:4] + "0101"
+    dcm.PatientBirthDate = dcm.PatientBirthDate[:4] + "0101"
+    dcm.PatientName = "Anonymous^Anonymous"
     for field in FIELDS_TO_DEIDENTIFY:
         try:
             elem = dcm[field]
@@ -155,7 +156,7 @@ FIELDS_TO_DEIDENTIFY = [
     ("0008", "009C"),  # Consulting Physician's Name
     ("0008", "1070"),  # Operators' Name
     ("0010", "4000"),  # Patient Comments
-    ("0010", "0010"),  # Patient's Name
+    # ("0010", "0010"),  # Patient's Name
     ("0010", "0021"),  # Issuer of Patient ID
     ("0010", "0032"),  # Patient's Birth Time
     ("0010", "0050"),  # Patient's Insurance Plan Code SQ

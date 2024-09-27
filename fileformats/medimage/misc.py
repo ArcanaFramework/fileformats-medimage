@@ -14,6 +14,7 @@ from fileformats.core.exceptions import FormatMismatchError
 class AnalyzeHeader(BinaryFile):
 
     ext = ".hdr"
+    contains_phi = False
 
 
 class Analyze(WithSeparateHeader, MedicalImage, BinaryFile):

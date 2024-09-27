@@ -1,13 +1,22 @@
+import sys
 import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
-from typing_extensions import Self, TypeAlias
 from fileformats.core.decorators import mtime_cached_property
 from fileformats.core import extra, FileSet, extra_implementation
 from fileformats.core.collection import TypedCollection
 from fileformats.generic import TypedDirectory, TypedSet
 from fileformats.application import Dicom
 from .base import MedicalImage
+
+if sys.version_info >= (3, 9):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias
+if sys.version_info >= (3, 12):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 if ty.TYPE_CHECKING:
     import pydicom.tag

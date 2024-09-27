@@ -9,6 +9,7 @@ from .base import MedicalImage
 class Nifti(MedicalImage, BinaryFile):
 
     ext: str = ".nii"
+    contains_phi = False
 
 
 class WithBids(WithSideCars):
