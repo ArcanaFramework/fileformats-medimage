@@ -13,6 +13,7 @@ from fileformats.medimage import (
     DicomDir,
     DicomSeries,
 )
+import fileformats.extras.application.medical  # noqa: F401
 from fileformats.medimage.base import DataArrayType
 import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
