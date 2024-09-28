@@ -33,7 +33,25 @@ DataArrayType: TypeAlias = (
 )  # In Py<3.9 this is problematic "numpy.typing.NDArray[typing.Union[numpy.floating[typing.Any], numpy.integer[typing.Any]]]"
 
 
-class MedicalImage(WithClassifiers, FileSet):
+class MedicalImagingData(FileSet):
+    """Base class for all medical imaging data including pre-image raw data and
+    associated data"""
+
+    contains_phi: bool = True
+
+    @extra
+    def deidentify(
+        self,
+        out_dir: ty.Optional[Path] = None,
+        new_stem: ty.Optional[str] = None,
+        copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
+    ) -> Self:
+        """Returns a new copy of the image with any subject-identifying information
+        stripped from the from the image header"""
+        raise NotImplementedError
+
+
+class MedicalImage(WithClassifiers, MedicalImagingData):
 
     INCLUDE_HDR_KEYS: ty.Optional[ty.Tuple[str, ...]] = None
     IGNORE_HDR_KEYS: ty.Optional[ty.Tuple[str, ...]] = None
@@ -42,7 +60,6 @@ class MedicalImage(WithClassifiers, FileSet):
     image_contents = ()
     allowed_classifiers = (ContentsClassifier,)
     exclusive_classifiers = (ImagingModality, AnatomicalEntity, Derivative)
-    contains_phi: bool = True
 
     @extra
     def read_array(self) -> DataArrayType:
@@ -62,15 +79,4 @@ class MedicalImage(WithClassifiers, FileSet):
     @extra
     def dims(self) -> ty.Tuple[int, int, int]:
         """The dimensions of the image"""
-        raise NotImplementedError
-
-    @extra
-    def deidentify(
-        self,
-        out_dir: ty.Optional[Path] = None,
-        new_stem: ty.Optional[str] = None,
-        copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
-    ) -> Self:
-        """Returns a new copy of the image with any subject-identifying information
-        stripped from the from the image header"""
         raise NotImplementedError

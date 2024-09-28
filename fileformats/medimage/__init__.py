@@ -1,5 +1,5 @@
 from ._version import __version__
-from .base import MedicalImage
+from .base import MedicalImagingData, MedicalImage
 
 
 from .misc import (
@@ -128,6 +128,7 @@ from .itk import (
 
 __all__ = [
     "__version__",
+    "MedicalImagingData",
     "MedicalImage",
     "DicomImage",
     "Analyze",

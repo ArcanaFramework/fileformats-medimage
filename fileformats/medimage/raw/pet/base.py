@@ -2,6 +2,7 @@ import sys
 import typing as ty
 from pathlib import Path
 from fileformats.core import FileSet, extra
+from fileformats.medimage import MedicalImagingData
 from fileformats.generic import BinaryFile
 
 if sys.version_info >= (3, 12):
@@ -10,7 +11,7 @@ else:
     from typing_extensions import Self
 
 
-class PetRawData(BinaryFile):
+class PetRawData(BinaryFile, MedicalImagingData):
     """Base class for raw PET data files"""
 
     @extra

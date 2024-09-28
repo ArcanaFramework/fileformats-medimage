@@ -21,8 +21,12 @@ def dicom(request):
 
 def test_deidentify_dicom(dicom):
     assert str(dicom.metadata["PatientName"]) == "Doe^John"
+    assert dicom.metadata["InstitutionAddress"]
+    assert not dicom.metadata["PatientBirthDate"].endswith("0101")
     deidentified = dicom.deidentify()
     assert str(deidentified.metadata["PatientName"]) == "Anonymous^Anonymous"
+    assert deidentified.metadata["InstitutionAddress"] == ""
+    assert deidentified.metadata["PatientBirthDate"] == "19800101"
 
 
 def test_nifti_deidentify():
