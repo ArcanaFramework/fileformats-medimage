@@ -7,11 +7,12 @@ from fileformats.image import (
     Jpeg,
     Tiff,
 )
-from fileformats.application import Dicom, Gzip
+from fileformats.application import Gzip
 from .nifti import Nifti1, NiftiGz
+from .dicom import DicomImage
 
 
-class GDCM(Dicom):
+class GDCM(DicomImage):
     # iana_mime = None
     pass
 
@@ -46,11 +47,22 @@ class NrrdGz(Gzip[Nrrd]):  # type: ignore[type-arg]
 
 
 ItkImage = ty.Union[
-    Nifti1, NiftiGz, Dicom, Bitmap, Tiff, Jpeg, GIPL, MetaImage, Nrrd, NrrdGz, PGM
+    Nifti1, NiftiGz, DicomImage, Bitmap, Tiff, Jpeg, GIPL, MetaImage, Nrrd, NrrdGz, PGM
 ]
 
 ItkAll = ty.Union[
-    Nifti1, NiftiGz, Dicom, Bitmap, Tiff, Jpeg, GIPL, MetaImage, Nrrd, NrrdGz, PGM, VTK
+    Nifti1,
+    NiftiGz,
+    DicomImage,
+    Bitmap,
+    Tiff,
+    Jpeg,
+    GIPL,
+    MetaImage,
+    Nrrd,
+    NrrdGz,
+    PGM,
+    VTK,
 ]
 
 __all__ = [

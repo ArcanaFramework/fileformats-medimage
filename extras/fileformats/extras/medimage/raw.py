@@ -10,7 +10,7 @@ from medimages4tests.dummy.raw.pet.siemens.biograph_vision.vr20b.pet_countrate i
     get_data as get_pet_countrate_data,
 )
 from fileformats.core import extra_implementation, FileSet
-from fileformats.application import Dicom
+from fileformats.medimage.dicom import DicomImage
 from fileformats.medimage.raw import (
     Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
@@ -40,7 +40,7 @@ def siemens_pet_raw_data_read_metadata(
             pet_raw_data.dcm_hdr_size_int_offset,
         )
         dcm = pydicom.dcmread(window, specific_tags=specific_tags)
-    return Dicom.pydicom_to_dict(dcm)
+    return DicomImage.pydicom_to_dict(dcm)
 
 
 @extra_implementation(FileSet.generate_sample_data)
