@@ -297,72 +297,72 @@ class MrConvert:
     in_file: ImageIn = shell.arg(
         argstr="",
         position=0,
-        help_string="""the input image.""",
+        help="""the input image.""",
         mandatory=True,
     )
     out_file: Path = shell.arg(
         argstr="",
         position=1,
         output_file_template="out_file.mif",
-        help_string="""the output image.""",
+        help="""the output image.""",
     )
     # Options for manipulating fundamental image properties Option Group
     coord: MultiInputObj[ty.Tuple[int, int]] = shell.arg(
         argstr="-coord",
-        help_string="""retain data from the input image only at the coordinates specified in the selection along the specified axis. The selection argument expects a number sequence, which can also include the 'end' keyword.""",
+        help="""retain data from the input image only at the coordinates specified in the selection along the specified axis. The selection argument expects a number sequence, which can also include the 'end' keyword.""",
     )
     vox: ty.List[float] = shell.arg(
         argstr="-vox",
-        help_string="""change the voxel dimensions reported in the output image header""",
+        help="""change the voxel dimensions reported in the output image header""",
         sep=",",
     )
     axes: ty.List[int] = shell.arg(
         argstr="-axes",
-        help_string="""specify the axes from the input image that will be used to form the output image""",
+        help="""specify the axes from the input image that will be used to form the output image""",
         sep=",",
     )
     scaling: ty.List[float] = shell.arg(
         argstr="-scaling",
-        help_string="""specify the data scaling parameters used to rescale the intensity values""",
+        help="""specify the data scaling parameters used to rescale the intensity values""",
         sep=",",
     )
     # Options for handling JSON (JavaScript Object Notation) files Option Group
     json_import: File = shell.arg(
         argstr="-json_import",
-        help_string="""import data from a JSON file into header key-value pairs""",
+        help="""import data from a JSON file into header key-value pairs""",
     )
     json_export: ty.Union[Path, bool] = shell.arg(
         default=False,
         argstr="-json_export",
         output_file_template="json_export.txt",
-        help_string="""export data from an image header key-value pairs into a JSON file""",
+        help="""export data from an image header key-value pairs into a JSON file""",
     )
     # Options to modify generic header entries Option Group
     clear_property: MultiInputObj[str] = shell.arg(
         argstr="-clear_property",
-        help_string="""remove the specified key from the image header altogether.""",
+        help="""remove the specified key from the image header altogether.""",
     )
     set_property: MultiInputObj[ty.Tuple[str, str]] = shell.arg(
         argstr="-set_property",
-        help_string="""set the value of the specified key in the image header.""",
+        help="""set the value of the specified key in the image header.""",
     )
     append_property: MultiInputObj[ty.Tuple[str, str]] = shell.arg(
         argstr="-append_property",
-        help_string="""append the given value to the specified key in the image header (this adds the value specified as a new line in the header value).""",
+        help="""append the given value to the specified key in the image header (this adds the value specified as a new line in the header value).""",
     )
     copy_properties: ty.Any = shell.arg(
         argstr="-copy_properties",
-        help_string="""clear all generic properties and replace with the properties from the image / file specified.""",
+        help="""clear all generic properties and replace with the properties from the image / file specified.""",
     )
     # Stride options Option Group
     strides: ty.Any = shell.arg(
         argstr="-strides",
-        help_string="""specify the strides of the output data in memory; either as a comma-separated list of (signed) integers, or as a template image from which the strides shall be extracted and used. The actual strides produced will depend on whether the output image format can support it.""",
+        help="""specify the strides of the output data in memory; either as a comma-separated list of (signed) integers, or as a template image from which the strides shall be extracted and used. The actual strides produced will depend on whether the output image format can support it.""",
     )
     # Data type options Option Group
     datatype: str = shell.arg(
         argstr="-datatype",
-        help_string="""specify output image data type. Valid choices are: float16, float16le, float16be, float32, float32le, float32be, float64, float64le, float64be, int64, uint64, int64le, uint64le, int64be, uint64be, int32, uint32, int32le, uint32le, int32be, uint32be, int16, uint16, int16le, uint16le, int16be, uint16be, cfloat16, cfloat16le, cfloat16be, cfloat32, cfloat32le, cfloat32be, cfloat64, cfloat64le, cfloat64be, int8, uint8, bit.""",
+        help="""specify output image data type. Valid choices are: float16, float16le, float16be, float32, float32le, float32be, float64, float64le, float64be, int64, uint64, int64le, uint64le, int64be, uint64be, int32, uint32, int32le, uint32le, int32be, uint32be, int16, uint16, int16le, uint16le, int16be, uint16be, cfloat16, cfloat16le, cfloat16be, cfloat32, cfloat32le, cfloat32be, cfloat64, cfloat64le, cfloat64be, int8, uint8, bit.""",
         allowed_values=[
             "float16",
             "float16",
@@ -409,22 +409,22 @@ class MrConvert:
     # DW gradient table import options Option Group
     grad: File = shell.arg(
         argstr="-grad",
-        help_string="""Provide the diffusion-weighted gradient scheme used in the acquisition in a text file. This should be supplied as a 4xN text file with each line is in the format [ X Y Z b ], where [ X Y Z ] describe the direction of the applied gradient, and b gives the b-value in units of s/mm^2. If a diffusion gradient scheme is present in the input image header, the data provided with this option will be instead used.""",
+        help="""Provide the diffusion-weighted gradient scheme used in the acquisition in a text file. This should be supplied as a 4xN text file with each line is in the format [ X Y Z b ], where [ X Y Z ] describe the direction of the applied gradient, and b gives the b-value in units of s/mm^2. If a diffusion gradient scheme is present in the input image header, the data provided with this option will be instead used.""",
     )
     fslgrad: ty.Tuple[File, File] = shell.arg(
         argstr="-fslgrad",
-        help_string="""Provide the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs/bvals format files. If a diffusion gradient scheme is present in the input image header, the data provided with this option will be instead used.""",
+        help="""Provide the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs/bvals format files. If a diffusion gradient scheme is present in the input image header, the data provided with this option will be instead used.""",
     )
     bvalue_scaling: bool = shell.arg(
         argstr="-bvalue_scaling",
-        help_string="""enable or disable scaling of diffusion b-values by the square of the corresponding DW gradient norm (see Description). Valid choices are yes/no, true/false, 0/1 (default: automatic).""",
+        help="""enable or disable scaling of diffusion b-values by the square of the corresponding DW gradient norm (see Description). Valid choices are yes/no, true/false, 0/1 (default: automatic).""",
     )
     # DW gradient table export options Option Group
     export_grad_mrtrix: ty.Union[Path, bool] = shell.arg(
         default=False,
         argstr="-export_grad_mrtrix",
         output_file_template="export_grad_mrtrix.txt",
-        help_string="""export the diffusion-weighted gradient table to file in MRtrix format""",
+        help="""export the diffusion-weighted gradient table to file in MRtrix format""",
     )
     export_grad_fsl: ty.Union[ty.Tuple[Path, Path], bool] = shell.arg(
         default=False,
@@ -433,23 +433,23 @@ class MrConvert:
             "export_grad_fsl0.txt",
             "export_grad_fsl1.txt",
         ),
-        help_string="""export the diffusion-weighted gradient table to files in FSL (bvecs / bvals) format""",
+        help="""export the diffusion-weighted gradient table to files in FSL (bvecs / bvals) format""",
     )
     # Options for importing phase-encode tables Option Group
     import_pe_table: File = shell.arg(
         argstr="-import_pe_table",
-        help_string="""import a phase-encoding table from file""",
+        help="""import a phase-encoding table from file""",
     )
     import_pe_eddy: ty.Tuple[File, File] = shell.arg(
         argstr="-import_pe_eddy",
-        help_string="""import phase-encoding information from an EDDY-style config / index file pair""",
+        help="""import phase-encoding information from an EDDY-style config / index file pair""",
     )
     # Options for exporting phase-encode tables Option Group
     export_pe_table: ty.Union[Path, bool] = shell.arg(
         default=False,
         argstr="-export_pe_table",
         output_file_template="export_pe_table.txt",
-        help_string="""export phase-encoding table to file""",
+        help="""export phase-encoding table to file""",
     )
     export_pe_eddy: ty.Union[ty.Tuple[Path, Path], bool] = shell.arg(
         default=False,
@@ -458,60 +458,60 @@ class MrConvert:
             "export_pe_eddy0.txt",
             "export_pe_eddy1.txt",
         ),
-        help_string="""export phase-encoding information to an EDDY-style config / index file pair""",
+        help="""export phase-encoding information to an EDDY-style config / index file pair""",
     )
     # Standard options
     info: bool = shell.arg(
         argstr="-info",
-        help_string="""display information messages.""",
+        help="""display information messages.""",
     )
     quiet: bool = shell.arg(
         argstr="-quiet",
-        help_string="""do not display information messages or progress status; alternatively, this can be achieved by setting the MRTRIX_QUIET environment variable to a non-empty string.""",
+        help="""do not display information messages or progress status; alternatively, this can be achieved by setting the MRTRIX_QUIET environment variable to a non-empty string.""",
     )
     debug: bool = shell.arg(
         argstr="-debug",
-        help_string="""display debugging messages.""",
+        help="""display debugging messages.""",
     )
     force: bool = shell.arg(
         argstr="-force",
-        help_string="""force overwrite of output files (caution: using the same file as input and output might cause unexpected behaviour).""",
+        help="""force overwrite of output files (caution: using the same file as input and output might cause unexpected behaviour).""",
     )
     nthreads: int = shell.arg(
         argstr="-nthreads",
-        help_string="""use this number of threads in multi-threaded applications (set to 0 to disable multi-threading).""",
+        help="""use this number of threads in multi-threaded applications (set to 0 to disable multi-threading).""",
     )
     config: MultiInputObj[ty.Tuple[str, str]] = shell.arg(
         argstr="-config",
-        help_string="""temporarily set the value of an MRtrix config file entry.""",
+        help="""temporarily set the value of an MRtrix config file entry.""",
     )
     help: bool = shell.arg(
         argstr="-help",
-        help_string="""display this information page and exit.""",
+        help="""display this information page and exit.""",
     )
     version: bool = shell.arg(
         argstr="-version",
-        help_string="""display version information and exit.""",
+        help="""display version information and exit.""",
     )
 
     @shell.outputs
     class Outputs:
 
         out_file: ImageOut = shell.outarg(
-            help_string="""the output image.""",
+            help="""the output image.""",
         )
         json_export: File = shell.outarg(
-            help_string="""export data from an image header key-value pairs into a JSON file""",
+            help="""export data from an image header key-value pairs into a JSON file""",
         )
         export_grad_mrtrix: File = shell.outarg(
-            help_string="""export the diffusion-weighted gradient table to file in MRtrix format""",
+            help="""export the diffusion-weighted gradient table to file in MRtrix format""",
         )
         export_grad_fsl: ty.Tuple[File, File] = shell.outarg(
-            help_string="""export the diffusion-weighted gradient table to files in FSL (bvecs / bvals) format""",
+            help="""export the diffusion-weighted gradient table to files in FSL (bvecs / bvals) format""",
         )
         export_pe_table: File = shell.outarg(
-            help_string="""export phase-encoding table to file""",
+            help="""export phase-encoding table to file""",
         )
         export_pe_eddy: ty.Tuple[File, File] = shell.outarg(
-            help_string="""export phase-encoding information to an EDDY-style config / index file pair""",
+            help="""export phase-encoding information to an EDDY-style config / index file pair""",
         )
