@@ -296,15 +296,8 @@ class MrConvert:
     # Arguments
     in_file: ImageIn = shell.arg(
         argstr="",
-        position=0,
+        position=-2,
         help="""the input image.""",
-        mandatory=True,
-    )
-    out_file: Path = shell.arg(
-        argstr="",
-        position=1,
-        output_file_template="out_file.mif",
-        help="""the output image.""",
     )
     # Options for manipulating fundamental image properties Option Group
     coord: MultiInputObj[ty.Tuple[int, int]] = shell.arg(
@@ -330,12 +323,6 @@ class MrConvert:
     json_import: File = shell.arg(
         argstr="-json_import",
         help="""import data from a JSON file into header key-value pairs""",
-    )
-    json_export: ty.Union[Path, bool] = shell.arg(
-        default=False,
-        argstr="-json_export",
-        output_file_template="json_export.txt",
-        help="""export data from an image header key-value pairs into a JSON file""",
     )
     # Options to modify generic header entries Option Group
     clear_property: MultiInputObj[str] = shell.arg(
@@ -419,22 +406,6 @@ class MrConvert:
         argstr="-bvalue_scaling",
         help="""enable or disable scaling of diffusion b-values by the square of the corresponding DW gradient norm (see Description). Valid choices are yes/no, true/false, 0/1 (default: automatic).""",
     )
-    # DW gradient table export options Option Group
-    export_grad_mrtrix: ty.Union[Path, bool] = shell.arg(
-        default=False,
-        argstr="-export_grad_mrtrix",
-        output_file_template="export_grad_mrtrix.txt",
-        help="""export the diffusion-weighted gradient table to file in MRtrix format""",
-    )
-    export_grad_fsl: ty.Union[ty.Tuple[Path, Path], bool] = shell.arg(
-        default=False,
-        argstr="-export_grad_fsl",
-        output_file_template=(
-            "export_grad_fsl0.txt",
-            "export_grad_fsl1.txt",
-        ),
-        help="""export the diffusion-weighted gradient table to files in FSL (bvecs / bvals) format""",
-    )
     # Options for importing phase-encode tables Option Group
     import_pe_table: File = shell.arg(
         argstr="-import_pe_table",
@@ -443,22 +414,6 @@ class MrConvert:
     import_pe_eddy: ty.Tuple[File, File] = shell.arg(
         argstr="-import_pe_eddy",
         help="""import phase-encoding information from an EDDY-style config / index file pair""",
-    )
-    # Options for exporting phase-encode tables Option Group
-    export_pe_table: ty.Union[Path, bool] = shell.arg(
-        default=False,
-        argstr="-export_pe_table",
-        output_file_template="export_pe_table.txt",
-        help="""export phase-encoding table to file""",
-    )
-    export_pe_eddy: ty.Union[ty.Tuple[Path, Path], bool] = shell.arg(
-        default=False,
-        argstr="-export_pe_eddy",
-        output_file_template=(
-            "export_pe_eddy0.txt",
-            "export_pe_eddy1.txt",
-        ),
-        help="""export phase-encoding information to an EDDY-style config / index file pair""",
     )
     # Standard options
     info: bool = shell.arg(
@@ -498,20 +453,42 @@ class MrConvert:
     class Outputs:
 
         out_file: ImageOut = shell.outarg(
+            argstr="",
+            position=-1,
+            path_template="out_file.mif",
             help="""the output image.""",
         )
         json_export: File = shell.outarg(
+            argstr="-json_export",
+            path_template="json_export.txt",
             help="""export data from an image header key-value pairs into a JSON file""",
         )
+        # DW gradient table export options Option Group
         export_grad_mrtrix: File = shell.outarg(
+            argstr="-export_grad_mrtrix",
+            path_template="export_grad_mrtrix.txt",
             help="""export the diffusion-weighted gradient table to file in MRtrix format""",
         )
         export_grad_fsl: ty.Tuple[File, File] = shell.outarg(
+            argstr="-export_grad_fsl",
+            path_template=(
+                "export_grad_fsl0.txt",
+                "export_grad_fsl1.txt",
+            ),
             help="""export the diffusion-weighted gradient table to files in FSL (bvecs / bvals) format""",
         )
+
+        # Options for exporting phase-encode tables Option Group
         export_pe_table: File = shell.outarg(
+            argstr="-export_pe_table",
+            path_template="export_pe_table.txt",
             help="""export phase-encoding table to file""",
         )
         export_pe_eddy: ty.Tuple[File, File] = shell.outarg(
+            argstr="-export_pe_eddy",
+            path_template=(
+                "export_pe_eddy0.txt",
+                "export_pe_eddy1.txt",
+            ),
             help="""export phase-encoding information to an EDDY-style config / index file pair""",
         )
