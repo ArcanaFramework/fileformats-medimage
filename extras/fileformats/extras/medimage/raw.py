@@ -1,7 +1,7 @@
 import typing as ty
 from pathlib import Path
 import pydicom
-from typing_extensions import TypeAlias
+import sys
 from fileformats.core import SampleFileGenerator
 from medimages4tests.dummy.raw.pet.siemens.biograph_vision.vr20b.pet_listmode import (
     get_data as get_pet_listmode_data,
@@ -17,6 +17,11 @@ from fileformats.medimage.raw import (
     Vnd_Siemens_Biograph128Vision_Vr20b_PetListMode,
 )
 from fileformats.core.io import BinaryIOWindow
+
+if sys.version_info >= (3, 9):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias
 
 TagListType: TypeAlias = ty.Union[
     ty.List[int],
