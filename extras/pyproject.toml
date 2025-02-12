@@ -10,7 +10,7 @@ requires-python = ">=3.8"
 dependencies = [
     "fileformats >= 0.15.0a3",
     "fileformats-extras >= 0.15.0a3",
-    "fileformats-medimage >= 0.10a0",
+    "fileformats-medimage >= 0.9.4",
     "nibabel >=5.0.0",
     "numpy >=1.20",
     "medimages4tests >=0.3.0",
