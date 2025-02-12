@@ -164,9 +164,10 @@ def EditDcm2niixSideCar(
     except ImportError:
         raise RuntimeError(
             "Cannot edit dcm2niix file with jq expression as `jq` package is not "
-            "available in the current environment. It is planned to replace "
-            "this dependency as it does not install on Windows easily, but for now you "
-            "can enable this feature by installing `jq` with `pip install jq`"
+            "available in the current environment. Please reinstall "
+            "fileformats-medimage-extras with the `jq` extra, i.e. "
+            "`pip install 'fileformats-medimage-extras[jq]'`, noting that on Windows "
+            "you will first need to install the jq package from https://jqlang.org/download/."
         )
     dct = jq.compile(jq_expr).input(dct).first()
     with open(out_file, "w") as f:
