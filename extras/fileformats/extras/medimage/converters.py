@@ -1,13 +1,13 @@
 from pathlib import Path
-import attrs
 import json
 import typing as ty
 import tempfile
 from fileformats.core import converter
-import pydra
-from fileformats.medimage.base import MedicalImage
+from pydra.design import python, workflow
 from fileformats.medimage.dicom import DicomDir, DicomCollection, DicomSeries
+from fileformats.application import Json
 from fileformats.medimage import (
+    MedicalImage,
     Analyze,
     Nifti,
     NiftiGz,
@@ -19,35 +19,14 @@ from fileformats.medimage import (
     NiftiGzXBvec,
 )
 from fileformats.core.typing import PathType
-from pydra.tasks.mrtrix3.latest import MrConvert
 from pydra.tasks.dcm2niix import Dcm2Niix
+from pydra.tasks.mrtrix3.v3_0 import MrConvert
+from fileformats.generic import File, Directory  # noqa: F401
+from fileformats.medimage_mrtrix3 import ImageIn, ImageOut, Tracks  # noqa: F401
 
 
-if ty.TYPE_CHECKING:
-    from pydra.engine.task import TaskBase, Workflow
-
-
-@converter(source_format=MedicalImage, target_format=Analyze, out_ext=Analyze.ext)
-def mrconvert(name: str, out_ext: str) -> "TaskBase":
-    """Initiate an MRConvert task with the output file extension set
-
-    Parameters
-    ----------
-    name : str
-        name of the converter task
-    out_ext : str
-        extension of the output file, used by MRConvert to determine the desired format
-
-    Returns
-    -------
-    pydra.ShellCommandTask
-        the converter task
-    """
-    return MrConvert(name=name, out_file="out" + out_ext)
-
-
-@pydra.mark.task  # type: ignore[misc]
-def ensure_dicom_dir(dicom: DicomCollection) -> DicomDir:
+@python.define  # type: ignore[misc]
+def EnsureDicomDir(dicom: DicomCollection) -> DicomDir:
     if isinstance(dicom, DicomSeries):
         dicom_dir_fspath = tempfile.mkdtemp()
         dicom.copy(dicom_dir_fspath, mode=DicomDir.CopyMode.link)
@@ -60,22 +39,23 @@ def ensure_dicom_dir(dicom: DicomCollection) -> DicomDir:
     return dicom
 
 
-@converter(source_format=DicomCollection, target_format=Nifti)
-@converter(source_format=DicomCollection, target_format=NiftiGz, compress="y")
-@converter(source_format=DicomCollection, target_format=NiftiX)
-@converter(source_format=DicomCollection, target_format=NiftiGzX, compress="y")
-@converter(source_format=DicomCollection, target_format=NiftiXBvec)
-@converter(source_format=DicomCollection, target_format=NiftiBvec)
-@converter(source_format=DicomCollection, target_format=NiftiGzBvec)
-@converter(source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y")
-def extended_dcm2niix(
-    name: str,
+@converter(source_format=DicomCollection, target_format=Nifti)  # type: ignore[misc]
+@converter(source_format=DicomCollection, target_format=NiftiGz, compress="y")  # type: ignore[misc]
+@converter(source_format=DicomCollection, target_format=NiftiX)  # type: ignore[misc]
+@converter(source_format=DicomCollection, target_format=NiftiGzX, compress="y")  # type: ignore[misc]
+@converter(source_format=DicomCollection, target_format=NiftiXBvec)  # type: ignore[misc]
+@converter(source_format=DicomCollection, target_format=NiftiBvec)  # type: ignore[misc]
+@converter(source_format=DicomCollection, target_format=NiftiGzBvec)  # type: ignore[misc]
+@converter(source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y")  # type: ignore[misc]
+@workflow.define(outputs=["out_file"])  # type: ignore[misc]
+def ExtendedDcm2niix(
+    in_file: DicomCollection,
     compress: str = "n",
     file_postfix: ty.Optional[str] = None,
     side_car_jq: ty.Optional[str] = None,
     extract_volume: ty.Optional[int] = None,
     to_4d: bool = False,
-) -> "Workflow":
+) -> ty.List[Path]:
     """The Dcm2niix command wrapped in a workflow in order to map the inputs and outputs
     onto "in_file" and "out_file", respectively, and implement optional post-conversion
     manipulations to allow manual override of conversion issues.
@@ -102,7 +82,7 @@ def extended_dcm2niix(
 
     Returns
     -------
-    pydra.Workflow
+    out_file: list[Path]
         the converter workflow
 
     Raises
@@ -117,30 +97,18 @@ def extended_dcm2niix(
         )
     # Create workflow to map input field to "in_file" and optionally perform post-conversion
     # steps to manipulate the converted NIfTI files
-    wf = pydra.Workflow(
-        name=name,
-        input_spec=["in_file"],
-    )
-    wf.add(
-        ensure_dicom_dir(
-            dicom=wf.lzin.in_file,
-            name="ensure_dicom_dir",
-        )
-    )
+    ensure_dicom_dir = workflow.add(EnsureDicomDir(dicom=in_file))
 
-    if file_postfix is None:
-        file_postfix = attrs.NOTHING  # type: ignore
-    wf.add(
+    dcm2niix = workflow.add(
         Dcm2Niix(
-            in_dir=wf.ensure_dicom_dir.lzout.out,
+            in_dir=ensure_dicom_dir.out,
             out_dir=Path("."),
-            name="dcm2niix",
             compress=compress,
             file_postfix=file_postfix,
         )
     )
-    out_file = wf.dcm2niix.lzout.out_file
-    out_json = wf.dcm2niix.lzout.out_json
+    out_file = dcm2niix.out_file
+    out_json = dcm2niix.out_json
     # Add MRConvert step to either select a single volume of a 4D dataset or the inverse,
     # wrap a single volume in a 4D dataset
     if extract_volume is not None or to_4d:
@@ -148,48 +116,47 @@ def extended_dcm2niix(
             coord = (3, extract_volume)
             axes = [0, 1, 2]
         else:  # to_4d
-            coord = attrs.NOTHING  # type: ignore
+            coord = None
             axes = [0, 1, 2, -1]
-        wf.add(
+        mrconvert = workflow.add(
             MrConvert(
                 in_file=out_file,
                 out_file="out" + NiftiGzX.ext,
                 coord=coord,
                 axes=axes,
-                name="mrconvert",
             )
         )
-        out_file = wf.mrconvert.lzout.out_file
+        out_file = mrconvert.out_file
     # Add JQ edit of side car to allow manual fixing of any conversion issues
     if side_car_jq is not None:
-        wf.add(
-            edit_dcm2niix_side_car(
-                in_file=out_json, jq_expr=side_car_jq, name="json_edit"
-            )
+        json_edit = workflow.add(
+            EditDcm2niixSideCar(in_file=out_json, jq_expr=side_car_jq), name="json_edit"
         )
-        out_json = wf.json_edit.lzout.out
+        out_json = json_edit.out
 
-    wf.add(
-        collect_dcm2niix_outputs(
-            name="collect_outputs",
+    collect_outputs = workflow.add(
+        CollectDcm2niixOutputs(
             out_file=out_file,
             out_json=out_json,
-            out_bvec=wf.dcm2niix.lzout.out_bvec,
-            out_bval=wf.dcm2niix.lzout.out_bval,
+            out_bvec=dcm2niix.out_bvec,
+            out_bval=dcm2niix.out_bval,
         )
     )
     # Set workflow outputs
-    wf.set_output(("out_file", wf.collect_outputs.lzout.out))
-    return wf
+    return collect_outputs.out  # type: ignore[no-any-return]
 
 
-@pydra.mark.task  # type: ignore[misc]
-def edit_dcm2niix_side_car(
-    in_file: Path, jq_expr: str, out_file: ty.Optional[PathType] = None
-) -> Path:
+@python.define  # type: ignore[misc]
+def EditDcm2niixSideCar(
+    in_file: ty.Optional[Json], jq_expr: str, out_file: ty.Optional[PathType] = None
+) -> ty.Optional[Json]:
     """ "Applies ad-hoc edit of JSON side car with JQ query language"""
+    if in_file is None:
+        assert jq_expr is not None
+        return None
     if out_file is None:
-        out_file = in_file
+        out_dir = Path(tempfile.mkdtemp())
+        out_file = out_dir / "out.json"
     with open(in_file) as f:
         dct = json.load(f)
     try:
@@ -197,22 +164,33 @@ def edit_dcm2niix_side_car(
     except ImportError:
         raise RuntimeError(
             "Cannot edit dcm2niix file with jq expression as `jq` package is not "
-            "available in the current environment. It is planned to replace "
-            "this dependency as it does not install on Windows easily, but for now you "
-            "can enable this feature by installing `jq` with `pip install jq`"
+            "available in the current environment. Please reinstall "
+            "fileformats-medimage-extras with the `jq` extra, i.e. "
+            "`pip install 'fileformats-medimage-extras[jq]'`, noting that on Windows "
+            "you will first need to install the jq package from https://jqlang.org/download/."
         )
     dct = jq.compile(jq_expr).input(dct).first()
     with open(out_file, "w") as f:
         json.dump(dct, f)
-    return in_file
+    return Json(out_file)
 
 
-@pydra.mark.task  # type: ignore[misc]
-def collect_dcm2niix_outputs(
-    out_file: Path, out_json: Path, out_bvec: Path, out_bval: Path
+@python.define  # type: ignore[misc]
+def CollectDcm2niixOutputs(
+    out_file: Path,
+    out_json: ty.Optional[Path],
+    out_bvec: ty.Optional[Path],
+    out_bval: ty.Optional[Path],
 ) -> ty.List[Path]:
     lst = [out_file]
     for file in (out_json, out_bvec, out_bval):
-        if file is not attrs.NOTHING:  # type: ignore[comparison-overlap]
+        if file is not None:
             lst.append(file)
     return lst
+
+
+converter(
+    source_format=MedicalImage,
+    target_format=Analyze,
+    out_file_="out_file" + Analyze.ext,
+)(MrConvert)

@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.8", "3.12"]
+        python-version: ["3.11", "3.13"]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     defaults:
@@ -58,6 +58,8 @@ jobs:
       run: python3 -m pip install --upgrade pip
     - name: Install Package
       run: python3 -m pip install .[test] ./extras[test]
+    - name: Install development Pydra
+      run: pip install --no-deps git+https://github.com/nipype/pydra.git@new-syntax
     - name: MyPy
       run: mypy --install-types --non-interactive  --no-warn-unused-ignores .
     - name: Pytest
@@ -98,7 +100,7 @@ jobs:
       run: python3 -m build ${{ matrix.pkg[1] }}
     - name: Check distributions
       run: twine check ${{ matrix.pkg[1] }}/dist/*
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: built-${{ matrix.pkg[0] }}
         path: ${{ matrix.pkg[1] }}/dist
@@ -108,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Download build
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: built-main
         path: dist
@@ -130,7 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Download build
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: built-extras
         path: dist
