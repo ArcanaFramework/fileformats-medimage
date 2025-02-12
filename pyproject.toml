@@ -7,7 +7,7 @@ name = "fileformats-medimage"
 description = "Classes for representing various medical imaging file formats in Python classes for use in type hinting in data workflows"
 readme = "README.rst"
 requires-python = ">=3.8"
-dependencies = ["fileformats >=0.15a1"]
+dependencies = ["fileformats >=0.15a3"]
 license = { file = "LICENSE" }
 authors = [{ name = "Thomas G. Close", email = "tom.g.close@gmail.com" }]
 maintainers = [{ name = "Thomas G. Close", email = "tom.g.close@gmail.com" }]
@@ -45,7 +45,7 @@ test = [
     "mypy >=1.5.1",
     "fileformats-medimage-extras",
     "pydra-dcm2niix",
-    "pydra-mrtrix3 >=3.0.4a5",
+    "pydra-mrtrix3 >=3.0.4a13",
 ]
 
 

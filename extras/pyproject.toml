@@ -8,16 +8,16 @@ description = "Classes for representing different file formats in Python classes
 readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
-    "fileformats >= 0.6",
-    "fileformats-extras >= 0.2.1",
-    "fileformats-medimage >= 0.3",
+    "fileformats >= 0.15.0a3",
+    "fileformats-extras >= 0.15.0a3",
+    "fileformats-medimage >= 0.10a0",
     "nibabel >=5.0.0",
     "numpy >=1.20",
     "medimages4tests >=0.3.0",
     "pydicom >=2.3.1",
-    "pydra >= 0.22.0",
-    "pydra-dcm2niix",
-    "pydra-mrtrix3 >= 3.0.4a5",
+    "pydra >= 0.25.0",
+    "pydra-dcm2niix >=1.3a",
+    "pydra-mrtrix3 >= 3.0.4a13",
 ]
 license = { file = "LICENSE" }
 authors = [{ name = "Thomas G. Close", email = "tom.g.close@gmail.com" }]
@@ -35,6 +35,8 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
 ]
 dynamic = ["version"]
