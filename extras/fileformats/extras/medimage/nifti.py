@@ -58,7 +58,8 @@ def nifti_generate_sample_data(
 ) -> ty.List[Path]:
     return [
         medimages4tests.dummy.nifti.get_image(
-            out_file=generator.generate_fspath(file_type=Nifti1)
+            out_file=generator.generate_fspath(file_type=Nifti1),
+            seed=generator.seed,
         )
     ]
 
@@ -72,6 +73,7 @@ def nifti_gz_generate_sample_data(
         medimages4tests.dummy.nifti.get_image(
             out_file=generator.generate_fspath(file_type=NiftiGz),
             compressed=True,
+            seed=generator.seed,
         )
     ]
 
