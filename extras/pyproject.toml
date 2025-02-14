@@ -15,7 +15,7 @@ dependencies = [
     "numpy >=1.20",
     "medimages4tests >=0.3.0",
     "pydicom >=2.3.1",
-    "pydra >= 0.25.0",
+    "pydra >= 0.24.0",
     "pydra-dcm2niix >=1.3a",
     "pydra-mrtrix3 >= 3.0.4a13",
 ]
