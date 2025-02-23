@@ -49,6 +49,14 @@ License
 This work is licensed under a
 `Creative Commons Attribution 4.0 International License <http://creativecommons.org/licenses/by/4.0/>`__
 
+
+Acknowledgements
+----------------
+
+The authors acknowledge the facilities and scientific and technical assistance of the
+National Imaging Facility, a National Collaborative Research Infrastructure Strategy (NCRIS) capability.
+
+
 .. image:: https://i.creativecommons.org/l/by/4.0/88x31.png
   :target: http://creativecommons.org/licenses/by/4.0/
   :alt: Creative Commons Attribution 4.0 International License
