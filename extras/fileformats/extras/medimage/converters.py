@@ -3,7 +3,7 @@ import json
 import typing as ty
 import tempfile
 from fileformats.core import converter
-from pydra.design import python, workflow
+from pydra.compose import python, workflow
 from fileformats.medimage.dicom import DicomDir, DicomCollection, DicomSeries
 from fileformats.application import Json
 from fileformats.medimage import (
