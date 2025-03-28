@@ -59,7 +59,7 @@ jobs:
     - name: Install Package
       run: python3 -m pip install .[test] ./extras[test]
     - name: Install development Pydra
-      run: pip install --no-deps git+https://github.com/nipype/pydra.git@new-syntax
+      run: pip install --no-deps git+https://github.com/nipype/pydra.git@develop
     - name: MyPy
       run: mypy --install-types --non-interactive  --no-warn-unused-ignores .
     - name: Pytest
