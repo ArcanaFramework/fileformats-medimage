@@ -63,7 +63,9 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(PetRawData):
                     f"Image type of {self} ({image_type!r}) does not match expected "
                     f"({self.expected_image_type!r})"
                 )
-        return image_type
+            return image_type
+        assert isinstance(self._image_type_seq[-1], str)
+        return self._image_type_seq[-1]
 
     @mtime_cached_property
     def _image_type_seq(self) -> ty.List[str]:
@@ -130,13 +132,13 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData(
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_PetListMode(
-    Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData, PetListMode
+    Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData, PetListMode
 ):
     expected_image_type = "PET_LISTMODE"
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram(
-    Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData, PetSinogram
+    Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData, PetSinogram
 ):
     "histogrammed projection data in a reconstruction-friendly format"
 
@@ -144,7 +146,7 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram(
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate(
-    Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData, PetCountRate
+    Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData, PetCountRate
 ):
     "number of prompt/random/single events per unit time"
 
@@ -152,7 +154,7 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate(
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation(
-    Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData, PetNormalisation
+    Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData, PetNormalisation
 ):
     "normalisation scan or the current cross calibration factor"
 
