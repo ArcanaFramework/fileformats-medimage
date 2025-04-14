@@ -1,4 +1,5 @@
 import sys
+import os
 import typing as ty
 from collections import defaultdict, Counter
 from pathlib import Path
@@ -147,6 +148,73 @@ def dicom_collection_read_metadata(
                 else:
                     key_repeats.update([key])
     return collated
+
+
+def get_dicom_tag(
+    file: ty.Union[str, os.PathLike[ty.Any], ty.BinaryIO],
+    target_tag: ty.Tuple[int, int],
+) -> ty.Union[str, bytes, None]:
+    """A basic function to read a DICOM file and extract the value of a specific tag.
+    This is a low-level function that does not use any external libraries.
+    It is not a replacement for pydicom, but can be used to extract specific tags
+    without loading the entire DICOM file into memory.
+
+    Parameters
+    ----------
+    filepath : str or os.PathLike
+        The path to the DICOM file.
+    target_tag : tuple[int, int]
+        The DICOM tag to extract, specified as a tuple of (group, element).
+        For example, (0x0010, 0x0010) for PatientName.
+
+    Returns
+    -------
+    str or bytes or None
+        The value of the specified DICOM tag, decoded as a string if possible.
+        If the tag is not found or cannot be decoded, returns None.
+    """
+    if isinstance(file, (str, os.PathLike)):
+        filepath = file
+        file_stream = open(filepath, "rb")
+        close_stream = True
+    elif hasattr(file, "read"):
+        file_stream = file  # type: ignore[assignment]
+        close_stream = False
+    else:
+        raise TypeError("file must be a path-like object or a binary stream")
+
+    try:
+        file_stream.seek(132)  # Skip preamble and 'DICM' if at file start
+
+        while True:
+            tag_bytes = file_stream.read(4)
+            if len(tag_bytes) < 4:
+                break
+
+            group = int.from_bytes(tag_bytes[:2], "little")
+            element = int.from_bytes(tag_bytes[2:], "little")
+            tag = (group, element)
+
+            vr = file_stream.read(2).decode()
+
+            if vr in {"OB", "OW", "OF", "SQ", "UT", "UN"}:
+                file_stream.read(2)  # reserved
+                length = int.from_bytes(file_stream.read(4), "little")
+            else:
+                length = int.from_bytes(file_stream.read(2), "little")
+
+            value = file_stream.read(length)
+
+            if tag == target_tag:
+                try:
+                    return value.decode().strip()
+                except UnicodeDecodeError:
+                    return value
+    finally:
+        if close_stream:
+            file_stream.close()
+
+    return None  # Not found
 
 
 # class Vnd_Siemens_Vision(DicomImage):
