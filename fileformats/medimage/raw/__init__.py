@@ -9,10 +9,12 @@ from .pet import (
     PetCountRate,
     PetNormalisation,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData,
+    Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetListMode,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData,
 )
 
 __all__ = [
@@ -24,8 +26,10 @@ __all__ = [
     "PetCountRate",
     "PetNormalisation",
     "Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData",
+    "Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData",
     "Vnd_Siemens_Biograph128Vision_Vr20b_PetListMode",
     "Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram",
     "Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate",
     "Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation",
+    "Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData",
 ]
