@@ -195,14 +195,19 @@ def get_dicom_tag(
             element = int.from_bytes(tag_bytes[2:], "little")
             tag = (group, element)
 
-            vr = file_stream.read(2).decode()
-
-            if vr in {"OB", "OW", "OF", "SQ", "UT", "UN"}:
-                file_stream.read(2)  # reserved
-                length = int.from_bytes(file_stream.read(4), "little")
+            vr_bytes = file_stream.read(2)
+            # If the VR bytes are not purely alphabetic, assume implicit VR.
+            if vr_bytes.decode(errors="ignore").strip().isalpha():
+                vr = vr_bytes.decode()
+                if vr in {"OB", "OW", "OF", "SQ", "UT", "UN"}:
+                    file_stream.read(2)  # reserved
+                    length = int.from_bytes(file_stream.read(4), "little")
+                else:
+                    length = int.from_bytes(file_stream.read(2), "little")
             else:
-                length = int.from_bytes(file_stream.read(2), "little")
-
+                # Implicit VR: rewind the 2 bytes and read a 4-byte length
+                file_stream.seek(-2, 1)
+                length = int.from_bytes(file_stream.read(4), "little")
             value = file_stream.read(length)
 
             if tag == target_tag:

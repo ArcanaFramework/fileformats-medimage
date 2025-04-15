@@ -12,6 +12,7 @@ from medimages4tests.dummy.raw.pet.siemens.biograph_vision.vr20b.pet_countrate i
 from fileformats.core import extra_implementation, FileSet
 from fileformats.medimage.dicom import DicomImage
 from fileformats.medimage.raw import (
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData,
     Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetListMode,
@@ -49,6 +50,23 @@ def siemens_pet_raw_data_read_metadata(
     return DicomImage.pydicom_to_dict(dcm)
 
 
+@extra_implementation(Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData.load_pydicom)
+def siemens_pet_raw_data_load_pydicom(
+    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData,
+    specific_tags: ty.Optional[TagListType] = None,
+    **kwargs: ty.Any,
+) -> pydicom.Dataset:
+
+    with pet_raw_data.open() as f:
+        window = BinaryIOWindow(
+            f,  # type: ignore[arg-type]
+            pet_raw_data.dicom_header_offset,
+            pet_raw_data.dcm_hdr_size_int_offset,
+        )
+        dcm = pydicom.dcmread(window, specific_tags=specific_tags)
+    return dcm
+
+
 @extra_implementation(FileSet.read_metadata)
 def siemens_petct_raw_data_read_metadata(
     pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData,
@@ -63,6 +81,22 @@ def siemens_petct_raw_data_read_metadata(
         )
         dcm = pydicom.dcmread(window, specific_tags=specific_tags)
     return DicomImage.pydicom_to_dict(dcm)
+
+
+@extra_implementation(Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData.load_pydicom)
+def siemens_petct_raw_data_load_pydicom(
+    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData,
+    specific_tags: ty.Optional[TagListType] = None,
+    **kwargs: ty.Any,
+) -> pydicom.Dataset:
+
+    with pet_raw_data.open() as f:
+        window = BinaryIOWindow(
+            f,  # type: ignore[arg-type]
+            *pet_raw_data.dicom_header_limits,
+        )
+        dcm = pydicom.dcmread(window, specific_tags=specific_tags)
+    return dcm
 
 
 @extra_implementation(FileSet.generate_sample_data)

@@ -4,7 +4,7 @@ from collections import defaultdict
 import sys
 from pathlib import Path
 from fileformats.generic import TypedSet
-from fileformats.core import mtime_cached_property, validated_property
+from fileformats.core import mtime_cached_property, validated_property, extra
 from fileformats.core.exceptions import FormatMismatchError
 from fileformats.core.mixin import WithMagicNumber
 from fileformats.medimage.dicom import get_dicom_tag
@@ -21,6 +21,9 @@ if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
+
+if ty.TYPE_CHECKING:
+    import pydicom
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(PetRawData):
@@ -89,6 +92,22 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(PetRawData):
                 raise FormatMismatchError(
                     f"File {self.fspath!r} does not contain a valid DICOM header"
                 ) from None
+
+    @extra
+    def load_pydicom(self, **kwargs: ty.Any) -> "pydicom.Dataset":
+        """Reads any metadata associated with the fileset and returns it as a dict
+
+        Parameters
+        ----------
+        **kwargs : Any
+            any format-specific keyword arguments to pass to the metadata reader
+
+        Returns
+        -------
+        pydicom.Dataset
+            the DICOM dataset containing the metadata loaded by PyDICOM
+        """
+        raise NotImplementedError
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData(

@@ -36,7 +36,6 @@ def test_nifti_deidentify():
     assert nifti.hash_files() == deidentified.hash_files()
 
 
-@pytest.mark.xfail(reason="Need to generate more realistic Siemens raw pet data")
 def test_raw_pet_data_deidentify():
     raw_pet = Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram.sample()
     with pytest.raises(FileFormatsExtrasError):
