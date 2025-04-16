@@ -16,7 +16,7 @@ from fileformats.medimage.raw import (
     Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetListMode,
-    Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData,
 )
 from fileformats.core.io import BinaryIOWindow
 
@@ -69,7 +69,7 @@ def siemens_pet_raw_data_load_pydicom(
 
 @extra_implementation(FileSet.read_metadata)
 def siemens_petct_raw_data_read_metadata(
-    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData,
+    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData,
     specific_tags: ty.Optional[TagListType] = None,
     **kwargs: ty.Any,
 ) -> ty.Mapping[str, ty.Any]:
@@ -85,7 +85,7 @@ def siemens_petct_raw_data_read_metadata(
 
 @extra_implementation(Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData.load_pydicom)
 def siemens_petct_raw_data_load_pydicom(
-    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData,
+    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData,
     specific_tags: ty.Optional[TagListType] = None,
     **kwargs: ty.Any,
 ) -> pydicom.Dataset:
