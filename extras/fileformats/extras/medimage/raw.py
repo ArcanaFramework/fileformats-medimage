@@ -36,7 +36,7 @@ from fileformats.medimage.raw import (
     Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetParameterisation,
-    Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl,
 )
 from fileformats.core.io import BinaryIOWindow
 
@@ -89,7 +89,7 @@ def siemens_pet_raw_data_load_pydicom(
 
 @extra_implementation(FileSet.read_metadata)
 def siemens_petct_raw_data_read_metadata(
-    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData,
+    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl,
     specific_tags: ty.Optional[TagListType] = None,
     **kwargs: ty.Any,
 ) -> ty.Mapping[str, ty.Any]:
@@ -105,7 +105,7 @@ def siemens_petct_raw_data_read_metadata(
 
 @extra_implementation(Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData.load_pydicom)
 def siemens_petct_raw_data_load_pydicom(
-    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData,
+    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl,
     specific_tags: ty.Optional[TagListType] = None,
     **kwargs: ty.Any,
 ) -> pydicom.Dataset:
@@ -198,7 +198,7 @@ def siemens_pet_normalisation_generate_sample_data(
 
 @extra_implementation(FileSet.generate_sample_data)
 def siemens_petct_spl_generate_sample_data(
-    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData,
+    pet_raw_data: Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl,
     generator: SampleFileGenerator,
 ) -> ty.List[Path]:
     return get_petct_spl_data(out_dir=generator.dest_dir)  # type: ignore[no-any-return]

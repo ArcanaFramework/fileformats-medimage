@@ -49,7 +49,7 @@ from .raw import (
     Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetParameterisation,
-    Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl,
 )
 from .surface import Gifti
 from .contents.imaging.modality import (
@@ -171,7 +171,7 @@ __all__ = [
     "Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate",
     "Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation",
     "Vnd_Siemens_Biograph128Vision_Vr20b_PetParameterisation",
-    "Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData",
+    "Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl",
     "Gifti",
     "ImagingModality",
     "CombinedModalities",

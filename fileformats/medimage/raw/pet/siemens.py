@@ -87,7 +87,7 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(PetRawData):
             ).dicom_header_limits
         except FormatMismatchError:
             try:
-                return Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData(
+                return Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl(
                     self.fspaths
                 ).dicom_header_limits
             except FormatMismatchError:
@@ -269,7 +269,7 @@ def pet_rd_sort_key(ptd: Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData) -> str:
     return acquisition_time
 
 
-class Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData(
+class Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl(
     WithMagicNumber, Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData
 ):
     """PET CT raw data format as produced by Siemens Biograph 128 Vision. It is used to

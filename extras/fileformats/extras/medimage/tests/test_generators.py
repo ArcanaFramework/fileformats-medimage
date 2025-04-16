@@ -10,7 +10,7 @@ from fileformats.medimage import (
     Vnd_Siemens_Biograph128Vision_Vr20b_PetDynamicSinogramSeries,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation,
     Vnd_Siemens_Biograph128Vision_Vr20b_PetParameterisation,
-    Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData,
+    Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl,
 )
 
 
@@ -55,7 +55,7 @@ def test_siemens_pet_normalisation_generator():
 
 
 def test_siemens_pet_petct_spl_generator():
-    img = Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData.sample()
+    img = Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSpl.sample()
     assert img.metadata["PatientName"] == "FirstName^LastName"
 
 
