@@ -4,23 +4,28 @@ from collections import defaultdict
 import sys
 from pathlib import Path
 from fileformats.generic import TypedSet
-from fileformats.core import mtime_cached_property, validated_property
+from fileformats.core import mtime_cached_property, validated_property, extra
 from fileformats.core.exceptions import FormatMismatchError
 from fileformats.core.mixin import WithMagicNumber
 from fileformats.medimage.dicom import get_dicom_tag
 from fileformats.core.io import BinaryIOWindow
 from .base import (
     PetRawData,
+    PetPhysio,
     PetListMode,
     PetSinogram,
     PetCountRate,
     PetNormalisation,
+    PetParameterisation,
 )
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
+
+if ty.TYPE_CHECKING:
+    import pydicom
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(PetRawData):
@@ -82,13 +87,29 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(PetRawData):
             ).dicom_header_limits
         except FormatMismatchError:
             try:
-                return Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData(
+                return Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData(
                     self.fspaths
                 ).dicom_header_limits
             except FormatMismatchError:
                 raise FormatMismatchError(
                     f"File {self.fspath!r} does not contain a valid DICOM header"
                 ) from None
+
+    @extra
+    def load_pydicom(self, **kwargs: ty.Any) -> "pydicom.Dataset":
+        """Reads any metadata associated with the fileset and returns it as a dict
+
+        Parameters
+        ----------
+        **kwargs : Any
+            any format-specific keyword arguments to pass to the metadata reader
+
+        Returns
+        -------
+        pydicom.Dataset
+            the DICOM dataset containing the metadata loaded by PyDICOM
+        """
+        raise NotImplementedError
 
 
 class Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData(
@@ -142,6 +163,14 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram(
 ):
     "histogrammed projection data in a reconstruction-friendly format"
 
+    expected_image_type = "PET_EM_SINOGRAM"
+
+
+class Vnd_Siemens_Biograph128Vision_Vr20b_PetDynamicSinogram(
+    Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData, PetSinogram
+):
+    "histogrammed projection data in a reconstruction-friendly format"
+
     expected_image_type = "PET_SINO_DYNAMIC"
 
 
@@ -153,6 +182,14 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetCountRate(
     expected_image_type = "PET_COUNTRATE"
 
 
+class Vnd_Siemens_Biograph128Vision_Vr20b_PetParameterisation(
+    Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData, PetParameterisation
+):
+    "number of prompt/random/single events per unit time"
+
+    expected_image_type = "PET_REPLAY_PARAM"
+
+
 class Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation(
     Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData, PetNormalisation
 ):
@@ -161,10 +198,18 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetNormalisation(
     expected_image_type = "PET_CALIBRATION"
 
 
-class Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogramSeries(TypedSet):
+class Vnd_Siemens_Biograph128Vision_Vr20b_PetPhysio(
+    Vnd_Siemens_Biograph128Vision_Vr20b_LargePetRawData, PetPhysio
+):
+    "normalisation scan or the current cross calibration factor"
+
+    expected_image_type = "PET_PHYSIO"
+
+
+class Vnd_Siemens_Biograph128Vision_Vr20b_PetDynamicSinogramSeries(TypedSet):
     "Series of sinogram images"
 
-    content_types = (Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram,)
+    content_types = (Vnd_Siemens_Biograph128Vision_Vr20b_PetDynamicSinogram,)
 
     @classmethod
     def from_paths(
@@ -197,7 +242,7 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogramSeries(TypedSet):
         (
             sinograms,
             remaining,
-        ) = Vnd_Siemens_Biograph128Vision_Vr20b_PetSinogram.from_paths(
+        ) = Vnd_Siemens_Biograph128Vision_Vr20b_PetDynamicSinogram.from_paths(
             fspaths, common_ok=common_ok, **kwargs
         )
         series_dict = defaultdict(list)
@@ -224,7 +269,7 @@ def pet_rd_sort_key(ptd: Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData) -> str:
     return acquisition_time
 
 
-class Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData(
+class Vnd_Siemens_Biograph128Vision_Vr20b_PetCtSplRawData(
     WithMagicNumber, Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData
 ):
     """PET CT raw data format as produced by Siemens Biograph 128 Vision. It is used to
@@ -235,28 +280,27 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetCtRawData(
 
     ext = ".ptd"
     magic_number = b"dummy data"
-    expected_image_type: str = "PETCT_SP"
+    expected_image_type: str = "PETCT_SPL"
+
+    magic_dicom_end = b"END!"
 
     @validated_property
     def dicom_header_limits(self) -> ty.Tuple[int, int]:  # type: ignore[override]
-        start = None
+        """Returns the start and end indices of the DICOM data embedded within the
+        file. The DICOM data starts immediately after the magic number and is delimited
+        by a magic sequence 'END!'"""
+        start = len(self.magic_number)
         end = None
         with self.open() as f:
             while True:
                 chunk = f.read(1024)
                 if not chunk:
-                    raise ValueError("DICM not found in file")
-                offset = chunk.find(b"DICM")
-                if offset != -1:
-                    start = f.tell() - len(chunk) + offset
-                offset = chunk.find(b"END!")
+                    break
+                offset = chunk.find(self.magic_dicom_end)
                 if offset != -1:
                     end = f.tell() - len(chunk) + offset
-                    if start is None:
-                        raise FormatMismatchError(
-                            "End marker ('END!') found but start marker ('DICM') wasn't "
-                            f"in file {self.fspath!r}"
-                        )
                     return (start, end)
-
-        raise FormatMismatchError(f"DICM not found in file {self.fspath!r}")
+        raise FormatMismatchError(
+            f"Magic sequence {self.magic_dicom_end!r} delimiting DICOM data "
+            f"not found in file PETCT SPL({str(self)!r})"
+        )

@@ -40,3 +40,11 @@ class PetCountRate(PetRawData):
 
 class PetNormalisation(PetRawData):
     "normalisation scan or the current cross calibration factor"
+
+
+class PetPhysio(PetRawData):
+    "physiological data (e.g. ECG, respiration) for motion correction"
+
+
+class PetParameterisation(PetRawData):
+    "physiological data (e.g. ECG, respiration) for motion correction"
