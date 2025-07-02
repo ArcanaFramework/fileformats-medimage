@@ -55,7 +55,7 @@ class Vnd_Siemens_Biograph128Vision_Vr20b_PetRawData(PetRawData):
         if self.expected_image_type:
             if (
                 not isinstance(image_type_seq, list)
-                or len(image_type_seq) != 3
+                or len(image_type_seq) >= 3
                 or image_type_seq[:2] != ["ORIGINAL", "PRIMARY"]
             ):
                 raise FormatMismatchError(
