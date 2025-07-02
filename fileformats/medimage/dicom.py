@@ -103,7 +103,7 @@ class DicomSeries(TypedSet, DicomCollection):
         )
         series_dict = defaultdict(list)
         for dicom in dicoms:
-            metadata = dicom.read_metadata(specific_tags=cls.ID_KEYS)
+            metadata = dicom.read_metadata(metadata_keys=cls.ID_KEYS)
             series_dict[tuple(metadata[k] for k in cls.ID_KEYS)].append(dicom)
         return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
 
