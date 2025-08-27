@@ -16,8 +16,8 @@ dependencies = [
     "medimages4tests >=0.3.0",
     "pydicom >=2.3.1",
     "pydra >= 1.0a",
-    "pydra-dcm2niix >=1.3a",
-    "pydra-mrtrix3 >= 3.0.4a13",
+    "pydra-tasks-dcm2niix >=1.3a",
+    "pydra-tasks-mrtrix3 >= 3.0.4a13",
 ]
 license = { file = "LICENSE" }
 authors = [{ name = "Thomas G. Close", email = "tom.g.close@gmail.com" }]

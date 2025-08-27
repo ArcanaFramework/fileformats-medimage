@@ -43,8 +43,8 @@ test = [
     "medimages4tests >=0.3",
     "mypy >=1.5.1",
     "fileformats-medimage-extras",
-    "pydra-dcm2niix",
-    "pydra-mrtrix3 >=3.0.4a13",
+    "pydra-tasks-dcm2niix",
+    "pydra-tasks-mrtrix3 >=3.0.4a13",
 ]
 
 
