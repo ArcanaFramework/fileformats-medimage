@@ -60,6 +60,10 @@ jobs:
       run: python3 -m pip install --upgrade pip
     - name: Install Package
       run: python3 -m pip install .[test] ./extras[test]
+    - name: Install main branch of fileformats
+      run: python3 -m pip install git+https://github.com/ArcanaFramework/fileformats.git
+    - name: Install main branch of fileformats extras
+      run: python3 -m pip install git+https://github.com/ArcanaFramework/fileformats.git#subdirectory=extras
     - name: MyPy
       run: mypy --install-types --non-interactive  --no-warn-unused-ignores .
     - name: Pytest

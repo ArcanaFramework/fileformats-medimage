@@ -4,5 +4,4 @@ from . import converters
 from . import dicom
 from . import diffusion
 from . import nifti
-from . import raw
 from . import base
