@@ -22,7 +22,7 @@ from fileformats.core.typing import PathType
 from pydra.tasks.dcm2niix import Dcm2Niix
 from pydra.tasks.mrtrix3.v3_1 import MrConvert
 from fileformats.generic import File, Directory  # noqa: F401
-from fileformats.medimage_mrtrix3 import ImageIn, ImageOut, Tracks  # noqa: F401
+from fileformats.vendor.mrtrix3.medimage import ImageIn, ImageOut, Tracks  # noqa: F401
 
 
 @python.define  # type: ignore[misc]
