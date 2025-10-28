@@ -9,7 +9,7 @@ readme = "README.rst"
 requires-python = ">=3.11"
 dependencies = [
     "fileformats >= 0.15.0",
-    "fileformats-extras >= 0.15.0",
+    "fileformats-extras[application] >= 0.15.0",
     "fileformats-medimage >= 0.9.4",
     "nibabel >=5.0.0",
     "numpy >=1.20",
