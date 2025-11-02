@@ -55,7 +55,7 @@ def ExtendedDcm2niix(
     side_car_jq: ty.Optional[str] = None,
     extract_volume: ty.Optional[int] = None,
     to_4d: bool = False,
-) -> ty.List[Path]:
+) -> Nifti:
     """The Dcm2niix command wrapped in a workflow in order to map the inputs and outputs
     onto "in_file" and "out_file", respectively, and implement optional post-conversion
     manipulations to allow manual override of conversion issues.
@@ -181,12 +181,31 @@ def CollectDcm2niixOutputs(
     out_json: ty.Optional[Path],
     out_bvec: ty.Optional[Path],
     out_bval: ty.Optional[Path],
-) -> ty.List[Path]:
-    lst = [out_file]
-    for file in (out_json, out_bvec, out_bval):
-        if file is not None:
-            lst.append(file)
-    return lst
+) -> Nifti:
+    klass = NiftiGz if out_file.suffix == ".gz" else Nifti
+    if out_json:
+        if klass is NiftiGz:
+            klass = NiftiGzX
+        else:
+            klass = NiftiX
+    if any((out_bvec, out_bval)):
+        if not all((out_bvec, out_bval)):
+            raise RuntimeError(
+                "Both bvec and bval files must be present for diffusion NIfTI outputs"
+            )
+        if klass is NiftiGz:
+            klass = NiftiGzXBvec
+        elif klass is NiftiGzX:
+            klass = NiftiGzXBvec
+        elif klass is NiftiX:
+            klass = NiftiXBvec
+        else:
+            assert klass is Nifti
+            klass = NiftiBvec
+
+    return klass(
+        [out_file] + [f for f in (out_json, out_bvec, out_bval) if f is not None]
+    )
 
 
 converter(
