@@ -25,29 +25,32 @@ def bvec_read_array(bvec: Bvec) -> EncodingArrayType:
 def bval_generate_sample_data(
     bval: Bval, generator: SampleFileGenerator
 ) -> ty.List[Path]:
-    dest = generator.generate_fspath(Bval)
+    bvals_fspath = generator.generate_fspath(Bval)
     bvals = [
         str(generator.rng.randrange(0, 5000))
-        for _ in range(generator.rng.randrange(0, 100))
+        for _ in range(generator.rng.randrange(5, 100))
     ]
-    with open(dest, "w") as f:
+    with open(bvals_fspath, "w") as f:
         f.write(" ".join(bvals))
-    return [dest]
+    return [bvals_fspath]
 
 
 @extra_implementation(FileSet.generate_sample_data)
 def bvec_generate_sample_data(
     bvec: Bvec, generator: SampleFileGenerator
 ) -> ty.List[Path]:
-    dest = generator.generate_fspath(Bvec)
+    bvecs_fspath = generator.generate_fspath(Bvec)
     bvecs = np.asarray(
         [
             [generator.rng.uniform(0, 1) for _ in range(3)]
-            for _ in range(generator.rng.randrange(0, 100))
+            for _ in range(generator.rng.randrange(5, 100))
         ]
-    )
+    ).T
     # Normalise bvecs
     bvecs = bvecs / np.sqrt(bvecs[0, :] ** 2 + bvecs[1, :] ** 2 + bvecs[2, :] ** 2)
-    np.savetxt(dest, bvecs)
-    bvals_fspath = 
-    return [dest]
+    np.savetxt(bvecs_fspath, bvecs)
+    bvals = [str(generator.rng.randrange(0, 5000)) for _ in range(bvecs.shape[1])]
+    bvals_fspath = bvecs_fspath.parent / (bvecs_fspath.stem + ".bval")
+    with open(bvals_fspath, "w") as f:
+        f.write(" ".join(bvals))
+    return [bvecs_fspath, bvals_fspath]
