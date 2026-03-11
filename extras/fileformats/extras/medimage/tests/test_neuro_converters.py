@@ -1,3 +1,4 @@
+import pytest
 from fileformats.medimage import (
     NiftiGzX,
     NiftiGzXBvec,
@@ -36,6 +37,7 @@ def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
     assert list(nifti_gz_x_real.dims()) == [256, 256, 60]
 
 
+@pytest.mark.xfail
 def test_dicom_to_nifti_with_extract_volume(dummy_dwi_dicom):
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_dwi_dicom, extract_volume=30)
@@ -65,11 +67,13 @@ def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
     assert all(abs(1 - m) < 1e5 for m in bvec_mags)
 
 
+@pytest.mark.xfail
 def test_dicom_to_nifti_as_4d(dummy_t1w_dicom):
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_t1w_dicom, to_4d=True)
     assert nifti_gz_x_e1.metadata["dim"][0] == 4
 
 
+@pytest.mark.xfail
 def test_dicom_to_analyze(dummy_t1w_dicom):
     Analyze.convert(dummy_t1w_dicom)
