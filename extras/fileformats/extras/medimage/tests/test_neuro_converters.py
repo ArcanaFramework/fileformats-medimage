@@ -6,17 +6,19 @@ from fileformats.medimage import (
 )
 from logging import getLogger
 
+from fileformats.medimage.dicom import DicomDir
+
 
 logger = getLogger("fileformats")
 
 
-def test_dicom_to_nifti(dummy_t1w_dicom):
+def test_dicom_to_nifti(dummy_t1w_dicom: DicomDir) -> None:
 
     nifti_gz_x = NiftiGzX.convert(dummy_t1w_dicom)
     assert nifti_gz_x.metadata["json"]["EchoTime"] == 0.00207
 
 
-def test_dicom_to_nifti_select_echo(dummy_magfmap_dicom):
+def test_dicom_to_nifti_select_echo(dummy_magfmap_dicom: DicomDir) -> None:
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_magfmap_dicom, file_postfix="_e1")
     nifti_gz_x_e2 = NiftiGzX.convert(dummy_magfmap_dicom, file_postfix="_e2")
@@ -24,7 +26,7 @@ def test_dicom_to_nifti_select_echo(dummy_magfmap_dicom):
     assert nifti_gz_x_e2.metadata["json"]["EchoNumber"] == 2
 
 
-def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
+def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom: DicomDir) -> None:
 
     nifti_gz_x_ph = NiftiGzX.convert(dummy_mixedfmap_dicom, file_postfix="_ph")
     nifti_gz_x_imaginary = NiftiGzX.convert(
@@ -38,19 +40,19 @@ def test_dicom_to_nifti_select_suffix(dummy_mixedfmap_dicom):
 
 
 @pytest.mark.xfail
-def test_dicom_to_nifti_with_extract_volume(dummy_dwi_dicom):
+def test_dicom_to_nifti_with_extract_volume(dummy_dwi_dicom: DicomDir) -> None:
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_dwi_dicom, extract_volume=30)
     assert nifti_gz_x_e1.metadata["dim"][0] == 3
 
 
-def test_dicom_to_nifti_with_jq_edit(dummy_t1w_dicom):
+def test_dicom_to_nifti_with_jq_edit(dummy_t1w_dicom: DicomDir) -> None:
 
     nifti_gz_x = NiftiGzX.convert(dummy_t1w_dicom, side_car_jq=".EchoTime *= 1000")
     assert nifti_gz_x.metadata["json"]["EchoTime"] == 2.07
 
 
-def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
+def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom: DicomDir) -> None:
 
     logger.debug("Performing FSL grad conversion")
 
@@ -68,12 +70,12 @@ def test_dicom_to_niftix_with_fslgrad(dummy_dwi_dicom):
 
 
 @pytest.mark.xfail
-def test_dicom_to_nifti_as_4d(dummy_t1w_dicom):
+def test_dicom_to_nifti_as_4d(dummy_t1w_dicom: DicomDir) -> None:
 
     nifti_gz_x_e1 = NiftiGzX.convert(dummy_t1w_dicom, to_4d=True)
     assert nifti_gz_x_e1.metadata["dim"][0] == 4
 
 
 @pytest.mark.xfail
-def test_dicom_to_analyze(dummy_t1w_dicom):
+def test_dicom_to_analyze(dummy_t1w_dicom: DicomDir) -> None:
     Analyze.convert(dummy_t1w_dicom)
