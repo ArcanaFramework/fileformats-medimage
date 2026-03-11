@@ -25,7 +25,7 @@ from fileformats.generic import File, Directory  # noqa: F401
 from fileformats.vendor.mrtrix3.medimage import ImageIn, ImageOut, Tracks  # noqa: F401
 
 
-@python.define  # type: ignore[misc]
+@python.define  # type: ignore[untyped-decorator]
 def EnsureDicomDir(dicom: DicomCollection) -> DicomDir:
     if isinstance(dicom, DicomSeries):
         dicom_dir_fspath = tempfile.mkdtemp()
@@ -39,15 +39,15 @@ def EnsureDicomDir(dicom: DicomCollection) -> DicomDir:
     return dicom
 
 
-@converter(source_format=DicomCollection, target_format=Nifti)  # type: ignore[misc]
-@converter(source_format=DicomCollection, target_format=NiftiGz, compress="y")  # type: ignore[misc]
-@converter(source_format=DicomCollection, target_format=NiftiX)  # type: ignore[misc]
-@converter(source_format=DicomCollection, target_format=NiftiGzX, compress="y")  # type: ignore[misc]
-@converter(source_format=DicomCollection, target_format=NiftiXBvec)  # type: ignore[misc]
-@converter(source_format=DicomCollection, target_format=NiftiBvec)  # type: ignore[misc]
-@converter(source_format=DicomCollection, target_format=NiftiGzBvec)  # type: ignore[misc]
-@converter(source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y")  # type: ignore[misc]
-@workflow.define(outputs=["out_file"])  # type: ignore[misc]
+@converter(source_format=DicomCollection, target_format=Nifti)  # type: ignore[untyped-decorator]
+@converter(source_format=DicomCollection, target_format=NiftiGz, compress="y")  # type: ignore[untyped-decorator]
+@converter(source_format=DicomCollection, target_format=NiftiX)  # type: ignore[untyped-decorator]
+@converter(source_format=DicomCollection, target_format=NiftiGzX, compress="y")  # type: ignore[untyped-decorator]
+@converter(source_format=DicomCollection, target_format=NiftiXBvec)  # type: ignore[untyped-decorator]
+@converter(source_format=DicomCollection, target_format=NiftiBvec)  # type: ignore[untyped-decorator]
+@converter(source_format=DicomCollection, target_format=NiftiGzBvec)  # type: ignore[untyped-decorator]
+@converter(source_format=DicomCollection, target_format=NiftiGzXBvec, compress="y")  # type: ignore[untyped-decorator]
+@workflow.define(outputs=["out_file"])  # type: ignore[untyped-decorator]
 def ExtendedDcm2niix(
     in_file: DicomCollection,
     compress: str = "n",
@@ -146,7 +146,7 @@ def ExtendedDcm2niix(
     return collect_outputs.out  # type: ignore[no-any-return]
 
 
-@python.define  # type: ignore[misc]
+@python.define  # type: ignore[untyped-decorator]
 def EditDcm2niixSideCar(
     in_file: ty.Optional[Json], jq_expr: str, out_file: ty.Optional[PathType] = None
 ) -> ty.Optional[Json]:
@@ -175,7 +175,7 @@ def EditDcm2niixSideCar(
     return Json(out_file)
 
 
-@python.define  # type: ignore[misc]
+@python.define  # type: ignore[untyped-decorator]
 def CollectDcm2niixOutputs(
     out_file: Path,
     out_json: ty.Optional[Path],

@@ -16,20 +16,23 @@ EncodingArrayType: TypeAlias = (
 
 class DwiEncoding:
     @extra
-    def read_array(self) -> EncodingArrayType:
+    def read_encodings(self) -> EncodingArrayType:
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
 
-    def array(self) -> EncodingArrayType:
-        return self.read_array()
+    @property
+    def encodings_array(self) -> EncodingArrayType:
+        return self.read_encodings()
 
+    @property
     def directions(self) -> EncodingArrayType:
         "gradient direction and weighting combined into a single Nx4 array"
-        return self.array()[:, :3]
+        return self.encodings_array[:, :3]
 
+    @property
     def b_values(self) -> EncodingArrayType:
         "the b-value weighting"
-        return self.array()[:, 3]
+        return self.encodings_array[:, 3]
 
 
 class Bval(BinaryFile):
@@ -49,6 +52,17 @@ class Bvec(WithAdjacentFiles, DwiEncoding, BinaryFile):
     @validated_property
     def b_values_file(self) -> Bval:
         return Bval(self.select_by_ext(Bval))
+
+    @validated_property
+    def num_encodings(self) -> int:
+        num_bvals = len(self.b_values_file.read_array())
+        num_bvecs = len(self.directions)
+        if num_bvals != num_bvecs:
+            raise ValueError(
+                f"The number of b-values ({num_bvals}) does not match the number of "
+                f"directions {num_bvecs}"
+            )
+        return num_bvals
 
 
 # NIfTI file format gzipped with BIDS side car
