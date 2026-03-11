@@ -16,20 +16,20 @@ EncodingArrayType: TypeAlias = (
 
 class DwiEncoding:
     @extra
-    def read_array(self) -> EncodingArrayType:
+    def read_encodings(self) -> EncodingArrayType:
         "Both the gradient direction and weighting combined into a single Nx4 array"
         raise NotImplementedError
 
-    def array(self) -> EncodingArrayType:
-        return self.read_array()
+    def encodings_array(self) -> EncodingArrayType:
+        return self.read_encodings()
 
     def directions(self) -> EncodingArrayType:
         "gradient direction and weighting combined into a single Nx4 array"
-        return self.array()[:, :3]
+        return self.encodings_array()[:, :3]
 
     def b_values(self) -> EncodingArrayType:
         "the b-value weighting"
-        return self.array()[:, 3]
+        return self.encodings_array()[:, 3]
 
 
 class Bval(BinaryFile):
