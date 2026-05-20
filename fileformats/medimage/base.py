@@ -45,7 +45,7 @@ class MedicalImagingData(FileSet):
         out_dir: ty.Optional[Path] = None,
         new_stem: ty.Optional[str] = None,
         copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
-        parameters: ty.Any = None,
+        spec: ty.Any = None,
     ) -> Self:
         """Returns a new copy of the image with any subject-identifying information
         stripped from the from the image header"""

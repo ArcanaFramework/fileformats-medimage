@@ -91,7 +91,7 @@ def dicom_deidentify(
     out_dir: ty.Optional[Path] = None,
     new_stem: ty.Optional[str] = None,
     copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
-    parameters: ty.Any = None,
+    spec: ty.Any = None,
 ) -> DicomImage:
     if out_dir is None:
         out_dir = Path(tempfile.mkdtemp())
@@ -115,7 +115,7 @@ def dicom_collection_deidentify(
     out_dir: ty.Optional[Path] = None,
     new_stem: ty.Optional[str] = None,
     copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
-    parameters: ty.Any = None,
+    spec: ty.Any = None,
 ) -> DicomCollection:
     if out_dir is None:
         out_dir = Path(tempfile.mkdtemp())
