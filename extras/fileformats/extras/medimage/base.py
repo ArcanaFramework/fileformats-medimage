@@ -11,6 +11,7 @@ def no_deidentification_necessary(
     out_dir: ty.Optional[Path] = None,
     new_stem: ty.Optional[str] = None,
     copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
+    parameters: ty.Any = None,
 ) -> MedicalImage:
     """Assume that no deidentification is needed for medical images by default. We make a
     copy of the image in the output directory for consistency with the behavior of other
