@@ -2,16 +2,17 @@ import typing as ty
 from pathlib import Path
 import tempfile
 from fileformats.core import extra_implementation, FileSet
-from fileformats.medimage import MedicalImage
+from fileformats.medimage import MedicalImagingData
 
 
-@extra_implementation(MedicalImage.deidentify)
+@extra_implementation(MedicalImagingData.deidentify)
 def no_deidentification_necessary(
-    image: MedicalImage,
+    image: MedicalImagingData,
     out_dir: ty.Optional[Path] = None,
     new_stem: ty.Optional[str] = None,
     copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
-) -> MedicalImage:
+    spec: ty.Any = None,
+) -> MedicalImagingData:
     """Assume that no deidentification is needed for medical images by default. We make a
     copy of the image in the output directory for consistency with the behavior of other
     deidentification formats"""

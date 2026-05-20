@@ -8,6 +8,7 @@ from fileformats.core import FileSet, extra_implementation
 from fileformats.core import SampleFileGenerator
 from fileformats.medimage import (
     MedicalImage,
+    MedicalImagingData,
     DicomImage,
     DicomCollection,
     DicomDir,
@@ -85,12 +86,13 @@ SERIES_NUMBER_TAG = ("0020", "0011")
 SERIES_NUMBER_RANGE = int(1e8)
 
 
-@extra_implementation(MedicalImage.deidentify)
+@extra_implementation(MedicalImagingData.deidentify)
 def dicom_deidentify(
     dicom: DicomImage,
     out_dir: ty.Optional[Path] = None,
     new_stem: ty.Optional[str] = None,
     copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
+    spec: ty.Any = None,
 ) -> DicomImage:
     if out_dir is None:
         out_dir = Path(tempfile.mkdtemp())
@@ -108,12 +110,13 @@ def dicom_deidentify(
     return dicom.new(out_dir / dicom.fspath.name, dcm)
 
 
-@extra_implementation(MedicalImage.deidentify)
+@extra_implementation(MedicalImagingData.deidentify)
 def dicom_collection_deidentify(
     collection: DicomCollection,
     out_dir: ty.Optional[Path] = None,
     new_stem: ty.Optional[str] = None,
     copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
+    spec: ty.Any = None,
 ) -> DicomCollection:
     if out_dir is None:
         out_dir = Path(tempfile.mkdtemp())
@@ -122,7 +125,7 @@ def dicom_collection_deidentify(
     out_dir.mkdir(parents=True, exist_ok=True)
     deid_fspaths = []
     for dicom in collection.contents:
-        deid_fspaths.append(dicom.deidentify(out_dir).fspath)
+        deid_fspaths.append(dicom.deidentify(out_dir, spec=spec).fspath)
     type_ = type(collection)
     if isinstance(collection, DicomDir):
         deidentified = type_(out_dir)
