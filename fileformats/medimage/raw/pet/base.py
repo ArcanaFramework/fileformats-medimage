@@ -1,7 +1,8 @@
+import os
 import sys
 import typing as ty
-from pathlib import Path
-from fileformats.core import FileSet, extra
+
+from fileformats.core import extra
 from fileformats.medimage import MedicalImagingData
 from fileformats.generic import BinaryFile
 
@@ -17,9 +18,8 @@ class PetRawData(BinaryFile, MedicalImagingData):
     @extra
     def deidentify(
         self,
-        out_dir: ty.Optional[Path] = None,
-        new_stem: ty.Optional[str] = None,
-        copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
+        spec: ty.Any = None,
+        out_dir: os.PathLike[str] | None = None,
     ) -> Self:
         """Returns a new copy of the data with any subject-identifying information
         stripped from the from the data header"""

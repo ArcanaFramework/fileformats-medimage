@@ -44,7 +44,7 @@ class MedicalImagingData(FileSet):
         self,
         spec: ty.Any = None,
         out_dir: os.PathLike[str] | None = None,
-    ) -> tuple[Self, dict[str, ty.Any]]:
+    ) -> tuple[Self, ty.Mapping[str, ty.Any]]:
         """
         Deidentifies the image by stripping any subject-identifying information from the
         image header. The exact implementation of this method will depend on the

@@ -92,7 +92,7 @@ def dicom_deidentify(
     dicom: DicomImage,
     spec: ty.Any = None,
     out_dir: os.PathLike[str] | None = None,
-) -> tuple[DicomImage, dict[str, ty.Any]]:
+) -> tuple[DicomImage, ty.Mapping[str, ty.Any]]:
     if out_dir is None:
         out_dir = Path(tempfile.mkdtemp())
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -119,9 +119,10 @@ def dicom_collection_deidentify(
     collection: DicomCollection,
     spec: ty.Any = None,
     out_dir: os.PathLike[str] | None = None,
-) -> tuple[DicomCollection, dict[str, ty.Any]]:
+) -> tuple[DicomCollection, ty.Mapping[str, ty.Any]]:
     if out_dir is None:
         out_dir = Path(tempfile.mkdtemp())
+    out_dir = Path(out_dir)
     if isinstance(collection, DicomDir):
         out_dir /= collection.name
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -134,7 +135,7 @@ def dicom_collection_deidentify(
     reid_metadata = collate_metadata_series(reid_mdata_series)
     type_ = type(collection)
     if isinstance(collection, DicomDir):
-        deidentified = type_(out_dir)
+        deidentified = type_(Path(out_dir))
     else:
         deidentified = type_(deid_fspaths)
     return deidentified, reid_metadata
