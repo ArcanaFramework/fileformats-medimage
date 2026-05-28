@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from fileformats.medimage import (
     NiftiGzX,
@@ -11,16 +12,19 @@ from fileformats.medimage import (
 )
 
 
+@pytest.mark.xfail(reason="There is a bug in medimages4tests")
 def test_t1w_generator():
     img = NiftiGzX[T1w].sample()
     assert len(img.dims()) == 3
 
 
+@pytest.mark.xfail(reason="There is a bug in medimages4tests")
 def test_fmri_generator():
     img = NiftiGzX[Fmri].sample()
     assert len(img.dims()) == 4
 
 
+@pytest.mark.xfail(reason="There is a bug in medimages4tests")
 def test_dmri_generator():
     img = NiftiGzXBvec[Dmri].sample()
     assert len(img.dims()) == 4
