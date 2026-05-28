@@ -1,6 +1,6 @@
+import os
 import sys
 import typing as ty
-from pathlib import Path
 import logging
 from fileformats.core import extra, FileSet, mtime_cached_property
 from fileformats.core.mixin import WithClassifiers
@@ -42,12 +42,36 @@ class MedicalImagingData(FileSet):
     @extra
     def deidentify(
         self,
-        out_dir: ty.Optional[Path] = None,
-        new_stem: ty.Optional[str] = None,
-        copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
-    ) -> Self:
-        """Returns a new copy of the image with any subject-identifying information
-        stripped from the from the image header"""
+        spec: ty.Any = None,
+        out_dir: os.PathLike[str] | None = None,
+    ) -> tuple[Self, ty.Mapping[str, ty.Any]]:
+        """
+        Deidentifies the image by stripping any subject-identifying information from the
+        image header. The exact implementation of this method will depend on the
+        specific image format and the type of identifying information that is present. The
+        output files should be named with a new file path(s) that is derived from the metadata,
+        such that it doesn't contain any subject-identifying information within it.
+
+        Parameters
+        ----------
+        spec: Any, optional
+            A specification for the deidentification process, which may include details on
+            which fields to remove or how to handle certain types of data. The exact
+            structure of this specification will depend on the specific image format and the
+            requirements of the deidentification process.
+        out_dir: PathLike[str], optional
+            An optional directory where the deidentified image should be saved. If not
+            provided, the deidentified image may be saved in a temporary directory
+
+        Returns
+        -------
+        Self
+            A new instance of the image with any subject-identifying information stripped from
+            the image header.
+        dict[str, Any]
+            A JSON-like nested dictionary containing the original values from the header that
+            were stripped/modified during the deidentification process.
+        """
         raise NotImplementedError
 
 

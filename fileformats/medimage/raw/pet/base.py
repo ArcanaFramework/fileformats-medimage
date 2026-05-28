@@ -1,7 +1,8 @@
+import os
 import sys
 import typing as ty
-from pathlib import Path
-from fileformats.core import FileSet, extra
+
+from fileformats.core import extra
 from fileformats.medimage import MedicalImagingData
 from fileformats.generic import BinaryFile
 
@@ -13,17 +14,6 @@ else:
 
 class PetRawData(BinaryFile, MedicalImagingData):
     """Base class for raw PET data files"""
-
-    @extra
-    def deidentify(
-        self,
-        out_dir: ty.Optional[Path] = None,
-        new_stem: ty.Optional[str] = None,
-        copy_mode: FileSet.CopyMode = FileSet.CopyMode.copy,
-    ) -> Self:
-        """Returns a new copy of the data with any subject-identifying information
-        stripped from the from the data header"""
-        raise NotImplementedError
 
 
 class PetListMode(PetRawData):

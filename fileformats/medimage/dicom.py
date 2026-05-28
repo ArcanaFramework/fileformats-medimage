@@ -1,10 +1,11 @@
 import sys
 import os
 import typing as ty
-from collections import defaultdict, Counter
+from collections import defaultdict
 from pathlib import Path
 from fileformats.core.decorators import mtime_cached_property
 from fileformats.core import extra, FileSet, extra_implementation
+from fileformats.core.utils import collate_metadata_series
 from fileformats.core.collection import TypedCollection
 from fileformats.generic import TypedDirectory, TypedSet
 from fileformats.application import Dicom
@@ -118,36 +119,15 @@ class DicomSeries(TypedSet, DicomCollection):
 def dicom_collection_read_metadata(
     collection: DicomCollection, **kwargs: ty.Any
 ) -> ty.Mapping[str, ty.Any]:
-    # Collated DICOM headers across series
-    collated: ty.Dict[str, ty.Any] = {}
-    key_repeats: ty.Counter[str] = Counter()
-    varying_keys = set()
     # We use the "contents" property implementation in TypeSet instead of the overload
     # in DicomCollection because we don't want the metadata to be read ahead of the
     # the `select_metadata` call below
     base_class: ty.Union[ty.Type[TypedSet], ty.Type[TypedDirectory]] = (
         TypedSet if isinstance(collection, DicomSeries) else TypedDirectory
     )
-    for dicom in base_class.contents.__get__(collection):
-        for key, val in dicom.metadata.items():
-            try:
-                prev_val = collated[key]
-            except KeyError:
-                collated[
-                    key
-                ] = val  # Insert initial value (should only happen on first iter)
-                key_repeats.update([key])
-            else:
-                if key in varying_keys:
-                    collated[key].append(val)
-                # Check whether the value is the same as the values in the previous
-                # images in the series
-                elif val != prev_val:
-                    collated[key] = [prev_val] * key_repeats[key] + [val]
-                    varying_keys.add(key)
-                else:
-                    key_repeats.update([key])
-    return collated
+    return collate_metadata_series(
+        [d.metadata for d in base_class.contents.__get__(collection)]
+    )
 
 
 def get_dicom_tag(
