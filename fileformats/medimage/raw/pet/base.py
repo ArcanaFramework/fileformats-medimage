@@ -15,16 +15,6 @@ else:
 class PetRawData(BinaryFile, MedicalImagingData):
     """Base class for raw PET data files"""
 
-    @extra
-    def deidentify(
-        self,
-        spec: ty.Any = None,
-        out_dir: os.PathLike[str] | None = None,
-    ) -> Self:
-        """Returns a new copy of the data with any subject-identifying information
-        stripped from the from the data header"""
-        raise NotImplementedError
-
 
 class PetListMode(PetRawData):
     "raw projection data"

@@ -95,7 +95,7 @@ def dicom_deidentify(
 ) -> tuple[DicomImage, ty.Mapping[str, ty.Any]]:
     if out_dir is None:
         out_dir = Path(tempfile.mkdtemp())
-    out_dir.mkdir(parents=True, exist_ok=True)
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
     dcm = dicom.load()
     reid_metadata = {
         "PatientName": dcm.PatientName,
@@ -109,7 +109,13 @@ def dicom_deidentify(
         except KeyError:
             pass
         else:
-            reid_metadata[elem.keyword if elem.keyword else field] = elem.value
+            reid_metadata[
+                (
+                    str(elem.keyword)
+                    if isinstance(elem.keyword, str)
+                    else "{0},{1}".format(*field)
+                )
+            ] = elem.value
             elem.value = ""
     return dicom.new(Path(out_dir) / dicom.fspath.name, dcm), reid_metadata
 

@@ -126,7 +126,7 @@ def dicom_collection_read_metadata(
         TypedSet if isinstance(collection, DicomSeries) else TypedDirectory
     )
     return collate_metadata_series(
-        d.metadata for d in base_class.contents.__get__(collection)
+        [d.metadata for d in base_class.contents.__get__(collection)]
     )
 
 
