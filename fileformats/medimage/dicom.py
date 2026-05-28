@@ -133,9 +133,9 @@ def dicom_collection_read_metadata(
             try:
                 prev_val = collated[key]
             except KeyError:
-                collated[
-                    key
-                ] = val  # Insert initial value (should only happen on first iter)
+                collated[key] = (
+                    val  # Insert initial value (should only happen on first iter)
+                )
                 key_repeats.update([key])
             else:
                 if key in varying_keys:
