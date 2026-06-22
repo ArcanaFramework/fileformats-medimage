@@ -79,6 +79,14 @@ def nifti_gz_generate_sample_data(
 
 
 @extra_implementation(FileSet.generate_sample_data)
+def nifti_gz_x_generate_sample_data(
+    nifti: NiftiGzX,  # type: ignore[type-arg]
+    generator: SampleFileGenerator,
+) -> ty.List[Path]:
+    return _get_t1w_nifti_gz_x(generator)
+
+
+@extra_implementation(FileSet.generate_sample_data)
 def t1w_nifti_gz_x_generate_sample_data(
     nifti: NiftiGzX[T1w],  # type: ignore[type-arg]
     generator: SampleFileGenerator,
