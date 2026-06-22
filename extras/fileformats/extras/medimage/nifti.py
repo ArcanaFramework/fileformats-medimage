@@ -191,19 +191,16 @@ def dmri_nifti_x_generate_sample_data(
 def _get_t1w_nifti_gz_x(generator: SampleFileGenerator) -> ty.List[Path]:
     sample = generator.seed if generator.seed else "ds002014-01"
     fspaths = medimages4tests.mri.neuro.t1w.get_image(sample=sample)
-    NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
-    return fspaths  # type: ignore[no-any-return]
+    return NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy, new_stem=generator.fname_stem).fspaths
 
 
 def _get_fmri_nifti_gz_x(generator: SampleFileGenerator) -> ty.List[Path]:
     sample = generator.seed if generator.seed else "ds002014-01"
     fspaths = medimages4tests.mri.neuro.bold.get_image(sample=sample)
-    NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
-    return fspaths  # type: ignore[no-any-return]
+    return NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy, new_stem=generator.fname_stem).fspaths
 
 
 def _get_dmri_nifti_gz_x(generator: SampleFileGenerator) -> ty.List[Path]:
     sample = generator.seed if generator.seed else "ds004024-CON031"
     fspaths = medimages4tests.mri.neuro.dwi.get_image(sample=sample)
-    NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
-    return fspaths  # type: ignore[no-any-return]
+    return NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy, new_stem=generator.fname_stem).fspaths
