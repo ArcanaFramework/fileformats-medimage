@@ -16,7 +16,8 @@ def bval_read_array(bval: Bval) -> EncodingArrayType:
 def bvec_read_array(bvec: Bvec) -> EncodingArrayType:
     bvals = bvec.b_values_file.read_array()
     directions = np.asarray(
-        [[float(x) for x in ln.split()] for ln in bvec.read_contents().splitlines()]
+        [[float(x) for x in ln.split()] for ln in bvec.read_contents().splitlines()],
+        dtype=float,
     ).T
     return np.concatenate((directions, bvals.reshape((-1, 1))), axis=1)
 
@@ -44,7 +45,8 @@ def bvec_generate_sample_data(
         [
             [generator.rng.uniform(0, 1) for _ in range(3)]
             for _ in range(generator.rng.randrange(5, 100))
-        ]
+        ],
+        dtype=float,
     ).T
     # Normalise bvecs
     bvecs = bvecs / np.sqrt(bvecs[0, :] ** 2 + bvecs[1, :] ** 2 + bvecs[2, :] ** 2)
