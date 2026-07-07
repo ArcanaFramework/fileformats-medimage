@@ -65,7 +65,7 @@ version-file = "fileformats/extras/medimage/_version.py"
 packages = ["fileformats"]
 
 [tool.black]
-target-version = ['py38']
+target-version = ['py310']
 exclude = "fileformats/extras/medimage/_version.py"
 
 [tool.codespell]

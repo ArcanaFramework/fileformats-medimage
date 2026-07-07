@@ -27,7 +27,7 @@ import medimages4tests.mri.neuro.bold
 
 @extra_implementation(FileSet.read_metadata)
 def nifti_read_metadata(nifti: Nifti, **kwargs: ty.Any) -> ty.Mapping[str, ty.Any]:
-    metadata = dict(nibabel.load(nifti.fspath).header)  # type: ignore[call-overload, attr-defined]
+    metadata = dict(nibabel.load(nifti.fspath).header)  # type: ignore[call-overload]
     return metadata  # type: ignore[no-any-return]
 
 
@@ -76,6 +76,14 @@ def nifti_gz_generate_sample_data(
             seed=generator.seed,
         )
     ]
+
+
+@extra_implementation(FileSet.generate_sample_data)
+def nifti_gz_x_generate_sample_data(
+    nifti: NiftiGzX,
+    generator: SampleFileGenerator,
+) -> ty.List[Path]:
+    return _get_t1w_nifti_gz_x(generator)
 
 
 @extra_implementation(FileSet.generate_sample_data)
@@ -183,19 +191,16 @@ def dmri_nifti_x_generate_sample_data(
 def _get_t1w_nifti_gz_x(generator: SampleFileGenerator) -> ty.List[Path]:
     sample = generator.seed if generator.seed else "ds002014-01"
     fspaths = medimages4tests.mri.neuro.t1w.get_image(sample=sample)
-    NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
-    return fspaths  # type: ignore[no-any-return]
+    return list(NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy, new_stem=generator.fname_stem).fspaths)
 
 
 def _get_fmri_nifti_gz_x(generator: SampleFileGenerator) -> ty.List[Path]:
     sample = generator.seed if generator.seed else "ds002014-01"
     fspaths = medimages4tests.mri.neuro.bold.get_image(sample=sample)
-    NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
-    return fspaths  # type: ignore[no-any-return]
+    return list(NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy, new_stem=generator.fname_stem).fspaths)
 
 
 def _get_dmri_nifti_gz_x(generator: SampleFileGenerator) -> ty.List[Path]:
     sample = generator.seed if generator.seed else "ds004024-CON031"
     fspaths = medimages4tests.mri.neuro.dwi.get_image(sample=sample)
-    NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy)
-    return fspaths  # type: ignore[no-any-return]
+    return list(NiftiGzX(fspaths).copy(generator.dest_dir, mode=NiftiGzX.CopyMode.link_or_copy, new_stem=generator.fname_stem).fspaths)

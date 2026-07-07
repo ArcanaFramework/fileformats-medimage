@@ -1,4 +1,4 @@
-FileFormats Medimage Extras
+FileFormats-Medimage Extras
 ===========================
 .. image:: https://github.com/ArcanaFramework/fileformats-medimage/actions/workflows/ci-cd.yml/badge.svg
    :target: https://github.com/ArcanaFramework/fileformats-medimage/actions/workflows/ci-cd.yml
