@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "fileformats-medimage-extras"
 description = "Classes for representing different file formats in Python classes for use in type hinting in data workflows"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fileformats >= 0.15.0",

@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "fileformats-medimage"
 description = "Classes for representing various medical imaging file formats in Python classes for use in type hinting in data workflows"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["fileformats >=0.15"]
 license = { file = "LICENSE" }

@@ -2,6 +2,7 @@ import sys
 import os
 import typing as ty
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from fileformats.core.decorators import mtime_cached_property
 from fileformats.core import extra, FileSet, extra_implementation
@@ -76,6 +77,8 @@ class DicomSeries(TypedSet, DicomCollection):
         cls,
         fspaths: ty.Iterable[Path],
         common_ok: bool = False,
+        max_workers: ty.Optional[int] = None,
+        full_metadata: bool = True,
         **kwargs: ty.Any,
     ) -> ty.Tuple[ty.Set[Self], ty.Set[Path]]:
         """Separates a list of DICOM files into separate series from the file-system
@@ -88,6 +91,22 @@ class DicomSeries(TypedSet, DicomCollection):
         common_ok : bool, optional
             included to match the signature of the overridden method, but ignored as each
             dicom should belong to only one series.
+        max_workers : int, optional
+            the number of threads to use to read the identifying metadata from the
+            DICOM files concurrently. If None, defaults to
+            `concurrent.futures.ThreadPoolExecutor`'s default (based on the number of
+            processors on the machine)
+        full_metadata : bool, optional
+            whether to read the full (default) set of metadata tags from each DICOM
+            file while grouping them into series. The already-read `DicomImage`
+            objects (with their `metadata` cached) are then reused as the `contents`
+            of the returned `DicomSeries` objects, so subsequent access of `metadata`
+            or `contents` doesn't trigger a second file read. If False, only the tags
+            in `ID_KEYS` are read, which involves less parsing per file, at the cost
+            of `contents`/`metadata` re-reading each file from scratch the first time
+            they are accessed. Turning this off is best reserved for large series
+            and/or files with heavy headers (e.g. enhanced multi-frame DICOM) where
+            the full metadata won't be needed afterwards.
         specific_tags : ty.Optional[TagListType], optional
             the DICOM tags to read from the files. If None, the default tags will be
             read
@@ -99,14 +118,38 @@ class DicomSeries(TypedSet, DicomCollection):
         tuple[set[DicomSeries], set[Path]]
             the found dicom series objects and any unrecognised file paths
         """
-        dicoms, remaining = DicomImage.from_paths(
+        dicoms_set, remaining = DicomImage.from_paths(
             fspaths, common_ok=common_ok, **kwargs
         )
+        dicoms = list(dicoms_set)
+
+        def id_key(dicom: DicomImage) -> ty.Tuple[ty.Any, ...]:
+            metadata = (
+                dicom.metadata
+                if full_metadata
+                else dicom.read_metadata(metadata_keys=cls.ID_KEYS)
+            )
+            return tuple(metadata[k] for k in cls.ID_KEYS)
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            id_keys = executor.map(id_key, dicoms)
         series_dict = defaultdict(list)
-        for dicom in dicoms:
-            metadata = dicom.read_metadata(metadata_keys=cls.ID_KEYS)
-            series_dict[tuple(metadata[k] for k in cls.ID_KEYS)].append(dicom)
-        return set([cls(d.fspath for d in s) for s in series_dict.values()]), remaining
+        for dicom, key in zip(dicoms, id_keys):
+            series_dict[key].append(dicom)
+        all_series = set()
+        for members in series_dict.values():
+            series = cls(d.fspath for d in members)
+            if full_metadata:
+                # Reuse the already-read DicomImage objects (with `metadata` cached)
+                # as the series' `contents`, instead of letting `contents` rebuild
+                # them from scratch (and re-read every file) on first access. Relies
+                # on the private cache key used by `mtime_cached_property`.
+                series.__dict__["_contents_mtime_cache"] = (
+                    series.mtimes,
+                    sorted(members, key=dicom_sort_key),
+                )
+            all_series.add(series)
+        return all_series, remaining
 
     @mtime_cached_property
     def contents(self) -> ty.List[DicomImage]:
