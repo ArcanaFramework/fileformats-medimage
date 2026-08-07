@@ -2,11 +2,11 @@ from pathlib import Path
 import typing as ty
 import os
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 import pydicom
 import numpy
 import numpy.typing
 from fileformats.core import FileSet, extra_implementation, SampleFileGenerator
-from fileformats.core.utils import collate_metadata_series
 from fileformats.medimage import (
     MedicalImage,
     MedicalImagingData,
@@ -92,15 +92,12 @@ def dicom_deidentify(
     dicom: DicomImage,
     spec: ty.Any = None,
     out_dir: os.PathLike[str] | None = None,
-) -> tuple[DicomImage, ty.Mapping[str, ty.Any]]:
+    **kwargs: ty.Any,
+) -> DicomImage:
     if out_dir is None:
         out_dir = Path(tempfile.mkdtemp())
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     dcm = dicom.load()
-    reid_metadata = {
-        "PatientName": dcm.PatientName,
-        "PatientBirthDate": dcm.PatientBirthDate,
-    }
     dcm.PatientBirthDate = dcm.PatientBirthDate[:4] + "0101"
     dcm.PatientName = "Anonymous^Anonymous"
     for field in FIELDS_TO_DEIDENTIFY:
@@ -109,15 +106,8 @@ def dicom_deidentify(
         except KeyError:
             pass
         else:
-            reid_metadata[
-                (
-                    str(elem.keyword)
-                    if isinstance(elem.keyword, str)
-                    else "{0},{1}".format(*field)
-                )
-            ] = elem.value
             elem.value = ""
-    return dicom.new(Path(out_dir) / dicom.fspath.name, dcm), reid_metadata
+    return dicom.new(Path(out_dir) / dicom.fspath.name, dcm)
 
 
 @extra_implementation(MedicalImagingData.deidentify)
@@ -125,26 +115,27 @@ def dicom_collection_deidentify(
     collection: DicomCollection,
     spec: ty.Any = None,
     out_dir: os.PathLike[str] | None = None,
-) -> tuple[DicomCollection, ty.Mapping[str, ty.Any]]:
+    max_workers: int | None = None,
+    **kwargs: ty.Any,
+) -> DicomCollection:
     if out_dir is None:
         out_dir = Path(tempfile.mkdtemp())
     out_dir = Path(out_dir)
     if isinstance(collection, DicomDir):
         out_dir /= collection.name
     out_dir.mkdir(parents=True, exist_ok=True)
-    deid_fspaths = []
-    reid_mdata_series = []
-    for dicom in collection.contents:
-        deid_image, reid_mdata = dicom.deidentify(out_dir=out_dir, spec=spec)
-        deid_fspaths.append(deid_image.fspath)
-        reid_mdata_series.append(reid_mdata)
-    reid_metadata = collate_metadata_series(reid_mdata_series)
+
+    def _deidentify_one(dicom: DicomImage) -> Path:
+        return dicom.deidentify(out_dir=out_dir, spec=spec).fspath
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        deid_fspaths = list(executor.map(_deidentify_one, collection.contents))
     type_ = type(collection)
     if isinstance(collection, DicomDir):
         deidentified = type_(Path(out_dir))
     else:
         deidentified = type_(deid_fspaths)
-    return deidentified, reid_metadata
+    return deidentified
 
 
 FIELDS_TO_DEIDENTIFY = [

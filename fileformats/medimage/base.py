@@ -44,13 +44,20 @@ class MedicalImagingData(FileSet):
         self,
         spec: ty.Any = None,
         out_dir: os.PathLike[str] | None = None,
-    ) -> tuple[Self, ty.Mapping[str, ty.Any]]:
+        **kwargs: ty.Any,
+    ) -> Self:
         """
         Deidentifies the image by stripping any subject-identifying information from the
         image header. The exact implementation of this method will depend on the
         specific image format and the type of identifying information that is present. The
         output files should be named with a new file path(s) that is derived from the metadata,
         such that it doesn't contain any subject-identifying information within it.
+
+        Implementations only need to strip the identifying data -- they don't need to
+        track/report what was changed. Callers that need that (e.g. for re-identification
+        audit trails) can diff `metadata` before and after calling this method instead,
+        since that works uniformly across formats without extra bookkeeping in each
+        implementation.
 
         Parameters
         ----------
@@ -62,15 +69,15 @@ class MedicalImagingData(FileSet):
         out_dir: PathLike[str], optional
             An optional directory where the deidentified image should be saved. If not
             provided, the deidentified image may be saved in a temporary directory
+        **kwargs: Any
+            Additional format-specific keyword arguments (e.g. concurrency options),
+            which implementations that don't use them should accept and ignore
 
         Returns
         -------
         Self
             A new instance of the image with any subject-identifying information stripped from
             the image header.
-        dict[str, Any]
-            A JSON-like nested dictionary containing the original values from the header that
-            were stripped/modified during the deidentification process.
         """
         raise NotImplementedError
 
