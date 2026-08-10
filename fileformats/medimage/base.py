@@ -1,13 +1,15 @@
+import logging
 import os
 import sys
 import typing as ty
-import logging
-from fileformats.core import extra, FileSet, mtime_cached_property
+
+from fileformats.core import FileSet, extra, mtime_cached_property
 from fileformats.core.mixin import WithClassifiers
+
 from .contents import ContentsClassifier
-from .contents.imaging.modality import ImagingModality
-from .contents.imaging.derivatives import Derivative
 from .contents.anatomical_entity import AnatomicalEntity
+from .contents.imaging.derivatives import Derivative
+from .contents.imaging.modality import ImagingModality
 
 logger = logging.getLogger("fileformats")
 
@@ -42,8 +44,8 @@ class MedicalImagingData(FileSet):
     @extra
     def deidentify(
         self,
+        out_dir: os.PathLike[str],
         spec: ty.Any = None,
-        out_dir: os.PathLike[str] | None = None,
         **kwargs: ty.Any,
     ) -> Self:
         """
@@ -61,14 +63,13 @@ class MedicalImagingData(FileSet):
 
         Parameters
         ----------
+        out_dir: PathLike[str]
+            The directory where the deidentified image should be saved
         spec: Any, optional
             A specification for the deidentification process, which may include details on
             which fields to remove or how to handle certain types of data. The exact
             structure of this specification will depend on the specific image format and the
             requirements of the deidentification process.
-        out_dir: PathLike[str], optional
-            An optional directory where the deidentified image should be saved. If not
-            provided, the deidentified image may be saved in a temporary directory
         **kwargs: Any
             Additional format-specific keyword arguments (e.g. concurrency options),
             which implementations that don't use them should accept and ignore

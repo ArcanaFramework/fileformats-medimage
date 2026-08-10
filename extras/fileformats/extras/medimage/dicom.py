@@ -1,23 +1,24 @@
-from pathlib import Path
-import typing as ty
 import os
-import tempfile
+import typing as ty
 from concurrent.futures import ThreadPoolExecutor
-import pydicom
+from pathlib import Path
+
+import fileformats.extras.application.medical  # noqa: F401
+import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 import numpy
 import numpy.typing
-from fileformats.core import FileSet, extra_implementation, SampleFileGenerator
+import pydicom
+from fileformats.core import FileSet, SampleFileGenerator, extra_implementation
+
 from fileformats.medimage import (
-    MedicalImage,
-    MedicalImagingData,
-    DicomImage,
     DicomCollection,
     DicomDir,
+    DicomImage,
     DicomSeries,
+    MedicalImage,
+    MedicalImagingData,
 )
-import fileformats.extras.application.medical  # noqa: F401
 from fileformats.medimage.base import DataArrayType
-import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 
 
 @extra_implementation(MedicalImage.read_array)
@@ -31,20 +32,18 @@ def dicom_read_array(
 
 
 @extra_implementation(MedicalImage.vox_sizes)
-def dicom_vox_sizes(collection: DicomCollection) -> ty.Tuple[float, float, float]:
+def dicom_vox_sizes(collection: DicomCollection) -> tuple[float, float, float]:
     return tuple(
         collection.metadata["PixelSpacing"] + [collection.metadata["SliceThickness"]]
     )
 
 
 @extra_implementation(MedicalImage.dims)
-def dicom_dims(collection: DicomCollection) -> ty.Tuple[int, int, int]:
-    return tuple(
-        (
-            collection.metadata["Rows"],
-            collection.metadata["DataColumns"],
-            len(list(collection.contents)),
-        ),
+def dicom_dims(collection: DicomCollection) -> tuple[int, int, int]:
+    return (
+        collection.metadata["Rows"],
+        collection.metadata["DataColumns"],
+        len(list(collection.contents)),
     )
 
 
@@ -57,7 +56,7 @@ def dicom_series_number(collection: DicomCollection) -> str:
 def dicom_dir_generate_sample_data(
     dcmdir: DicomDir,
     generator: SampleFileGenerator,
-) -> ty.List[Path]:
+) -> list[Path]:
     dcm_dir = medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c.get_image()
     series_number = generator.rng.randint(1, SERIES_NUMBER_RANGE)
     dest = generator.generate_fspath(DicomDir)
@@ -73,7 +72,7 @@ def dicom_dir_generate_sample_data(
 def dicom_series_generate_sample_data(
     dcm_series: DicomSeries,
     generator: SampleFileGenerator,
-) -> ty.List[Path]:
+) -> list[Path]:
     dicom_dir: Path = dicom_dir_generate_sample_data(dcm_series, generator=generator)[0]  # type: ignore[arg-type]
     stem = generator.generate_fspath().stem
     fspaths = []
@@ -90,12 +89,10 @@ SERIES_NUMBER_RANGE = int(1e8)
 @extra_implementation(MedicalImagingData.deidentify)
 def dicom_deidentify(
     dicom: DicomImage,
+    out_dir: os.PathLike[str],
     spec: ty.Any = None,
-    out_dir: os.PathLike[str] | None = None,
     **kwargs: ty.Any,
 ) -> DicomImage:
-    if out_dir is None:
-        out_dir = Path(tempfile.mkdtemp())
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     dcm = dicom.load()
     dcm.PatientBirthDate = dcm.PatientBirthDate[:4] + "0101"
@@ -113,20 +110,18 @@ def dicom_deidentify(
 @extra_implementation(MedicalImagingData.deidentify)
 def dicom_collection_deidentify(
     collection: DicomCollection,
+    out_dir: os.PathLike[str],
     spec: ty.Any = None,
-    out_dir: os.PathLike[str] | None = None,
     max_workers: int | None = None,
     **kwargs: ty.Any,
 ) -> DicomCollection:
-    if out_dir is None:
-        out_dir = Path(tempfile.mkdtemp())
     out_dir = Path(out_dir)
     if isinstance(collection, DicomDir):
         out_dir /= collection.name
     out_dir.mkdir(parents=True, exist_ok=True)
 
     def _deidentify_one(dicom: DicomImage) -> Path:
-        return dicom.deidentify(out_dir=out_dir, spec=spec).fspath
+        return dicom.deidentify(out_dir, spec=spec).fspath
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         deid_fspaths = list(executor.map(_deidentify_one, collection.contents))

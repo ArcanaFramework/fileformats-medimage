@@ -1,10 +1,10 @@
 import pytest
 from fileformats.core.exceptions import FileFormatsExtrasError
-from fileformats.medimage import DicomImage, DicomDir, DicomSeries, Nifti1
-
 from medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c import (
     get_image as get_dicom_image,
 )
+
+from fileformats.medimage import DicomDir, DicomImage, DicomSeries, Nifti1
 
 
 @pytest.fixture(params=["image", "dir", "series"])
@@ -19,17 +19,17 @@ def dicom(request):
         return DicomSeries(dicom_files)
 
 
-def test_deidentify_dicom(dicom):
+def test_deidentify_dicom(dicom, tmp_path):
     assert str(dicom.metadata["PatientName"]) == "Doe^John"
     assert dicom.metadata["InstitutionAddress"]
     assert not dicom.metadata["PatientBirthDate"].endswith("0101")
-    deidentified = dicom.deidentify()
+    deidentified = dicom.deidentify(tmp_path)
     assert str(deidentified.metadata["PatientName"]) == "Anonymous^Anonymous"
     assert deidentified.metadata["InstitutionAddress"] == ""
     assert deidentified.metadata["PatientBirthDate"] == "19800101"
 
 
-def test_nifti_deidentify():
+def test_nifti_deidentify(tmp_path):
     nifti = Nifti1.sample()
     with pytest.raises(FileFormatsExtrasError):
-        nifti.deidentify()
+        nifti.deidentify(tmp_path)
