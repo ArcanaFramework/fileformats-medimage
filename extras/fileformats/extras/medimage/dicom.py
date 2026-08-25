@@ -122,9 +122,11 @@ def dicom_deidentify(
     dicom: DicomImage,
     out_dir: os.PathLike[str],
     spec: str | Path | None = None,
-    variable_builders: dict[str, VariableBuilder] | None = None,
     **kwargs: ty.Any,
 ) -> DicomImage:
+    variable_builders: dict[str, VariableBuilder] | None = kwargs.pop(
+        "variable_builders", None
+    )
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     outfile = out_dir / dicom.fspath.name
@@ -157,10 +159,12 @@ def dicom_collection_deidentify(
     collection: DicomCollection,
     out_dir: os.PathLike[str],
     spec: str | Path | None = None,
-    variable_builders: dict[str, VariableBuilder] | None = None,
-    max_workers: int | None = None,
     **kwargs: ty.Any,
 ) -> DicomCollection:
+    variable_builders: dict[str, VariableBuilder] | None = kwargs.pop(
+        "variable_builders", None
+    )
+    max_workers: int | None = kwargs.pop("max_workers", None)
     out_dir = Path(out_dir)
     if isinstance(collection, DicomDir):
         out_dir /= collection.name
