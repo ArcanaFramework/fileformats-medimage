@@ -1,12 +1,85 @@
+"""Generic deidentification tests.
+
+Tests verify the deidentification *mechanism* works correctly for any deid recipe
+by parsing the recipe programmatically. Adding or changing recipe rules does not
+require updating tests.
+"""
+
 import pytest
 import pydicom
 from pathlib import Path
+from deid.config import DeidRecipe
 from fileformats.core.exceptions import FileFormatsExtrasError
 from medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c import (
     get_image as get_dicom_image,
 )
 
 from fileformats.medimage import DicomDir, DicomImage, DicomSeries, Nifti1
+
+
+# ---------------------------------------------------------------------------
+# Recipe parsing helpers
+# ---------------------------------------------------------------------------
+
+DEFAULT_RECIPE = Path(__file__).parent.parent / "recipe.dicom"
+
+_PATTERN_PREFIXES = ("endswith:", "startswith:", "contains:")
+
+
+def _is_pattern(field: str) -> bool:
+    return any(field.startswith(p) for p in _PATTERN_PREFIXES)
+
+
+def _parse_actions(recipe_path: Path) -> dict[str, list[dict]]:
+    """Parse a deid recipe and group entries by action type."""
+    recipe = DeidRecipe(str(recipe_path))
+    grouped: dict[str, list[dict]] = {}
+    for entry in recipe.deid.get("header", []):
+        grouped.setdefault(entry["action"], []).append(entry)
+    return grouped
+
+
+def _explicit_fields(actions: dict, action_type: str) -> list[str]:
+    """Non-pattern field names for an action type."""
+    return [e["field"] for e in actions.get(action_type, []) if not _is_pattern(e["field"])]
+
+
+def _expand_patterns(actions: dict, action_type: str, all_keys: set[str]) -> set[str]:
+    """Expand pattern-based entries against a set of DICOM keywords."""
+    matched = set()
+    for entry in actions.get(action_type, []):
+        field = entry["field"]
+        if not _is_pattern(field):
+            continue
+        prefix, suffix = field.split(":", 1)
+        for key in all_keys:
+            if prefix == "endswith" and key.endswith(suffix):
+                matched.add(key)
+            elif prefix == "startswith" and key.startswith(suffix):
+                matched.add(key)
+            elif prefix == "contains" and suffix in key:
+                matched.add(key)
+    return matched
+
+
+def _all_explicit_fields(actions: dict) -> set[str]:
+    """All non-pattern field names across all action types."""
+    fields = set()
+    for entries in actions.values():
+        for e in entries:
+            if not _is_pattern(e["field"]):
+                fields.add(e["field"])
+    return fields
+
+
+# ---------------------------------------------------------------------------
+# Fixtures
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def recipe_actions():
+    return _parse_actions(DEFAULT_RECIPE)
 
 
 @pytest.fixture(params=["image", "dir", "series"])
@@ -29,70 +102,184 @@ def single_dicom():
 
 
 # ---------------------------------------------------------------------------
-# Tests against bundled recipe.dicom (integration)
+# REMOVE — fields should be absent after deidentification
 # ---------------------------------------------------------------------------
 
 
-def test_deidentify_patient_name(dicom, tmp_path):
-    """PatientName should be replaced with original PatientID."""
-    orig_patient_id = dicom.metadata["PatientID"]
+def test_remove_explicit_fields_are_absent(dicom, tmp_path, recipe_actions):
+    """Explicit REMOVE fields that exist in the original should be absent."""
+    remove_fields = [
+        f for f in _explicit_fields(recipe_actions, "REMOVE")
+        if f in dicom.metadata
+    ]
+    assert remove_fields, "No testable REMOVE fields found in test DICOM"
+
     deidentified = dicom.deidentify(tmp_path)
-    assert str(deidentified.metadata["PatientName"]) == orig_patient_id
+    for field in remove_fields:
+        assert field not in deidentified.metadata, f"{field} should have been removed"
 
 
-def test_deidentify_patient_id(dicom, tmp_path):
-    """PatientID should become PatientID-AcquisitionTime."""
-    orig_id = dicom.metadata["PatientID"]
-    orig_time = dicom.metadata["AcquisitionTime"]
+def test_remove_pattern_fields_are_absent(dicom, tmp_path, recipe_actions):
+    """Fields matching REMOVE patterns should be absent (unless explicitly overridden)."""
+    orig_keys = set(dicom.metadata.keys())
+    pattern_matched = _expand_patterns(recipe_actions, "REMOVE", orig_keys)
+
+    # Exclude fields that have an explicit (non-pattern) entry in any action,
+    # since deid gives explicit rules priority over patterns
+    explicitly_handled = _all_explicit_fields(recipe_actions)
+    testable = pattern_matched - explicitly_handled
+
+    if not testable:
+        pytest.skip(
+            "All pattern-REMOVE matches are also explicitly handled — "
+            "nothing to test independently"
+        )
+
     deidentified = dicom.deidentify(tmp_path)
-    assert deidentified.metadata["PatientID"] == f"{orig_id}-{orig_time}"
+    for field in sorted(testable):
+        assert field not in deidentified.metadata, (
+            f"{field} (matched by REMOVE pattern) should have been removed"
+        )
 
 
-def test_deidentify_birth_date(dicom, tmp_path):
-    """PatientBirthDate should keep year, set to Jan 1."""
-    orig_year = dicom.metadata["PatientBirthDate"][:4]
+# ---------------------------------------------------------------------------
+# KEEP — fields should be unchanged
+# ---------------------------------------------------------------------------
+
+
+def test_keep_fields_are_unchanged(dicom, tmp_path, recipe_actions):
+    """Fields marked KEEP should retain their original value."""
+    keep_fields = [
+        f for f in _explicit_fields(recipe_actions, "KEEP")
+        if f in dicom.metadata
+    ]
+    assert keep_fields, "No testable KEEP fields found"
+
+    orig_values = {f: dicom.metadata[f] for f in keep_fields}
     deidentified = dicom.deidentify(tmp_path)
-    assert deidentified.metadata["PatientBirthDate"] == f"{orig_year}0101"
+    for field in keep_fields:
+        assert field in deidentified.metadata, f"{field} should still be present"
+        deid_val = deidentified.metadata[field]
+        orig_val = orig_values[field]
+        # For collections (DicomDir/DicomSeries), per-file fields like
+        # SOPInstanceUID return a list; compare element-wise via sets
+        if isinstance(orig_val, list):
+            assert set(deid_val) == set(orig_val), f"{field} should be unchanged"
+        else:
+            assert deid_val == orig_val, f"{field} should be unchanged"
 
 
-def test_deidentify_patient_comments(dicom, tmp_path):
-    """PatientComments should contain Project/Subject/Session mapping."""
-    orig_id = dicom.metadata["PatientID"]
-    orig_time = dicom.metadata["AcquisitionTime"]
-    orig_ref_phys = str(dicom.metadata["ReferringPhysicianName"])
+# ---------------------------------------------------------------------------
+# REPLACE — fields should have different values
+# ---------------------------------------------------------------------------
+
+
+def test_replace_fields_are_changed(dicom, tmp_path, recipe_actions):
+    """Fields marked REPLACE should have a different value after deidentification."""
+    replace_fields = [
+        f for f in _explicit_fields(recipe_actions, "REPLACE")
+        if f in dicom.metadata
+    ]
+    assert replace_fields, "No testable REPLACE fields found"
+
+    orig_values = {f: str(dicom.metadata[f]) for f in replace_fields}
     deidentified = dicom.deidentify(tmp_path)
-    comments = deidentified.metadata["PatientComments"]
-    assert f"Project={orig_ref_phys}" in comments
-    assert f"Subject={orig_id}" in comments
-    assert f"Session={orig_id}-{orig_time}" in comments
+    for field in replace_fields:
+        assert field in deidentified.metadata, f"{field} should still be present"
+        assert str(deidentified.metadata[field]) != orig_values[field], (
+            f"{field} value should have been replaced"
+        )
 
 
-def test_deidentify_removes_institution(dicom, tmp_path):
-    """Institution fields should be removed."""
-    assert dicom.metadata["InstitutionAddress"]
+# ---------------------------------------------------------------------------
+# ADD — fields should be present with specified value
+# ---------------------------------------------------------------------------
+
+
+def test_add_fields_are_present(dicom, tmp_path, recipe_actions):
+    """Fields marked ADD should be present with the specified literal value."""
+    add_entries = [
+        e for e in recipe_actions.get("ADD", [])
+        if not _is_pattern(e["field"])
+    ]
+    assert add_entries, "No ADD entries in recipe"
+
     deidentified = dicom.deidentify(tmp_path)
-    assert "InstitutionAddress" not in deidentified.metadata
+    for entry in add_entries:
+        field = entry["field"]
+        expected = entry.get("value", "")
+        assert field in deidentified.metadata, f"{field} should be present (ADD)"
+        if not expected.startswith("var:"):
+            assert str(deidentified.metadata[field]) == expected, (
+                f"{field} should be '{expected}'"
+            )
 
 
-def test_deidentify_removes_station(dicom, tmp_path):
-    """StationName should be removed."""
+# ---------------------------------------------------------------------------
+# BLANK — fields should be empty
+# ---------------------------------------------------------------------------
+
+
+def test_blank_fields_are_empty(dicom, tmp_path, recipe_actions):
+    """Fields marked BLANK should be empty after deidentification."""
+    blank_fields = [
+        f for f in _explicit_fields(recipe_actions, "BLANK")
+        if f in dicom.metadata
+    ]
+    assert blank_fields, "No testable BLANK fields found"
+
     deidentified = dicom.deidentify(tmp_path)
-    assert "StationName" not in deidentified.metadata
+    for field in blank_fields:
+        value = deidentified.metadata.get(field)
+        assert value is None or str(value) == "", (
+            f"{field} should be blank, got {value!r}"
+        )
 
 
-def test_deidentify_preserves_uids(dicom, tmp_path):
-    """Study/Series/SOP UIDs should be preserved."""
-    orig_study = dicom.metadata["StudyInstanceUID"]
-    orig_series = dicom.metadata["SeriesInstanceUID"]
+# ---------------------------------------------------------------------------
+# JITTER — date fields should shift by the configured number of days
+# ---------------------------------------------------------------------------
+
+
+def test_jitter_fields_unchanged_with_zero_jitter(dicom, tmp_path, recipe_actions):
+    """JITTER fields should be unchanged when date_jitter is 0 (the default)."""
+    # Only test explicit JITTER fields that aren't overridden by REPLACE/BLANK
+    overridden = set(
+        _explicit_fields(recipe_actions, "REPLACE")
+        + _explicit_fields(recipe_actions, "BLANK")
+    )
+    jitter_fields = [
+        f for f in _explicit_fields(recipe_actions, "JITTER")
+        if f in dicom.metadata and f not in overridden
+    ]
+    assert jitter_fields, "No testable JITTER fields found"
+
+    orig_values = {f: dicom.metadata[f] for f in jitter_fields}
     deidentified = dicom.deidentify(tmp_path)
-    assert deidentified.metadata["StudyInstanceUID"] == orig_study
-    assert deidentified.metadata["SeriesInstanceUID"] == orig_series
+    for field in jitter_fields:
+        assert field in deidentified.metadata, f"{field} should still be present"
+        assert deidentified.metadata[field] == orig_values[field], (
+            f"{field} should be unchanged with zero jitter"
+        )
 
 
-def test_deidentify_marks_as_deidentified(dicom, tmp_path):
-    """PatientIdentityRemoved should be set to YES."""
-    deidentified = dicom.deidentify(tmp_path)
-    assert deidentified.metadata["PatientIdentityRemoved"] == "YES"
+# ---------------------------------------------------------------------------
+# Private tags — should be removed (strip_sequences / remove_private)
+# ---------------------------------------------------------------------------
+
+
+def test_private_tags_are_removed(single_dicom, tmp_path):
+    """Private (odd-group) tags should be removed."""
+    orig_ds = pydicom.dcmread(str(single_dicom.fspath))
+    orig_private_tags = [elem.tag for elem in orig_ds if elem.tag.is_private]
+    assert orig_private_tags, "Test DICOM has no private tags"
+
+    deidentified = single_dicom.deidentify(tmp_path)
+    deid_ds = pydicom.dcmread(str(deidentified.fspath))
+    deid_private_tags = [elem.tag for elem in deid_ds if elem.tag.is_private]
+    assert not deid_private_tags, (
+        f"Private tags should have been removed, found: {deid_private_tags}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -100,8 +287,8 @@ def test_deidentify_marks_as_deidentified(dicom, tmp_path):
 # ---------------------------------------------------------------------------
 
 
-def test_custom_variable_builders(single_dicom, tmp_path):
-    """Caller-supplied variable_builders should override defaults."""
+def test_custom_variable_builders_override_defaults(single_dicom, tmp_path):
+    """Caller-supplied variable_builders should override default builders."""
     custom_builders = {
         "anon_patient_name": lambda _ds: "CUSTOM_NAME",
     }
@@ -112,7 +299,7 @@ def test_custom_variable_builders(single_dicom, tmp_path):
 
 
 def test_custom_variable_builders_preserve_other_defaults(single_dicom, tmp_path):
-    """Overriding one builder should not affect other defaults."""
+    """Overriding one builder should not affect other default builders."""
     custom_builders = {
         "anon_patient_name": lambda _ds: "CUSTOM_NAME",
     }
@@ -120,7 +307,6 @@ def test_custom_variable_builders_preserve_other_defaults(single_dicom, tmp_path
     deidentified = single_dicom.deidentify(
         tmp_path, variable_builders=custom_builders
     )
-    # Birth date should still use the default builder
     assert deidentified.metadata["PatientBirthDate"] == f"{orig_year}0101"
 
 
@@ -160,11 +346,12 @@ def test_deidentify_output_is_valid_dicom(single_dicom, tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Nifti (no deid support)
+# Unsupported format
 # ---------------------------------------------------------------------------
 
 
-def test_nifti_deidentify(tmp_path):
+def test_nifti_deidentify_raises(tmp_path):
+    """Calling deidentify on an unsupported format should raise."""
     nifti = Nifti1.sample()
     with pytest.raises(FileFormatsExtrasError):
         nifti.deidentify(tmp_path)
