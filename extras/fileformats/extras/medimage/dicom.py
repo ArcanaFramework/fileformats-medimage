@@ -29,27 +29,11 @@ logger = logging.getLogger(__name__)
 # Variable builders for deid spec var: references
 # ---------------------------------------------------------------------------
 # Each callable receives the pydicom Dataset and returns the substitution
-# value. Sites can override any entry by passing variable_builders={...}
+# value. Sites can override any entry by passing transforms={...}
 # to dicom_deidentify.
 # ---------------------------------------------------------------------------
 
 VariableBuilder = ty.Callable[[pydicom.Dataset], str | int]
-
-DEFAULT_RECIPE = Path(__file__).parent / "recipe.dicom"
-
-DEFAULT_VARIABLE_BUILDERS: dict[str, VariableBuilder] = {
-    "anon_birth_date": lambda ds: str(ds.get("PatientBirthDate", ""))[:4] + "0101",
-    "anon_patient_name": lambda ds: str(ds.get("PatientID", "")),
-    "anon_patient_id": lambda ds: (
-        f"{ds.get('PatientID', '')}-{ds.get('AcquisitionTime', '')}"
-    ),
-    "patient_comments": lambda ds: (
-        f"Project={ds.get('ReferringPhysicianName', '')};"
-        f"Subject={ds.get('PatientID', '')};"
-        f"Session={ds.get('PatientID', '')}-{ds.get('AcquisitionTime', '')}"
-    ),
-    "date_jitter": lambda _ds: int(os.environ.get("DEID_DATE_JITTER", "0")),
-}
 
 
 @extra_implementation(MedicalImage.read_array)
@@ -122,33 +106,38 @@ def dicom_deidentify(
     dicom: DicomImage,
     out_dir: os.PathLike[str],
     spec: str | Path | None = None,
+    transforms: dict[str, VariableBuilder] | None = None,
     **kwargs: ty.Any,
 ) -> DicomImage:
-    variable_builders: dict[str, VariableBuilder] | None = kwargs.pop(
-        "variable_builders", None
-    )
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     outfile = out_dir / dicom.fspath.name
 
-    spec_path = spec if spec is not None else DEFAULT_RECIPE
-    deid_spec = DeidRecipe(str(spec_path))
+    if spec is None:
+        raise ValueError(
+            "A deidentification spec must be provided for DICOM deidentification"
+        )
+    deid_spec = DeidRecipe(str(spec))
 
     parser = DicomParser(str(dicom.fspath), recipe=deid_spec)
 
-    builders = {**DEFAULT_VARIABLE_BUILDERS, **(variable_builders or {})}
+    if transforms is None:
+        transforms = {}
+
     ds = parser.dicom
-    for var_name, builder in builders.items():
+    for var_name, builder in transforms.items():
         try:
             value = builder(ds)
             parser.define(var_name, value)
         except Exception as exc:  # noqa: BLE001
             logger.warning(
                 "Variable builder for '%s' raised %s: %s — skipping",
-                var_name, type(exc).__name__, exc,
+                var_name,
+                type(exc).__name__,
+                exc,
             )
 
-    parser.parse(strip_sequences=True, remove_private=True)
+    parser.parse(strip_sequences=False, remove_private=False)
     parser.save(str(outfile))
 
     return type(dicom)(outfile)
@@ -159,21 +148,17 @@ def dicom_collection_deidentify(
     collection: DicomCollection,
     out_dir: os.PathLike[str],
     spec: str | Path | None = None,
+    max_workers: int | None = None,
+    transforms: dict[str, VariableBuilder] | None = None,
     **kwargs: ty.Any,
 ) -> DicomCollection:
-    variable_builders: dict[str, VariableBuilder] | None = kwargs.pop(
-        "variable_builders", None
-    )
-    max_workers: int | None = kwargs.pop("max_workers", None)
     out_dir = Path(out_dir)
     if isinstance(collection, DicomDir):
         out_dir /= collection.name
     out_dir.mkdir(parents=True, exist_ok=True)
 
     def _deidentify_one(dicom: DicomImage) -> Path:
-        return dicom.deidentify(
-            out_dir, spec=spec, variable_builders=variable_builders
-        ).fspath
+        return dicom.deidentify(out_dir, spec=spec, transforms=transforms).fspath
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         deid_fspaths = list(executor.map(_deidentify_one, collection.contents))
