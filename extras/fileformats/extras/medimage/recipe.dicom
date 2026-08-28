@@ -50,7 +50,7 @@ JITTER AcquisitionDate var:date_jitter
 JITTER ContentDate var:date_jitter
 JITTER InstanceCreationDate var:date_jitter
 # PatientBirthDate is handled by REPLACE above (year + 0101)
-JITTER endswith:Date var:date_jitterExpand commentComment on lines R40 to R41Resolved
+JITTER endswith:Date var:date_jitter
 
 # ── Times — zero out (preserve relative ordering within a study) ──────────────
 BLANK StudyTime
