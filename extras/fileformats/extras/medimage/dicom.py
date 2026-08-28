@@ -119,10 +119,33 @@ def dicom_deidentify(
         )
     deid_spec = DeidRecipe(str(spec))
 
-    parser = DicomParser(str(dicom.fspath), recipe=deid_spec)
-
+    # Parse recipe to find all var: references and check transforms are provided
     if transforms is None:
         transforms = {}
+
+    recipe_vars = set()
+    spec_path = Path(spec)
+    if spec_path.is_file():
+        with open(spec_path) as f:
+            for line in f:
+                stripped = line.strip()
+                if stripped.startswith("#") or not stripped:
+                    continue
+                # Strip inline comments
+                if " #" in stripped:
+                    stripped = stripped[: stripped.index(" #")]
+                for token in stripped.split():
+                    if token.startswith("var:"):
+                        recipe_vars.add(token[4:])
+
+    missing = recipe_vars - set(transforms)
+    if missing:
+        raise ValueError(
+            f"Recipe references var: variables {missing} but no matching "
+            f"transforms were provided. Supply these via the 'transforms' argument."
+        )
+
+    parser = DicomParser(str(dicom.fspath), recipe=deid_spec)
 
     ds = parser.dicom
     for var_name, builder in transforms.items():

@@ -320,6 +320,7 @@ def test_jitter_fields_unchanged_with_zero_jitter(dicom, tmp_path, recipe_action
 def test_custom_transforms_override_defaults(single_dicom, tmp_path):
     """Caller-supplied transforms should override default builders."""
     custom_builders = {
+        **DEFAULT_VARIABLE_BUILDERS,
         "anon_patient_name": lambda _ds: "CUSTOM_NAME",
     }
     deidentified = single_dicom.deidentify(
@@ -339,6 +340,24 @@ def test_custom_transforms_preserve_other_defaults(single_dicom, tmp_path):
         tmp_path, spec=DEFAULT_RECIPE, transforms=custom_builders
     )
     assert deidentified.metadata["PatientBirthDate"] == f"{orig_year}0101"
+
+
+# ---------------------------------------------------------------------------
+# Missing transforms — recipe references var: but transforms not provided
+# ---------------------------------------------------------------------------
+
+
+def test_missing_transforms_raises(single_dicom, tmp_path):
+    """Should raise ValueError when recipe has var: references but transforms are missing."""
+    with pytest.raises(ValueError, match="var: variables"):
+        single_dicom.deidentify(tmp_path, spec=DEFAULT_RECIPE)
+
+
+def test_partial_transforms_raises(single_dicom, tmp_path):
+    """Should raise ValueError when only some of the required transforms are provided."""
+    partial = {"anon_patient_id": lambda _ds: "test"}
+    with pytest.raises(ValueError, match="var: variables"):
+        single_dicom.deidentify(tmp_path, spec=DEFAULT_RECIPE, transforms=partial)
 
 
 # ---------------------------------------------------------------------------
