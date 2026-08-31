@@ -21,7 +21,7 @@ from fileformats.medimage import DicomDir, DicomImage, DicomSeries, Nifti1
 # Recipe and variable builders (mirrors what the consumer must supply)
 # ---------------------------------------------------------------------------
 
-DEFAULT_RECIPE = Path(__file__).parent.parent / "recipe.dicom"
+DEFAULT_RECIPE = Path(__file__).parent / "recipe.dicom"
 
 DEFAULT_VARIABLE_BUILDERS = {
     "anon_birth_date": lambda ds: str(ds.get("PatientBirthDate", ""))[:4] + "0101",

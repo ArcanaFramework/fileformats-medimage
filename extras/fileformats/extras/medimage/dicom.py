@@ -7,7 +7,6 @@ from pathlib import Path
 import fileformats.extras.application.medical  # noqa: F401
 import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 import numpy
-import numpy.typing
 import pydicom
 from deid.config import DeidRecipe
 from deid.dicom.parser import DicomParser
@@ -106,12 +105,12 @@ def dicom_deidentify(
     dicom: DicomImage,
     out_dir: os.PathLike[str],
     spec: str | Path | None = None,
-    transforms: dict[str, VariableBuilder] | None = None,
     **kwargs: ty.Any,
 ) -> DicomImage:
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     outfile = out_dir / dicom.fspath.name
+    transforms: dict[str, VariableBuilder] | None = kwargs.get("transforms", None)
 
     if spec is None:
         raise ValueError(
@@ -172,13 +171,13 @@ def dicom_collection_deidentify(
     out_dir: os.PathLike[str],
     spec: str | Path | None = None,
     max_workers: int | None = None,
-    transforms: dict[str, VariableBuilder] | None = None,
     **kwargs: ty.Any,
 ) -> DicomCollection:
     out_dir = Path(out_dir)
     if isinstance(collection, DicomDir):
         out_dir /= collection.name
     out_dir.mkdir(parents=True, exist_ok=True)
+    transforms: dict[str, VariableBuilder] | None = kwargs.get("transforms", None)
 
     def _deidentify_one(dicom: DicomImage) -> Path:
         return dicom.deidentify(out_dir, spec=spec, transforms=transforms).fspath
