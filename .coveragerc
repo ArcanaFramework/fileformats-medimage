@@ -1,3 +1,9 @@
 [run]
-omit = */tests/*, fileformats/medimage/_version.py
+source =
+    fileformats/medimage
+    extras/fileformats/extras/medimage
+omit =
+    */tests/*
+    fileformats/medimage/_version.py
+    extras/fileformats/extras/medimage/_version.py
 branch = true

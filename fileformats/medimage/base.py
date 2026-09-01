@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 import sys
 import typing as ty
 
@@ -45,7 +46,7 @@ class MedicalImagingData(FileSet):
     def deidentify(
         self,
         out_dir: os.PathLike[str],
-        spec: ty.Any = None,
+        spec: str | Path | None = None,
         **kwargs: ty.Any,
     ) -> Self:
         """

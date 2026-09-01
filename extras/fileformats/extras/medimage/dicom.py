@@ -1,3 +1,4 @@
+import logging
 import os
 import typing as ty
 from concurrent.futures import ThreadPoolExecutor
@@ -6,8 +7,9 @@ from pathlib import Path
 import fileformats.extras.application.medical  # noqa: F401
 import medimages4tests.dummy.dicom.mri.t1w.siemens.skyra.syngo_d13c
 import numpy
-import numpy.typing
 import pydicom
+from deid.config import DeidRecipe
+from deid.dicom.parser import DicomParser
 from fileformats.core import FileSet, SampleFileGenerator, extra_implementation
 
 from fileformats.medimage import (
@@ -19,6 +21,18 @@ from fileformats.medimage import (
     MedicalImagingData,
 )
 from fileformats.medimage.base import DataArrayType
+
+logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Variable builders for deid spec var: references
+# ---------------------------------------------------------------------------
+# Each callable receives the pydicom Dataset and returns the substitution
+# value. Sites can override any entry by passing transforms={...}
+# to dicom_deidentify.
+# ---------------------------------------------------------------------------
+
+VariableBuilder = ty.Callable[[pydicom.Dataset], str | int]
 
 
 @extra_implementation(MedicalImage.read_array)
@@ -90,28 +104,72 @@ SERIES_NUMBER_RANGE = int(1e8)
 def dicom_deidentify(
     dicom: DicomImage,
     out_dir: os.PathLike[str],
-    spec: ty.Any = None,
+    spec: str | Path | None = None,
     **kwargs: ty.Any,
 ) -> DicomImage:
-    Path(out_dir).mkdir(parents=True, exist_ok=True)
-    dcm = dicom.load()
-    dcm.PatientBirthDate = dcm.PatientBirthDate[:4] + "0101"
-    dcm.PatientName = "Anonymous^Anonymous"
-    for field in FIELDS_TO_DEIDENTIFY:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    outfile = out_dir / dicom.fspath.name
+    transforms: dict[str, VariableBuilder] | None = kwargs.get("transforms", None)
+
+    if spec is None:
+        raise ValueError(
+            "A deidentification spec must be provided for DICOM deidentification"
+        )
+    deid_spec = DeidRecipe(str(spec))
+
+    # Parse recipe to find all var: references and check transforms are provided
+    if transforms is None:
+        transforms = {}
+
+    recipe_vars = set()
+    spec_path = Path(spec)
+    if spec_path.is_file():
+        with open(spec_path) as f:
+            for line in f:
+                stripped = line.strip()
+                if stripped.startswith("#") or not stripped:
+                    continue
+                # Strip inline comments
+                if " #" in stripped:
+                    stripped = stripped[: stripped.index(" #")]
+                for token in stripped.split():
+                    if token.startswith("var:"):
+                        recipe_vars.add(token[4:])
+
+    missing = recipe_vars - set(transforms)
+    if missing:
+        raise ValueError(
+            f"Recipe references var: variables {missing} but no matching "
+            f"transforms were provided. Supply these via the 'transforms' argument."
+        )
+
+    parser = DicomParser(str(dicom.fspath), recipe=deid_spec)
+
+    ds = parser.dicom
+    for var_name, builder in transforms.items():
         try:
-            elem = dcm[field]
-        except KeyError:
-            pass
-        else:
-            elem.value = ""
-    return dicom.new(Path(out_dir) / dicom.fspath.name, dcm)
+            value = builder(ds)
+            parser.define(var_name, value)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "Variable builder for '%s' raised %s: %s — skipping",
+                var_name,
+                type(exc).__name__,
+                exc,
+            )
+
+    parser.parse(strip_sequences=False, remove_private=False)
+    parser.save(str(outfile))
+
+    return type(dicom)(outfile)
 
 
 @extra_implementation(MedicalImagingData.deidentify)
 def dicom_collection_deidentify(
     collection: DicomCollection,
     out_dir: os.PathLike[str],
-    spec: ty.Any = None,
+    spec: str | Path | None = None,
     max_workers: int | None = None,
     **kwargs: ty.Any,
 ) -> DicomCollection:
@@ -119,9 +177,10 @@ def dicom_collection_deidentify(
     if isinstance(collection, DicomDir):
         out_dir /= collection.name
     out_dir.mkdir(parents=True, exist_ok=True)
+    transforms: dict[str, VariableBuilder] | None = kwargs.get("transforms", None)
 
     def _deidentify_one(dicom: DicomImage) -> Path:
-        return dicom.deidentify(out_dir, spec=spec).fspath
+        return dicom.deidentify(out_dir, spec=spec, transforms=transforms).fspath
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         deid_fspaths = list(executor.map(_deidentify_one, collection.contents))
@@ -131,76 +190,3 @@ def dicom_collection_deidentify(
     else:
         deidentified = type_(deid_fspaths)
     return deidentified
-
-
-FIELDS_TO_DEIDENTIFY = [
-    ("0008", "0014"),  # Instance Creator UID
-    ("0008", "1111"),  # Referenced Performed Procedure Step SQ
-    ("0008", "1120"),  # Referenced Patient SQ
-    ("0008", "1140"),  # Referenced Image SQ
-    ("0008", "0096"),  # Referring Physician Identification SQ
-    ("0008", "1032"),  # Procedure Code SQ
-    ("0008", "1048"),  # Physician(s) of Record
-    ("0008", "1049"),  # Physician(s) of Record Identification SQ
-    ("0008", "1050"),  # Performing Physicians' Name
-    ("0008", "1052"),  # Performing Physician Identification SQ
-    ("0008", "1060"),  # Name of Physician(s) Reading Study
-    ("0008", "1062"),  # Physician(s) Reading Study Identification SQ
-    ("0008", "1110"),  # Referenced Study SQ
-    ("0008", "1111"),  # Referenced Performed Procedure Step SQ
-    ("0008", "1250"),  # Related Series SQ
-    ("0008", "9092"),  # Referenced Image Evidence SQ
-    ("0008", "0080"),  # Institution Name
-    ("0008", "0081"),  # Institution Address
-    ("0008", "0082"),  # Institution Code Sequence
-    ("0008", "0092"),  # Referring Physician's Address
-    ("0008", "0094"),  # Referring Physician's Telephone Numbers
-    ("0008", "009C"),  # Consulting Physician's Name
-    ("0008", "1070"),  # Operators' Name
-    ("0010", "4000"),  # Patient Comments
-    # ("0010", "0010"),  # Patient's Name
-    ("0010", "0021"),  # Issuer of Patient ID
-    ("0010", "0032"),  # Patient's Birth Time
-    ("0010", "0050"),  # Patient's Insurance Plan Code SQ
-    ("0010", "0101"),  # Patient's Primary Language Code SQ
-    ("0010", "1000"),  # Other Patient IDs
-    ("0010", "1001"),  # Other Patient Names
-    ("0010", "1002"),  # Other Patient IDs SQ
-    ("0010", "1005"),  # Patient's Birth Name
-    ("0010", "1010"),  # Patient's Age
-    ("0010", "1040"),  # Patient's Address
-    ("0010", "1060"),  # Patient's Mother's Birth Name
-    ("0010", "1080"),  # Military Rank
-    ("0010", "1081"),  # Branch of Service
-    ("0010", "1090"),  # Medical Record Locator
-    ("0010", "2000"),  # Medical Alerts
-    ("0010", "2110"),  # Allergies
-    ("0010", "2150"),  # Country of Residence
-    ("0010", "2152"),  # Region of Residence
-    ("0010", "2154"),  # Patient's Telephone Numbers
-    ("0010", "2160"),  # Ethnic Group
-    ("0010", "2180"),  # Occupation
-    ("0010", "21A0"),  # Smoking Status
-    ("0010", "21B0"),  # Additional Patient History
-    ("0010", "21C0"),  # Pregnancy Status
-    ("0010", "21D0"),  # Last Menstrual Date
-    ("0010", "21F0"),  # Patient's Religious Preference
-    ("0010", "2203"),  # Patient's Sex Neutered
-    ("0010", "2297"),  # Responsible Person
-    ("0010", "2298"),  # Responsible Person Role
-    ("0010", "2299"),  # Responsible Organization
-    ("0020", "9221"),  # Dimension Organization SQ
-    ("0020", "9222"),  # Dimension Index SQ
-    ("0038", "0010"),  # Admission ID
-    ("0038", "0011"),  # Issuer of Admission ID
-    ("0038", "0060"),  # Service Episode ID
-    ("0038", "0061"),  # Issuer of Service Episode ID
-    ("0038", "0062"),  # Service Episode Description
-    ("0038", "0500"),  # Patient State
-    ("0038", "0100"),  # Pertinent Documents SQ
-    ("0040", "0260"),  # Performed Protocol Code SQ
-    ("0088", "0130"),  # Storage Media File-Set ID
-    ("0088", "0140"),  # Storage Media File-Set UID
-    ("0400", "0561"),  # Original Attributes Sequence
-    ("5200", "9229"),  # Shared Functional Groups SQ
-]
