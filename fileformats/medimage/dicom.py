@@ -42,7 +42,7 @@ class DicomImage(MedicalImage, Dicom):
 
 def dicom_sort_key(dicom: Dicom) -> str:
     """Sorts DICOM objects by SOPInstanceUID"""
-    assert isinstance(dicom.metadata, dict)
+    assert isinstance(dicom.metadata, ty.Mapping)
     return dicom.metadata["SOPInstanceUID"]  # type: ignore[no-any-return]
 
 
