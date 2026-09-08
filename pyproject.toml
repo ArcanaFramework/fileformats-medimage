@@ -71,7 +71,6 @@ exclude = "fileformats/medimage/_version.py"
 ignore-words = ".codespell-ignorewords"
 
 [tool.mypy]
-python_version = "3.12"
 ignore_missing_imports = true
 strict = true
 namespace_packages = true
